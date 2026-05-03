@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Feedback | NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #fff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .04);
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            width: 100%;
+            min-height: calc(100vh - 48px);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .8rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: color .15s;
+        }
+
+        .back-link:hover {
+            color: var(--brand);
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 28px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            width: 100%;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 14px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 4px;
+        }
+
+        .card-sub {
+            font-size: .84rem;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: .76rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: .88rem;
+            font-family: inherit;
+            outline: none;
+            background: var(--bg);
+            color: var(--text);
+            transition: border-color .2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--brand);
+            background: #fff;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 110px;
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        /* Star rating */
+        .star-group {
+            display: flex;
+            gap: 6px;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+        .star-group input {
+            display: none;
+        }
+
+        .star-group label {
+            font-size: 1.6rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: color .15s;
+        }
+
+        .star-group input:checked~label,
+        .star-group label:hover,
+        .star-group label:hover~label {
+            color: #f59e0b;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 20px;
+            border-radius: 9px;
+            font-size: .88rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all .15s;
+            width: 100%;
+        }
+
+        .btn-brand {
+            background: var(--brand);
+            color: #fff;
+        }
+
+        .btn-brand:hover {
+            background: var(--brand-dark);
+        }
+
+        .flash {
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: .84rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .flash-success {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+        }
+
+        .flash-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 20px 0;
+        }
+
+        .prev-feedback {
+            margin-top: 24px;
+        }
+
+        .prev-title {
+            font-size: .78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .prev-item {
+            background: var(--bg);
+            border-radius: 9px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .prev-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .prev-stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .prev-star {
+            color: #e2e8f0;
+            font-size: .72rem;
+        }
+
+        .prev-star.on {
+            color: #f59e0b;
+        }
+
+        .prev-date {
+            font-size: .7rem;
+            color: var(--muted);
+        }
+
+        .prev-msg {
+            font-size: .82rem;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .prev-badge {
+            display: inline-flex;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: .64rem;
+            font-weight: 700;
+        }
+
+        .admin-reply-box {
+            margin-top: 8px;
+            padding: 9px 11px;
+            background: var(--brand-soft);
+            border-radius: 7px;
+            font-size: .78rem;
+            color: var(--brand-dark);
+        }
+
+        .admin-reply-label {
+            font-size: .63rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            margin-bottom: 3px;
+            color: var(--brand);
+        }
+
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-size: .62rem;
+            font-weight: 700;
+        }
+
+        @media (min-width: 900px) {
+            .container {
+                max-width: 100%;
+            }
+
+            .card {
+                padding: 36px 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+
+        {% if success %}
+        <div class="flash flash-success"><i class="fas fa-circle-check"></i> {{ success }}</div>
+        {% endif %}
+        {% if error %}
+        <div class="flash flash-error"><i class="fas fa-circle-exclamation"></i> {{ error }}</div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-icon">⭐</div>
+            <div class="card-title">Share Your Feedback</div>
+            <div class="card-sub">Help us improve NutriLens — your thoughts matter!</div>
+
+            <form method="POST" action="/feedback">
+                <div class="form-group">
+                    <label class="form-label">Your Rating</label>
+                    <div class="star-group">
+                        <input type="radio" id="s5" name="rating" value="5" required>
+                        <label for="s5"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="s4" name="rating" value="4">
+                        <label for="s4"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="s3" name="rating" value="3">
+                        <label for="s3"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="s2" name="rating" value="2">
+                        <label for="s2"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="s1" name="rating" value="1">
+                        <label for="s1"><i class="fas fa-star"></i></label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-control">
+                        <option value="general">General Experience</option>
+                        <option value="recommendation">Meal Recommendations</option>
+                        <option value="recipe">Recipes</option>
+                        <option value="dietitian">Dietitian Service</option>
+                        <option value="app">App / Interface</option>
+                        <option value="complaint">Complaint / Issue</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Your Message</label>
+                    <textarea name="message" class="form-control"
+                        placeholder="Tell us what you love, what can be better, or any issues you faced…" required
+                        minlength="10"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-brand"><i class="fas fa-paper-plane"></i> Submit Feedback</button>
+            </form>
+
+            {% if my_feedback %}
+            <div class="divider"></div>
+            <div class="prev-feedback">
+                <div class="prev-title">Your Previous Feedback</div>
+                {% for fb in my_feedback %}
+                <div class="prev-item">
+                    <div class="prev-header">
+                        <div style="display:flex;align-items:center;gap:8px">
+                            <div class="prev-stars">
+                                {% for i in range(1,6) %}<i
+                                    class="fas fa-star prev-star {% if i <= fb.rating %}on{% endif %}"></i>{% endfor %}
+                            </div>
+                            <span class="prev-badge"
+                                style="background:{% if fb.category=='complaint' %}#fef2f2;color:#dc2626{% elif fb.category=='recommendation' %}#ede9fe;color:#5b21b6{% elif fb.category=='recipe' %}#dbeafe;color:#1e40af{% elif fb.category=='dietitian' %}#d1fae5;color:#065f46{% elif fb.category=='app' %}#fef3c7;color:#92400e{% else %}#f3f4f6;color:#374151{% endif %}">{{
+                                fb.category|title }}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px">
+                            {% if fb.status == 'resolved' %}
+                            <span class="status-chip" style="background:#d1fae5;color:#065f46">✓ Resolved</span>
+                            {% elif fb.status == 'in_progress' %}
+                            <span class="status-chip" style="background:#fef3c7;color:#92400e">⟳ In Progress</span>
+                            {% else %}
+                            <span class="status-chip" style="background:#f3f4f6;color:#374151">◉ Open</span>
+                            {% endif %}
+                            <span class="prev-date">{{ fb.submitted_at }}</span>
+                        </div>
+                    </div>
+                    <div class="prev-msg">{{ fb.message }}</div>
+                    {% if fb.admin_reply %}
+                    <div class="admin-reply-box">
+                        <div class="admin-reply-label"><i class="fas fa-shield-halved"></i> NutriLens Team</div>
+                        {{ fb.admin_reply }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

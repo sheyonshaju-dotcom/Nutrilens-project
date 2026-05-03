@@ -1,0 +1,741 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Payment | NutriLens</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg-0: #fffaf5;
+            --bg-1: #ffe3d0;
+            --bg-2: #ffd4e6;
+            --text: #16202b;
+            --muted: #5f6b7a;
+            --card: rgba(255, 255, 255, 0.92);
+            --line: #e8ebef;
+            --accent: #e0437a;
+            --accent-2: #f08a24;
+            --accent-soft: #ffe8f2;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background:
+                radial-gradient(circle at 6% 8%, var(--bg-1) 0%, transparent 35%),
+                radial-gradient(circle at 94% 12%, var(--bg-2) 0%, transparent 33%),
+                linear-gradient(180deg, #fffefc 0%, var(--bg-0) 100%);
+            background-size: 100% 100%, 100% 100%, 100% 100%;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .payment-container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .payment-card {
+            background: var(--card);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px -12px rgba(224, 67, 122, 0.25);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            position: relative;
+        }
+
+        .payment-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 40px;
+            padding: 2px;
+            background: linear-gradient(145deg, rgba(224, 67, 122, 0.3), rgba(240, 138, 36, 0.24));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .payment-header {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .payment-header h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .payment-header .price {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .payment-header .price small {
+            font-size: 1.2rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+
+        .payment-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 0.75rem;
+        }
+
+        .payment-body {
+            padding: 2.5rem;
+        }
+
+        .payment-methods-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .payment-methods-title i {
+            color: var(--accent);
+            font-size: 1.4rem;
+        }
+
+        .method-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .method-option {
+            background: white;
+            border: 2px solid var(--line);
+            border-radius: 20px;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .method-option:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            transform: scale(1.01);
+        }
+
+        .method-option.selected {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            box-shadow: 0 4px 12px -4px rgba(224, 67, 122, 0.3);
+        }
+
+        .method-option input[type="radio"] {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid #d7dce4;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            position: relative;
+            transition: all 0.1s ease;
+            flex-shrink: 0;
+        }
+
+        .method-option input[type="radio"]:checked {
+            border-color: var(--accent);
+            background-color: var(--accent);
+            box-shadow: inset 0 0 0 5px white;
+        }
+
+        .method-option i {
+            font-size: 1.8rem;
+            width: 36px;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        .method-option .method-name {
+            font-weight: 600;
+            color: var(--text);
+            flex: 1;
+            font-size: 1.1rem;
+        }
+
+        .method-option .popular-tag {
+            background: var(--accent-soft);
+            color: #ab2d5f;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        /* UPI apps grid */
+        .upi-apps {
+            display: none;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0 2rem;
+        }
+
+        .upi-apps.show {
+            display: grid;
+        }
+
+        .upi-app {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 1rem 0.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #3f4b5a;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .upi-app:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+            transform: translateY(-2px);
+        }
+
+        .upi-app i {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 0.4rem;
+            color: var(--accent);
+        }
+
+        /* UPI ID input field (initially hidden) */
+        .upi-input-container {
+            display: none;
+            margin: 1.5rem 0 2rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 20px;
+            border: 2px solid var(--line);
+        }
+
+        .upi-input-container.show {
+            display: block;
+        }
+
+        .upi-input-container label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .upi-input-container input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--line);
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: border 0.2s;
+        }
+
+        .upi-input-container input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .selected-app-name {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Card details form */
+        .card-details {
+            display: none;
+            margin-top: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-details.show {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #3f4b5a;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid var(--line);
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: border 0.2s;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Pay button */
+        .pay-button {
+            background: linear-gradient(120deg, var(--accent), var(--accent-2));
+            color: white;
+            border: none;
+            border-radius: 60px;
+            padding: 1.4rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            box-shadow: 0 15px 25px -8px rgba(224, 67, 122, 0.4);
+        }
+
+        .pay-button:hover {
+            background: linear-gradient(120deg, #c5306a, #da7a1f);
+            transform: scale(1.02);
+        }
+
+        .pay-button i {
+            font-size: 1.3rem;
+        }
+
+        .secure-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-top: 2rem;
+            font-size: 1rem;
+            color: var(--muted);
+        }
+
+        .secure-note i {
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 1.2rem;
+            font-size: 0.9rem;
+            color: #7b8796;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #3f4b5a;
+            text-decoration: none;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+            background: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+            background: #fff3f8;
+        }
+
+        /* Success Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 60px -15px rgba(224, 67, 122, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: modalPop 0.3s ease-out;
+        }
+
+        @keyframes modalPop {
+            0% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            color: #10b981;
+            margin-bottom: 1rem;
+            background: #d1fae5;
+            width: 80px;
+            height: 80px;
+            line-height: 80px;
+            border-radius: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .modal-content h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .modal-content p {
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+
+        .modal-loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--accent-soft);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 700px) {
+            body {
+                padding: 1rem;
+            }
+
+            .payment-container {
+                max-width: 100%;
+            }
+
+            .payment-header h2 {
+                font-size: 1.8rem;
+            }
+
+            .payment-header .price {
+                font-size: 2.5rem;
+            }
+
+            .payment-body {
+                padding: 1.5rem;
+            }
+
+            .upi-apps {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            .upi-apps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .method-option {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="payment-container">
+        <a href="{{ url_for('dietitian') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to dietitians
+        </a>
+
+        <div class="payment-card">
+            <div class="payment-header">
+                <h2>Consultation Payment</h2>
+                <div class="price">499 <small>one-time</small></div>
+                <p>Unlock unlimited chat with your dietitian</p>
+            </div>
+
+            <div class="payment-body">
+                <div class="payment-methods-title">
+                    <i class="fas fa-credit-card"></i> Select payment method
+                </div>
+
+                <!-- Payment method options -->
+                <div class="method-options">
+                    <!-- UPI -->
+                    <label class="method-option" id="option-upi">
+                        <input type="radio" name="payment_method" value="upi" checked>
+                        <i class="fab fa-google-pay"></i>
+                        <span class="method-name">UPI (Google Pay, PhonePe, etc.)</span>
+                        <span class="popular-tag">Popular</span>
+                    </label>
+
+                    <!-- Card -->
+                    <label class="method-option" id="option-card">
+                        <input type="radio" name="payment_method" value="card">
+                        <i class="fas fa-credit-card"></i>
+                        <span class="method-name">Credit / Debit Card</span>
+                    </label>
+
+                    <!-- NetBanking -->
+                    <label class="method-option" id="option-netbanking">
+                        <input type="radio" name="payment_method" value="netbanking">
+                        <i class="fas fa-university"></i>
+                        <span class="method-name">Net Banking</span>
+                    </label>
+                </div>
+
+                <!-- Dynamic sections -->
+                <div class="upi-apps show" id="upi-section">
+                    <div class="upi-app" data-app="Google Pay"><i class="fab fa-google-pay"></i> Google Pay</div>
+                    <div class="upi-app" data-app="PhonePe"><i class="fas fa-phone-alt"></i> PhonePe</div>
+                    <div class="upi-app" data-app="Amazon Pay"><i class="fab fa-amazon"></i> Amazon Pay</div>
+                    <div class="upi-app" data-app="BHIM"><i class="fas fa-mobile-alt"></i> BHIM</div>
+                    <div class="upi-app" data-app="Paytm"><i class="fas fa-qrcode"></i> Paytm</div>
+                    <div class="upi-app" data-app="Other UPI"><i class="fas fa-credit-card"></i> Other UPI</div>
+                    <div class="upi-app" data-app="WhatsApp"><i class="fas fa-wallet"></i> WhatsApp</div>
+                    <div class="upi-app" data-app="Simpl"><i class="fas fa-bolt"></i> Simpl</div>
+                </div>
+
+                <!-- UPI ID input field (hidden initially) -->
+                <div class="upi-input-container" id="upi-input-container">
+                    <label>Enter UPI ID for <span id="selected-app-name" class="selected-app-name">Google
+                            Pay</span></label>
+                    <input type="text" id="upi-id" placeholder="username@okhdfcbank / 9876543210@paytm" value="">
+                </div>
+
+                <!-- Card details -->
+                <div class="card-details" id="card-section">
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" placeholder="1234 5678 9012 3456" disabled>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Expiry</label>
+                            <input type="text" placeholder="MM/YY" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="text" placeholder="123" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Name on Card</label>
+                        <input type="text" placeholder="John Doe" disabled>
+                    </div>
+                    <p style="font-size:0.85rem; color:#7b8796; margin-top:0.5rem;">(Demo – card fields are disabled)
+                    </p>
+                </div>
+
+                <!-- NetBanking placeholder -->
+                <div class="card-details" id="netbanking-section">
+                    <div
+                        style="background:#fff0f5; padding:1.5rem; border-radius:24px; text-align:center; color:#3f4b5a; border:1px solid #ffd7e8;">
+                        <i class="fas fa-university" style="font-size:3rem; margin-bottom:0.8rem;"></i>
+                        <p style="font-size:1.1rem;">You will be redirected to your bank's net banking page after
+                            clicking Pay.</p>
+                    </div>
+                </div>
+
+                <!-- Pay form -->
+                <form id="payment-form" action="/payment_success/{{ dietitian_id }}" method="get">
+                    <button type="submit" class="pay-button" id="pay-button">
+                        <i class="fas fa-lock"></i> Pay 499
+                    </button>
+                </form>
+
+                <div class="secure-note">
+                    <i class="fas fa-shield-alt"></i> <span>Secure 256-bit SSL encryption</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Payment Successful!</h3>
+            <p>Your consultation is now unlocked. Redirecting to chat...</p>
+            <div class="modal-loader"></div>
+        </div>
+    </div>
+
+    <script>
+        // Get references
+        const upiOption = document.getElementById('option-upi').querySelector('input');
+        const cardOption = document.getElementById('option-card').querySelector('input');
+        const netOption = document.getElementById('option-netbanking').querySelector('input');
+
+        const upiSection = document.getElementById('upi-section');
+        const cardSection = document.getElementById('card-section');
+        const netSection = document.getElementById('netbanking-section');
+        const upiInputContainer = document.getElementById('upi-input-container');
+        const selectedAppSpan = document.getElementById('selected-app-name');
+        const upiInput = document.getElementById('upi-id');
+
+        // Modal elements
+        const modal = document.getElementById('success-modal');
+        const paymentForm = document.getElementById('payment-form');
+        const payButton = document.getElementById('pay-button');
+
+        // Store currently selected UPI app
+        let currentApp = 'Google Pay';
+
+        // Function to update visible sections based on radio
+        function updateSections() {
+            upiSection.classList.remove('show');
+            cardSection.classList.remove('show');
+            netSection.classList.remove('show');
+            upiInputContainer.classList.remove('show'); // hide UPI input by default when switching methods
+
+            if (upiOption.checked) {
+                upiSection.classList.add('show');
+                // If a UPI app was previously selected, show input with that app
+                if (currentApp) {
+                    selectedAppSpan.textContent = currentApp;
+                    upiInputContainer.classList.add('show');
+                }
+            } else if (cardOption.checked) {
+                cardSection.classList.add('show');
+            } else if (netOption.checked) {
+                netSection.classList.add('show');
+            }
+        }
+
+        // Function to handle UPI app click
+        function handleUpiAppClick(appElement) {
+            const appName = appElement.getAttribute('data-app');
+            currentApp = appName;
+            selectedAppSpan.textContent = appName;
+            // Show the input container (in case it was hidden)
+            if (upiOption.checked) {
+                upiInputContainer.classList.add('show');
+            }
+        }
+
+        // Add click listeners to all UPI app divs
+        document.querySelectorAll('.upi-app').forEach(app => {
+            app.addEventListener('click', function () {
+                handleUpiAppClick(this);
+            });
+        });
+
+        // Listen for radio changes
+        upiOption.addEventListener('change', updateSections);
+        cardOption.addEventListener('change', updateSections);
+        netOption.addEventListener('change', updateSections);
+
+        // Click on entire method option (label)
+        document.querySelectorAll('.method-option').forEach(opt => {
+            opt.addEventListener('click', function (e) {
+                const radio = this.querySelector('input');
+                radio.checked = true;
+                updateSections();
+            });
+        });
+
+        // Handle form submission to show modal
+        paymentForm.addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent immediate redirect
+
+            // Show modal
+            modal.style.display = 'flex';
+
+            // Optional: collect UPI ID if needed (not sent anywhere in demo)
+            const upiId = upiInput.value;
+            console.log('UPI ID:', upiId); // For debugging
+
+            // After 2 seconds, redirect to the payment success URL
+            setTimeout(function () {
+                window.location.href = paymentForm.action;
+            }, 2000);
+        });
+
+        // Initialize: if UPI is selected by default, show input with first app (Google Pay)
+        window.addEventListener('load', function () {
+            // Set first app as default
+            currentApp = 'Google Pay';
+            selectedAppSpan.textContent = currentApp;
+            updateSections(); // ensures correct visibility
+        });
+    </script>
+</body>
+
+</html>

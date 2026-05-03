@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Diary · NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand:      #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg:         #f4f5f7;
+            --surface:    #fff;
+            --text:       #1a1a2e;
+            --muted:      #6b7280;
+            --border:     #e8eaed;
+            --shadow:     0 2px 12px rgba(0,0,0,.07);
+            --radius:     14px;
+            --breakfast:  #f59e0b;
+            --lunch:      #10b981;
+            --dinner:     #6366f1;
+            --snack:      #f97316;
+            --other:      #94a3b8;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        .page { width: 100%; padding: 36px 40px 100px; }
+
+        /* ── Top bar ── */
+        .topbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; font-size: .88rem; font-weight: 700; color: var(--muted); text-decoration: none; transition: color .15s; }
+        .back-link:hover { color: var(--brand); }
+        .page-title { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; }
+        .page-title span { color: var(--brand); }
+
+        /* ── Date nav ── */
+        .date-nav { display: flex; align-items: center; gap: 12px; background: var(--surface);
+            border-radius: 999px; padding: 10px 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .date-nav a { color: var(--muted); text-decoration: none; font-size: 1rem; padding: 4px 10px;
+            border-radius: 999px; transition: all .15s; font-weight: 700; }
+        .date-nav a:hover { background: var(--brand-soft); color: var(--brand); }
+        .date-nav input[type=date] { border: none; outline: none; font-family: inherit; font-size: .95rem;
+            font-weight: 700; color: var(--text); background: transparent; cursor: pointer; }
+        .today-btn { background: var(--brand-soft); color: var(--brand-dark); border: none;
+            border-radius: 999px; padding: 6px 18px; font-size: .82rem; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all .15s; text-decoration: none; }
+        .today-btn:hover { background: var(--brand); color: #fff; }
+
+        /* ── Layout ── */
+        .layout { display: grid; grid-template-columns: 380px 1fr; gap: 28px; align-items: flex-start; }
+        @media(max-width:1100px) { .layout { grid-template-columns: 1fr; } }
+
+        /* ── Left panel ── */
+        .left-panel { display: flex; flex-direction: column; gap: 22px; position: sticky; top: 20px; }
+
+        /* ── Summary card ── */
+        .summary-card { background: var(--surface); border-radius: var(--radius); padding: 28px 28px 24px;
+            box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .summary-title { font-size: .76rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+            color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .summary-title i { color: var(--brand); }
+
+        /* Calorie ring */
+        .cal-ring-wrap { display: flex; align-items: center; gap: 24px; margin-bottom: 24px; }
+        .cal-ring { position: relative; width: 110px; height: 110px; flex-shrink: 0; }
+        .cal-ring svg { width: 110px; height: 110px; transform: rotate(-90deg); display: block; }
+        .cal-ring-bg  { fill: none; stroke: var(--border); stroke-width: 9; }
+        .cal-ring-fill{ fill: none; stroke: var(--brand); stroke-width: 9; stroke-linecap: round;
+            transition: stroke-dashoffset .6s ease; }
+        .cal-ring-text { position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; transform: none; }
+        .cal-ring-text .val { font-size: 1.25rem; font-weight: 800; color: var(--text); line-height: 1; }
+        .cal-ring-text .lbl { font-size: .6rem; color: var(--muted); font-weight: 600; text-transform: uppercase; margin-top: 4px; letter-spacing: .04em; }
+        .cal-details { flex: 1; }
+        .cal-details .eaten { font-size: 1.8rem; font-weight: 800; color: var(--brand); line-height: 1; }
+        .cal-details .goal  { font-size: .84rem; color: var(--muted); font-weight: 600; margin-top: 5px; }
+        .cal-details .remain { font-size: .84rem; font-weight: 700; margin-top: 10px; }
+        .cal-details .remain.ok   { color: #10b981; }
+        .cal-details .remain.over { color: #ef4444; }
+
+        /* Macros */
+        .macro-row { display: flex; flex-direction: column; gap: 12px; }
+        .macro-item { display: flex; align-items: center; gap: 12px; }
+        .macro-item .mlbl { width: 64px; font-size: .78rem; font-weight: 700; color: var(--muted); }
+        .macro-bar-wrap { flex: 1; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+        .macro-bar-fill { height: 100%; border-radius: 99px; transition: width .5s ease; }
+        .bar-prot { background: #3b82f6; }
+        .bar-carb { background: #f59e0b; }
+        .bar-fat  { background: #10b981; }
+        .macro-item .mval { width: 52px; text-align: right; font-size: .78rem; font-weight: 700; color: var(--text); }
+
+        /* Week sparkline */
+        .week-card { background: var(--surface); border-radius: var(--radius); padding: 24px 26px;
+            box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .week-title { font-size: .76rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+            color: var(--muted); margin-bottom: 16px; }
+        .week-bars { display: flex; align-items: flex-end; gap: 8px; height: 64px; }
+        .week-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .week-bar { width: 100%; border-radius: 6px 6px 0 0; background: var(--brand-soft);
+            transition: height .4s ease; min-height: 4px; }
+        .week-bar.today { background: var(--brand); }
+        .week-day { font-size: .65rem; color: var(--muted); font-weight: 600; }
+
+        /* ── Log meal form ── */
+        .log-form-card { background: var(--surface); border-radius: var(--radius); padding: 26px 28px;
+            box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .log-form-title { font-size: .76rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+            color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .log-form-title i { color: var(--brand); }
+        .lf { margin-bottom: 14px; }
+        .lf label { display: block; font-size: .8rem; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+        .lf input, .lf select, .lf textarea {
+            width: 100%; padding: 11px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+            font-size: .92rem; font-family: inherit; outline: none; background: var(--bg); color: var(--text);
+            transition: border-color .2s; }
+        .lf input:focus, .lf select:focus, .lf textarea:focus { border-color: var(--brand); background: #fff; }
+        .lf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .lf-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+        .meal-type-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+        .mt-btn { flex: 1; min-width: 64px; padding: 10px 8px; border: 1.5px solid var(--border);
+            border-radius: 10px; font-size: .76rem; font-weight: 700; cursor: pointer;
+            background: var(--bg); font-family: inherit; text-align: center; transition: all .15s; }
+        .mt-btn:hover { border-color: var(--brand); background: var(--brand-soft); }
+        .mt-btn.active { color: #fff; border-color: transparent; }
+        .mt-btn[data-type=breakfast].active { background: var(--breakfast); }
+        .mt-btn[data-type=lunch].active     { background: var(--lunch); }
+        .mt-btn[data-type=dinner].active    { background: var(--dinner); }
+        .mt-btn[data-type=snack].active     { background: var(--snack); }
+        .mt-btn[data-type=other].active     { background: var(--other); }
+        .log-submit-btn { width: 100%; background: var(--brand); color: #fff; border: none;
+            border-radius: 10px; padding: 13px; font-size: .95rem; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: background .2s; margin-top: 6px; }
+        .log-submit-btn:hover { background: var(--brand-dark); }
+
+        /* ── Right panel: meal groups ── */
+        .right-panel { display: flex; flex-direction: column; gap: 20px; }
+
+        /* Meal group */
+        .meal-group { background: var(--surface); border-radius: var(--radius);
+            box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; }
+        .group-header { display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 24px; border-bottom: 1px solid var(--border); }
+        .group-header-left { display: flex; align-items: center; gap: 12px; }
+        .group-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+        .group-name { font-size: .95rem; font-weight: 800; }
+        .group-cal { font-size: .82rem; color: var(--muted); font-weight: 600; }
+        .group-total { font-size: .95rem; font-weight: 800; color: var(--brand); }
+        .group-body { padding: 6px 0; }
+
+        /* Meal row */
+        .meal-row { display: flex; align-items: center; gap: 16px; padding: 14px 24px;
+            transition: background .15s; }
+        .meal-row:hover { background: var(--bg); }
+        .meal-row-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--bg);
+            display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+        .meal-row-info { flex: 1; min-width: 0; }
+        .meal-row-name { font-size: .97rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .meal-row-time { font-size: .76rem; color: var(--muted); margin-top: 2px; }
+        .meal-row-macros { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+        .mpill { font-size: .7rem; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+        .mpill-p { background: #dbeafe; color: #1e40af; }
+        .mpill-c { background: #fef3c7; color: #92400e; }
+        .mpill-f { background: #d1fae5; color: #065f46; }
+        .meal-row-cal { font-size: 1.1rem; font-weight: 800; color: var(--brand); flex-shrink: 0; white-space: nowrap; }
+        .meal-row-del { background: none; border: none; color: var(--muted); cursor: pointer;
+            font-size: .8rem; padding: 6px 10px; border-radius: 8px; transition: all .15s; flex-shrink: 0; }
+        .meal-row-del:hover { background: #fef2f2; color: #ef4444; }
+
+        /* Empty group */
+        .group-empty { padding: 20px 24px; font-size: .88rem; color: var(--muted); font-style: italic; }
+
+        /* ── Empty day state ── */
+        .empty-day { text-align: center; padding: 80px 24px; background: var(--surface);
+            border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .empty-day i { font-size: 3rem; color: var(--brand); opacity: .25; display: block; margin-bottom: 16px; }
+        .empty-day h3 { font-size: 1.1rem; margin-bottom: 8px; }
+        .empty-day p { font-size: .9rem; color: var(--muted); }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 999px;
+            font-size: .88rem; font-weight: 600; opacity: 0; transition: all .25s; z-index: 999;
+            pointer-events: none; white-space: nowrap; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Meal type colors */
+        .dot-breakfast { background: var(--breakfast); }
+        .dot-lunch     { background: var(--lunch); }
+        .dot-dinner    { background: var(--dinner); }
+        .dot-snack     { background: var(--snack); }
+        .dot-other     { background: var(--other); }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <a href="/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+            <h1 class="page-title">Food <span>Diary</span></h1>
+        </div>
+
+        <!-- Date navigator -->
+        <div class="date-nav">
+            <a href="/history?date={{ prev_date }}" title="Previous day">&#8592;</a>
+            <input type="date" id="datePicker" value="{{ selected_date }}"
+                onchange="window.location='/history?date='+this.value" max="{{ today }}">
+            {% if selected_date < today %}
+            <a href="/history?date={{ next_date }}" title="Next day">&#8594;</a>
+            {% endif %}
+            <a href="/history?date={{ today }}" class="today-btn">Today</a>
+        </div>
+    </div>
+
+    <div class="layout">
+
+        <!-- ══ LEFT PANEL ══ -->
+        <div class="left-panel">
+
+            <!-- Daily summary card -->
+            <div class="summary-card">
+                <div class="summary-title"><i class="fas fa-fire"></i> Daily Summary — {{ selected_date }}</div>
+
+                <!-- Calorie ring -->
+                <div class="cal-ring-wrap">
+                    {% set cal_eaten = totals.cal|int %}
+                    {% set pct = [[((cal_eaten / calorie_goal) * 100)|int, 100]|min, 0]|max %}
+                    <div class="cal-ring">
+                        <svg width="110" height="110" viewBox="0 0 110 110">
+                            <circle class="cal-ring-bg"  cx="55" cy="55" r="46"/>
+                            <circle class="cal-ring-fill" cx="55" cy="55" r="46"
+                                stroke-dasharray="289"
+                                stroke-dashoffset="{{ 289 - (289 * pct / 100)|int }}"
+                                {% if cal_eaten > calorie_goal %}stroke="#ef4444"{% endif %}/>
+                        </svg>
+                        <div class="cal-ring-text">
+                            <span class="val">{{ pct }}%</span>
+                            <span class="lbl">of goal</span>
+                        </div>
+                    </div>
+                    <div class="cal-details">
+                        <div class="eaten">{{ cal_eaten }} <span style="font-size:.85rem;font-weight:600;color:var(--muted)">kcal</span></div>
+                        <div class="goal">Goal: {{ calorie_goal }} kcal</div>
+                        {% set remain = calorie_goal - cal_eaten %}
+                        {% if remain >= 0 %}
+                        <div class="remain ok"><i class="fas fa-check-circle"></i> {{ remain }} kcal remaining</div>
+                        {% else %}
+                        <div class="remain over"><i class="fas fa-triangle-exclamation"></i> {{ (remain * -1) }} kcal over</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Macros -->
+                <div class="macro-row">
+                    {% set prot_pct = [(totals.prot / 75 * 100), 100]|min|int %}
+                    {% set carb_pct = [(totals.carbs / 220 * 100), 100]|min|int %}
+                    {% set fat_pct  = [(totals.fat  / 70 * 100), 100]|min|int %}
+                    <div class="macro-item">
+                        <span class="mlbl">Protein</span>
+                        <div class="macro-bar-wrap"><div class="macro-bar-fill bar-prot" style="width:{{ prot_pct }}%"></div></div>
+                        <span class="mval">{{ totals.prot|int }}g</span>
+                    </div>
+                    <div class="macro-item">
+                        <span class="mlbl">Carbs</span>
+                        <div class="macro-bar-wrap"><div class="macro-bar-fill bar-carb" style="width:{{ carb_pct }}%"></div></div>
+                        <span class="mval">{{ totals.carbs|int }}g</span>
+                    </div>
+                    <div class="macro-item">
+                        <span class="mlbl">Fat</span>
+                        <div class="macro-bar-wrap"><div class="macro-bar-fill bar-fat" style="width:{{ fat_pct }}%"></div></div>
+                        <span class="mval">{{ totals.fat|int }}g</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7-day sparkline -->
+            <div class="week-card">
+                <div class="week-title">7-Day Calories</div>
+                <div class="week-bars" id="weekBars">
+                {% set max_cal = week_values|max if week_values and week_values|max > 0 else 1 %}
+                    {% for i in range(7) %}
+                    {% set h = [[((week_values[i] / max_cal) * 52)|int, 4]|max, 52]|min %}
+                    <div class="week-bar-wrap">
+                        <div class="week-bar {% if week_labels[i] == selected_date %}today{% endif %}"
+                            style="height:{{ h }}px" title="{{ week_labels[i] }}: {{ week_values[i] }} kcal"></div>
+                        <span class="week-day">{{ week_labels[i][8:] }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Log meal form -->
+            <div class="log-form-card">
+                <div class="log-form-title"><i class="fas fa-plus-circle"></i> Log a Meal</div>
+                <form method="POST" action="/log_meal" id="logForm">
+                    <input type="hidden" name="date" value="{{ selected_date }}">
+
+                    <!-- Meal type selector -->
+                    <div class="lf" style="margin-bottom:8px;">
+                        <label>Meal Type</label>
+                        <div class="meal-type-group" id="mealTypeGroup">
+                            <button type="button" class="mt-btn active" data-type="breakfast" onclick="selectMealType(this)">🌅 Breakfast</button>
+                            <button type="button" class="mt-btn" data-type="lunch"     onclick="selectMealType(this)">☀️ Lunch</button>
+                            <button type="button" class="mt-btn" data-type="dinner"    onclick="selectMealType(this)">🌙 Dinner</button>
+                            <button type="button" class="mt-btn" data-type="snack"     onclick="selectMealType(this)">🍎 Snack</button>
+                            <button type="button" class="mt-btn" data-type="other"     onclick="selectMealType(this)">📦 Other</button>
+                        </div>
+                        <input type="hidden" name="meal_type" id="mealTypeInput" value="breakfast">
+                    </div>
+
+                    <div class="lf">
+                        <label>Food Name <span style="color:var(--brand)">*</span></label>
+                        <input type="text" name="name" id="foodName" placeholder="e.g. Oats with banana" required autocomplete="off">
+                    </div>
+
+                    <div class="lf">
+                        <label>Calories (kcal)</label>
+                        <input type="number" name="calories" id="calInput" placeholder="e.g. 320" min="0">
+                    </div>
+
+                    <div class="lf-4 lf">
+                        <div>
+                            <label style="font-size:.68rem;">Protein (g)</label>
+                            <input type="number" name="protein" placeholder="0" min="0">
+                        </div>
+                        <div>
+                            <label style="font-size:.68rem;">Carbs (g)</label>
+                            <input type="number" name="carbs" placeholder="0" min="0">
+                        </div>
+                        <div>
+                            <label style="font-size:.68rem;">Fat (g)</label>
+                            <input type="number" name="fat" placeholder="0" min="0">
+                        </div>
+                        <div>
+                            <label style="font-size:.68rem;">Time</label>
+                            <input type="time" name="time" value="{{ now_time }}">
+                        </div>
+                    </div>
+
+                    <div class="lf">
+                        <label>Notes <span style="color:var(--muted);font-weight:500">(optional)</span></label>
+                        <input type="text" name="notes" placeholder="e.g. homemade, post-workout">
+                    </div>
+
+                    <button type="submit" class="log-submit-btn">
+                        <i class="fas fa-plus"></i> Add to Diary
+                    </button>
+                </form>
+            </div>
+
+        </div><!-- /left-panel -->
+
+        <!-- ══ RIGHT PANEL ══ -->
+        <div class="right-panel">
+
+            {% set total_logs = meal_groups.breakfast|length + meal_groups.lunch|length + meal_groups.dinner|length + meal_groups.snack|length + meal_groups.other|length %}
+
+            {% if total_logs == 0 %}
+            <div class="empty-day">
+                <i class="fas fa-utensils"></i>
+                <h3>Nothing logged yet for {{ selected_date }}</h3>
+                <p>Use the form on the left to add your meals for the day.</p>
+            </div>
+            {% else %}
+
+            {% for group_key, group_icon, group_label in [
+                ('breakfast','🌅','Breakfast'),
+                ('lunch',    '☀️','Lunch'),
+                ('dinner',   '🌙','Dinner'),
+                ('snack',    '🍎','Snacks'),
+                ('other',    '📦','Other'),
+            ] %}
+            {% set group_logs = meal_groups[group_key] %}
+
+            <div class="meal-group">
+                <div class="group-header">
+                    <div class="group-header-left">
+                        <div class="group-dot dot-{{ group_key }}"></div>
+                        <span class="group-name">{{ group_icon }} {{ group_label }}</span>
+                        <span class="group-cal">{{ group_logs|length }} item{{ 's' if group_logs|length != 1 }}</span>
+                    </div>
+                    {% set group_cal = namespace(val=0) %}
+                    {% for log in group_logs %}{% set group_cal.val = group_cal.val + (log.calories|int) %}{% endfor %}
+                    <span class="group-total">{{ group_cal.val }} kcal</span>
+                </div>
+
+                <div class="group-body">
+                    {% if group_logs %}
+                    {% for log in group_logs %}
+                    <div class="meal-row">
+                        <div class="meal-row-icon">{{ group_icon }}</div>
+                        <div class="meal-row-info">
+                            <div class="meal-row-name">{{ log.name }}</div>
+                            <div class="meal-row-time">{{ log.time[:5] if log.time else '' }}{% if log.notes %} · {{ log.notes }}{% endif %}</div>
+                            <div class="meal-row-macros">
+                                {% if log.protein %}<span class="mpill mpill-p">P {{ log.protein|int }}g</span>{% endif %}
+                                {% if log.carbs   %}<span class="mpill mpill-c">C {{ log.carbs|int }}g</span>{% endif %}
+                                {% if log.fat     %}<span class="mpill mpill-f">F {{ log.fat|int }}g</span>{% endif %}
+                            </div>
+                        </div>
+                        <span class="meal-row-cal">{{ log.calories|int }} kcal</span>
+                        <form method="POST" action="/delete_meal/{{ log.id }}" style="display:inline">
+                            <input type="hidden" name="date" value="{{ selected_date }}">
+                            <button type="submit" class="meal-row-del"
+                                onclick="return confirm('Remove {{ log.name }}?')">
+                                <i class="fas fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="group-empty">No {{ group_label|lower }} logged</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            {% endif %}
+        </div><!-- /right-panel -->
+
+    </div><!-- /layout -->
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    // Meal type selector
+    function selectMealType(btn) {
+        document.querySelectorAll('.mt-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('mealTypeInput').value = btn.dataset.type;
+    }
+
+    // Set current time default
+    const now = new Date();
+    const timeInput = document.querySelector('[name=time]');
+    if (timeInput && !timeInput.value) {
+        timeInput.value = now.toTimeString().slice(0, 5);
+    }
+</script>
+</body>
+</html>

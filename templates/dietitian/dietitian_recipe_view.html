@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ recipe['name'] }} | Recipe Detail | NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #ffffff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.04);
+            --radius: 14px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 240px; flex-shrink: 0; background: var(--surface);
+            border-right: 1px solid var(--border); display: flex;
+            flex-direction: column; height: 100vh; position: sticky; top: 0;
+        }
+        .sidebar-logo {
+            padding: 24px 20px 20px; display: flex; align-items: center;
+            gap: 12px; border-bottom: 1px solid var(--border);
+        }
+        .logo-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: var(--brand-soft); display: flex; align-items: center;
+            justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+        }
+        .logo-text b { display: block; font-size: .95rem; font-weight: 800; color: var(--text); }
+        .logo-text span { font-size: .68rem; color: var(--muted); font-weight: 600; }
+        .sidebar-nav {
+            flex: 1; padding: 12px 10px; display: flex;
+            flex-direction: column; gap: 2px; overflow-y: auto;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+            border-radius: 10px; text-decoration: none; color: var(--muted);
+            font-size: .875rem; font-weight: 600; transition: all .15s;
+        }
+        .nav-item i { width: 18px; text-align: center; font-size: .88rem; }
+        .nav-item:hover { background: var(--bg); color: var(--text); }
+        .nav-item.active { background: var(--brand-soft); color: var(--brand); }
+        .nav-item.active i { color: var(--brand); }
+        .sidebar-footer { padding: 14px 10px; border-top: 1px solid var(--border); }
+        .nav-item.logout { color: #ef4444; }
+        .nav-item.logout:hover { background: #fef2f2; }
+
+        /* ── Main ── */
+        .main { flex: 1; overflow-y: auto; padding: 28px 36px 60px; }
+
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            text-decoration: none; color: var(--brand); font-weight: 700;
+            font-size: .82rem; background: var(--brand-soft);
+            padding: 6px 13px; border-radius: 999px; margin-bottom: 22px;
+            transition: opacity .15s;
+        }
+        .back-link:hover { opacity: .8; }
+
+        /* ── Layout ── */
+        .detail-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* ── Card base ── */
+        .card {
+            background: var(--surface); border-radius: var(--radius);
+            border: 1px solid var(--border); box-shadow: var(--shadow);
+        }
+
+        /* ── Hero header ── */
+        .recipe-hero {
+            background: linear-gradient(135deg, var(--brand) 0%, #f06292 100%);
+            border-radius: var(--radius) var(--radius) 0 0;
+            padding: 28px 28px 24px;
+            color: #fff;
+        }
+        .recipe-hero-top {
+            display: flex; align-items: flex-start;
+            justify-content: space-between; gap: 12px; margin-bottom: 16px;
+        }
+        .recipe-hero h1 {
+            font-size: 1.55rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.2;
+        }
+        {% set vs = recipe['verification_status'] or 'pending' %}
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; border-radius: 999px; font-size: .72rem;
+            font-weight: 700; flex-shrink: 0; white-space: nowrap;
+        }
+        .status-pill.verified   { background: #d1fae5; color: #065f46; }
+        .status-pill.pending    { background: rgba(255,255,255,.25); color: #fff; }
+        .status-pill.not_recommended { background: #fef2f2; color: #dc2626; }
+
+        .recipe-meta-row {
+            display: flex; flex-wrap: wrap; gap: 8px;
+        }
+        .meta-chip {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 8px;
+            font-size: .75rem; font-weight: 700;
+            background: rgba(255,255,255,.18); color: #fff;
+        }
+
+        /* ── Main card body ── */
+        .recipe-body { padding: 24px 28px; }
+
+        .section-title {
+            font-size: .68rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .08em; color: var(--muted); margin-bottom: 12px;
+            display: flex; align-items: center; gap: 7px;
+        }
+        .section-title::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        /* Description */
+        .description-text {
+            font-size: .9rem; color: var(--muted); line-height: 1.65;
+            margin-bottom: 24px; padding: 14px 16px;
+            background: var(--bg); border-radius: 10px;
+            border-left: 3px solid var(--brand);
+        }
+
+        /* Nutrient grid */
+        .nutrient-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+            margin-bottom: 24px;
+        }
+        .nutrient-box {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 10px; padding: 14px 12px; text-align: center;
+        }
+        .nutrient-val { font-size: 1.4rem; font-weight: 800; color: var(--brand); line-height: 1; }
+        .nutrient-lbl {
+            font-size: .62rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .06em; color: var(--muted); margin-top: 3px;
+        }
+
+        /* Ingredients */
+        .ingredients-list {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
+        }
+        .ingredient-tag {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: var(--brand-soft); color: var(--brand-dark);
+            padding: 5px 12px; border-radius: 999px;
+            font-size: .8rem; font-weight: 600;
+            border: 1px solid rgba(233,30,99,.15);
+        }
+        .ingredient-tag i { font-size: .65rem; }
+
+        /* Raw ingredients fallback */
+        .ingredients-raw {
+            font-size: .88rem; color: var(--text); line-height: 1.7;
+            background: var(--bg); border-radius: 10px; padding: 14px 16px;
+            margin-bottom: 24px;
+        }
+
+        /* Steps */
+        .steps-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
+        .step-item {
+            display: flex; gap: 14px; align-items: flex-start;
+        }
+        .step-num {
+            width: 28px; height: 28px; border-radius: 8px;
+            background: var(--brand); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: .75rem; font-weight: 800; flex-shrink: 0; margin-top: 1px;
+        }
+        .step-text { font-size: .88rem; line-height: 1.6; color: var(--text); padding-top: 4px; }
+
+        .no-steps {
+            font-size: .85rem; color: var(--muted); font-style: italic;
+            padding: 14px 16px; background: var(--bg); border-radius: 10px;
+        }
+
+        /* Video */
+        .video-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: #ff0000; color: #fff; padding: 9px 16px;
+            border-radius: 8px; font-size: .82rem; font-weight: 700;
+            text-decoration: none; transition: opacity .15s; margin-top: 4px;
+        }
+        .video-link:hover { opacity: .85; }
+
+        /* ── Right panel ── */
+        .panel-card { padding: 20px; margin-bottom: 16px; }
+
+        /* Submitted by */
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar {
+            width: 42px; height: 42px; border-radius: 10px;
+            background: var(--brand-soft); display: flex; align-items: center;
+            justify-content: center; font-weight: 800; font-size: 1rem;
+            color: var(--brand); flex-shrink: 0;
+        }
+        .user-name { font-weight: 700; font-size: .9rem; }
+        .user-email { font-size: .75rem; color: var(--muted); }
+
+        /* Tags */
+        .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 6px; padding: 4px 10px;
+            font-size: .75rem; font-weight: 600; color: var(--muted);
+        }
+
+        /* Assessment form */
+        .assess-form { display: flex; flex-direction: column; gap: 12px; }
+        .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+        .radio-option { display: none; }
+        .radio-label {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 14px; border-radius: 8px; border: 1.5px solid var(--border);
+            font-size: .8rem; font-weight: 700; cursor: pointer; transition: all .15s;
+            color: var(--muted);
+        }
+        .radio-option:checked + .radio-label.lbl-verified { background: #d1fae5; border-color: #10b981; color: #065f46; }
+        .radio-option:checked + .radio-label.lbl-not      { background: #fef2f2; border-color: #ef4444; color: #dc2626; }
+        .radio-option:checked + .radio-label.lbl-reset    { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+        .radio-label:hover { border-color: var(--brand); color: var(--brand); }
+
+        .form-note {
+            width: 100%; padding: 10px 12px;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            font-size: .85rem; font-family: inherit; background: var(--bg);
+            outline: none; resize: vertical; min-height: 80px; color: var(--text);
+            transition: border-color .2s;
+        }
+        .form-note:focus { border-color: var(--brand); background: #fff; }
+
+        .recommend-row {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 12px; background: #fffbeb;
+            border: 1px solid #fde68a; border-radius: 10px;
+        }
+        .recommend-row label { font-size: .82rem; font-weight: 700; color: #92400e; cursor: pointer; }
+
+        .tag-select {
+            flex: 1; padding: 7px 10px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: .8rem; font-family: inherit;
+            background: var(--bg); outline: none; color: var(--text);
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 9px 18px; border-radius: 8px; font-size: .82rem;
+            font-weight: 700; text-decoration: none; cursor: pointer;
+            border: none; font-family: inherit; transition: all .15s;
+        }
+        .btn-brand { background: var(--brand); color: #fff; width: 100%; justify-content: center; }
+        .btn-brand:hover { background: var(--brand-dark); }
+        .btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .btn-danger:hover { background: #dc2626; color: #fff; }
+
+        .flag-section {
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .flag-row { display: flex; gap: 8px; }
+        .flag-select {
+            flex: 1; padding: 8px 10px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: .8rem; font-family: inherit;
+            background: var(--bg); outline: none; color: var(--text);
+        }
+        .flag-note {
+            width: 100%; padding: 8px 12px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: .82rem; font-family: inherit;
+            background: var(--bg); outline: none; color: var(--text);
+        }
+
+        /* ── Edit controls ── */
+        .edit-toggle-btn {
+            background: var(--bg); border: 1.5px solid var(--border);
+            border-radius: 6px; padding: 3px 9px; cursor: pointer;
+            color: var(--muted); font-size: .72rem; font-family: inherit;
+            transition: all .15s; margin-left: auto; flex-shrink: 0;
+        }
+        .edit-toggle-btn:hover,
+        .edit-toggle-btn.active {
+            background: var(--brand-soft); border-color: var(--brand);
+            color: var(--brand);
+        }
+        .edit-panel {
+            background: #fffbf9; border: 1.5px solid var(--brand);
+            border-radius: 10px; padding: 16px; margin-bottom: 20px;
+            animation: slideDown .15s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .nutrient-edit-grid {
+            display: grid; grid-template-columns: repeat(4,1fr); gap: 10px;
+        }
+        .edit-field { display: flex; flex-direction: column; gap: 5px; }
+        .edit-lbl { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+        .edit-input {
+            padding: 9px 12px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: .9rem; font-family: inherit;
+            background: #fff; outline: none; color: var(--text);
+            transition: border-color .2s; width: 100%;
+        }
+        .edit-input:focus { border-color: var(--brand); }
+        .edit-hint {
+            font-size: .75rem; color: var(--muted); margin-bottom: 8px;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .edit-textarea {
+            width: 100%; padding: 10px 12px; border: 1.5px solid var(--border);
+            border-radius: 8px; font-size: .88rem; font-family: inherit;
+            background: #fff; outline: none; color: var(--text);
+            resize: vertical; line-height: 1.6; transition: border-color .2s;
+        }
+        .edit-textarea:focus { border-color: var(--brand); }
+        .btn-save-edit {
+            background: var(--brand); color: #fff;
+            padding: 9px 20px; border-radius: 8px; font-size: .82rem;
+            font-weight: 700; border: none; cursor: pointer;
+            font-family: inherit; display: inline-flex; align-items: center;
+            gap: 6px; transition: background .15s;
+        }
+        .btn-save-edit:hover { background: var(--brand-dark); }
+        .btn-cancel-edit {
+            background: var(--bg); color: var(--muted);
+            padding: 9px 16px; border-radius: 8px; font-size: .82rem;
+            font-weight: 700; border: 1.5px solid var(--border); cursor: pointer;
+            font-family: inherit; display: inline-flex; align-items: center;
+            gap: 6px; margin-left: 8px; transition: all .15s;
+        }
+        .btn-cancel-edit:hover { border-color: var(--brand); color: var(--brand); }
+
+        /* keep nutrient-grid margin when switching modes */
+        .nutrient-grid { margin-bottom: 20px; }
+        .reviewer-box {
+            background: #f0fdf4; border: 1px solid #bbf7d0;
+            border-radius: 10px; padding: 12px 14px;
+        }
+        .reviewer-box .lbl { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #16a34a; margin-bottom: 3px; }
+        .reviewer-box .val { font-size: .85rem; font-weight: 700; color: #166534; }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-icon">🩺</div>
+        <div class="logo-text"><b>NutriLens</b><span>Dietitian Panel</span></div>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="/dietitian/dashboard" class="nav-item"><i class="fas fa-gauge"></i> Dashboard</a>
+        <a href="/dietitian/clients" class="nav-item"><i class="fas fa-users"></i> Clients</a>
+        <a href="/dietitian/meal-reviews" class="nav-item"><i class="fas fa-clipboard-list"></i> Meal Reviews</a>
+        <a href="/dietitian/progress" class="nav-item"><i class="fas fa-chart-line"></i> Progress</a>
+        <a href="/dietitian/messages" class="nav-item"><i class="fas fa-comments"></i> Messages</a>
+        <a href="/dietitian/recipes" class="nav-item active"><i class="fas fa-flask"></i> Recipe Verification</a>
+        <a href="/dietitian/recommended" class="nav-item"><i class="fas fa-star"></i> Recommended</a>
+        <a href="/dietitian/my-recipes" class="nav-item"><i class="fas fa-book-open"></i> My Recipes</a>
+        <a href="/dietitian/feedback" class="nav-item"><i class="fas fa-star-half-stroke"></i> Client Feedback</a>
+        <a href="/dietitian/profile" class="nav-item"><i class="fas fa-user-circle"></i> My Profile</a>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="{{ url_for('dietitian_logout') }}" class="nav-item logout">
+            <i class="fas fa-right-from-bracket"></i> Logout
+        </a>
+    </div>
+</aside>
+
+<main class="main">
+    <a href="/dietitian/recipes" class="back-link"><i class="fas fa-arrow-left"></i> Back to Verification</a>
+
+    <div class="detail-layout">
+
+        <!-- ── Left: Recipe details ── -->
+        <div class="card">
+            <div class="recipe-hero">
+                <div class="recipe-hero-top">
+                    <h1>{{ recipe['name'] }}</h1>
+                    {% set vs = recipe['verification_status'] or 'pending' %}
+                    {% if vs == 'verified' %}
+                        <span class="status-pill verified"><i class="fas fa-circle-check"></i> Verified</span>
+                    {% elif vs == 'not_recommended' %}
+                        <span class="status-pill not_recommended"><i class="fas fa-circle-xmark"></i> Not Recommended</span>
+                    {% else %}
+                        <span class="status-pill pending"><i class="fas fa-clock"></i> Pending Review</span>
+                    {% endif %}
+                </div>
+                <div class="recipe-meta-row">
+                    {% if recipe['category'] %}
+                    <span class="meta-chip"><i class="fas fa-tag"></i> {{ recipe['category'] }}</span>
+                    {% endif %}
+                    <span class="meta-chip"><i class="fas fa-fire"></i> {{ recipe['calories'] or 0 }} kcal</span>
+                    {% if recipe['protein'] %}<span class="meta-chip">P: {{ recipe['protein']|int }}g</span>{% endif %}
+                    {% if recipe['carbs'] %}<span class="meta-chip">C: {{ recipe['carbs']|int }}g</span>{% endif %}
+                    {% if recipe['fat'] %}<span class="meta-chip">F: {{ recipe['fat']|int }}g</span>{% endif %}
+                </div>
+            </div>
+
+            <div class="recipe-body">
+
+                <!-- Description -->
+                {% if recipe['description'] %}
+                <div class="section-title"><i class="fas fa-align-left"></i> Description</div>
+                <div class="description-text">{{ recipe['description'] }}</div>
+                {% endif %}
+
+                <!-- ── Editable form ── -->
+                <form method="POST" action="/dietitian/recipes/edit/{{ recipe['id'] }}" id="editForm">
+
+                <!-- Nutrition -->
+                <div class="section-title">
+                    <i class="fas fa-chart-pie"></i> Nutrition Facts
+                    <button type="button" class="edit-toggle-btn" onclick="toggleEdit('nutrition')">
+                        <i class="fas fa-pen" id="nutrition-icon"></i>
+                    </button>
+                </div>
+
+                <!-- View mode -->
+                <div id="nutrition-view" class="nutrient-grid">
+                    <div class="nutrient-box">
+                        <div class="nutrient-val">{{ recipe['calories'] or 0 }}</div>
+                        <div class="nutrient-lbl">Calories</div>
+                    </div>
+                    <div class="nutrient-box">
+                        <div class="nutrient-val">{{ recipe['protein']|int if recipe['protein'] else 0 }}g</div>
+                        <div class="nutrient-lbl">Protein</div>
+                    </div>
+                    <div class="nutrient-box">
+                        <div class="nutrient-val">{{ recipe['carbs']|int if recipe['carbs'] else 0 }}g</div>
+                        <div class="nutrient-lbl">Carbs</div>
+                    </div>
+                    <div class="nutrient-box">
+                        <div class="nutrient-val">{{ recipe['fat']|int if recipe['fat'] else 0 }}g</div>
+                        <div class="nutrient-lbl">Fat</div>
+                    </div>
+                </div>
+                <!-- Edit mode -->
+                <div id="nutrition-edit" class="edit-panel" style="display:none">
+                    <div class="nutrient-edit-grid">
+                        <div class="edit-field">
+                            <label class="edit-lbl">Calories (kcal)</label>
+                            <input type="number" name="calories" class="edit-input"
+                                   value="{{ recipe['calories'] or '' }}" placeholder="e.g. 280" min="0">
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-lbl">Protein (g)</label>
+                            <input type="number" name="protein" class="edit-input" step="0.1"
+                                   value="{{ recipe['protein'] or '' }}" placeholder="e.g. 8" min="0">
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-lbl">Carbs (g)</label>
+                            <input type="number" name="carbs" class="edit-input" step="0.1"
+                                   value="{{ recipe['carbs'] or '' }}" placeholder="e.g. 45" min="0">
+                        </div>
+                        <div class="edit-field">
+                            <label class="edit-lbl">Fat (g)</label>
+                            <input type="number" name="fat" class="edit-input" step="0.1"
+                                   value="{{ recipe['fat'] or '' }}" placeholder="e.g. 8" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ingredients -->
+                <div class="section-title">
+                    <i class="fas fa-basket-shopping"></i> Ingredients
+                    <button type="button" class="edit-toggle-btn" onclick="toggleEdit('ingredients')">
+                        <i class="fas fa-pen" id="ingredients-icon"></i>
+                    </button>
+                </div>
+
+                <!-- View mode -->
+                <div id="ingredients-view">
+                    {% if ingredients %}
+                    <div class="ingredients-list">
+                        {% for ing in ingredients %}
+                        <span class="ingredient-tag"><i class="fas fa-circle-dot"></i> {{ ing }}</span>
+                        {% endfor %}
+                    </div>
+                    {% elif recipe['ingredients'] %}
+                    <div class="ingredients-raw">{{ recipe['ingredients'] }}</div>
+                    {% else %}
+                    <p style="font-size:.85rem;color:var(--muted);margin-bottom:16px">No ingredients listed.</p>
+                    {% endif %}
+                </div>
+                <!-- Edit mode -->
+                <div id="ingredients-edit" class="edit-panel" style="display:none">
+                    <div class="edit-hint"><i class="fas fa-circle-info"></i> Separate ingredients with commas</div>
+                    <textarea name="ingredients" class="edit-textarea" rows="4"
+                        placeholder="e.g. 1 cup oats, 1/2 cup mixed vegetables, 1 small onion chopped…">{{ recipe['ingredients'] or '' }}</textarea>
+                </div>
+
+                <!-- Steps -->
+                <div class="section-title">
+                    <i class="fas fa-list-ol"></i> Preparation Steps
+                    <button type="button" class="edit-toggle-btn" onclick="toggleEdit('steps')">
+                        <i class="fas fa-pen" id="steps-icon"></i>
+                    </button>
+                </div>
+
+                <!-- View mode -->
+                <div id="steps-view">
+                    {% if steps %}
+                    <div class="steps-list">
+                        {% for step in steps %}
+                        <div class="step-item">
+                            <div class="step-num">{{ loop.index }}</div>
+                            <div class="step-text">{{ step }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% elif recipe['instructions'] %}
+                    <div class="ingredients-raw">{{ recipe['instructions'] }}</div>
+                    {% else %}
+                    <div class="no-steps">No preparation steps provided by the user.</div>
+                    {% endif %}
+                </div>
+                <!-- Edit mode -->
+                <div id="steps-edit" class="edit-panel" style="display:none">
+                    <div class="edit-hint"><i class="fas fa-circle-info"></i> Number each step — e.g. "1. Heat oil…  2. Add onions…"</div>
+                    <textarea name="instructions" class="edit-textarea" rows="7"
+                        placeholder="1. Heat oil in a pan&#10;2. Add mustard seeds and let them splutter&#10;3. …">{{ recipe['instructions'] or '' }}</textarea>
+                </div>
+
+                <!-- Save edits button — only visible when any section is in edit mode -->
+                <div id="save-edit-row" style="display:none;margin-top:16px">
+                    <button type="submit" class="btn btn-save-edit">
+                        <i class="fas fa-floppy-disk"></i> Save Changes
+                    </button>
+                    <button type="button" class="btn btn-cancel-edit" onclick="cancelAllEdits()">
+                        <i class="fas fa-xmark"></i> Cancel
+                    </button>
+                </div>
+
+                </form><!-- end editForm -->
+
+                <!-- Video -->
+                {% if recipe['video_url'] %}
+                <div class="section-title" style="margin-top:24px"><i class="fas fa-video"></i> Reference Video</div>
+                <a href="{{ recipe['video_url'] }}" target="_blank" class="video-link">
+                    <i class="fab fa-youtube"></i> Watch Video
+                </a>
+                {% endif %}
+
+                <!-- Previous review note -->
+                {% if recipe['dietitian_note'] %}
+                <div class="section-title" style="margin-top:24px"><i class="fas fa-comment-medical"></i> Previous Dietitian Note</div>
+                <div class="description-text" style="border-left-color:#10b981">{{ recipe['dietitian_note'] }}</div>
+                {% endif %}
+
+                {% if recipe['verified_by_name'] and recipe['verified_at'] %}
+                <div class="reviewer-box" style="margin-top:16px">
+                    <div class="lbl"><i class="fas fa-user-check"></i> Reviewed by</div>
+                    <div class="val">{{ recipe['verified_by_name'] }} &mdash; {{ recipe['verified_at'][:10] }}</div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+        <!-- ── Right: Submitted by + Assessment ── -->
+        <div>
+
+            <!-- Submitted by -->
+            <div class="card panel-card" style="margin-bottom:16px">
+                <div class="section-title"><i class="fas fa-user"></i> Submitted By</div>
+                <div class="user-info">
+                    <div class="user-avatar">{{ recipe['user_name'][0]|upper if recipe['user_name'] else '?' }}</div>
+                    <div>
+                        <div class="user-name">{{ recipe['user_name'] or 'Unknown' }}</div>
+                        <div class="user-email">{{ recipe['user_email'] or '' }}</div>
+                    </div>
+                </div>
+                {% if recipe['created_at'] %}
+                <div style="margin-top:10px;font-size:.75rem;color:var(--muted)">
+                    <i class="fas fa-calendar-alt" style="margin-right:4px"></i> Submitted on {{ recipe['created_at'][:10] }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Tags -->
+            {% if recipe['recipe_tags'] or recipe['expert_tag'] %}
+            <div class="card panel-card" style="margin-bottom:16px">
+                <div class="section-title"><i class="fas fa-tags"></i> Tags</div>
+                <div class="tag-row">
+                    {% if recipe['expert_tag'] %}
+                    <span class="tag" style="background:var(--brand-soft);color:var(--brand);border-color:rgba(233,30,99,.2)">
+                        ⭐ {{ recipe['expert_tag'] }}
+                    </span>
+                    {% endif %}
+                    {% if recipe['recipe_tags'] %}
+                    {% for t in recipe['recipe_tags'].split(',') %}
+                    {% if t.strip() %}<span class="tag">{{ t.strip() }}</span>{% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Assessment form -->
+            <div class="card panel-card" style="margin-bottom:16px">
+                <div class="section-title"><i class="fas fa-stethoscope"></i> Your Assessment</div>
+                <form method="POST" action="/dietitian/recipes/verify/{{ recipe['id'] }}" class="assess-form">
+                    <div class="radio-group">
+                        <input type="radio" name="action" value="verify" id="act_v"
+                               class="radio-option" {% if vs == 'verified' %}checked{% endif %}>
+                        <label for="act_v" class="radio-label lbl-verified">
+                            <i class="fas fa-circle-check"></i> Verified
+                        </label>
+
+                        <input type="radio" name="action" value="not_recommended" id="act_n"
+                               class="radio-option" {% if vs == 'not_recommended' %}checked{% endif %}>
+                        <label for="act_n" class="radio-label lbl-not">
+                            <i class="fas fa-circle-xmark"></i> Not Recommended
+                        </label>
+
+                        <input type="radio" name="action" value="pending" id="act_r"
+                               class="radio-option" {% if vs == 'pending' %}checked{% endif %}>
+                        <label for="act_r" class="radio-label lbl-reset">
+                            <i class="fas fa-rotate-left"></i> Reset
+                        </label>
+                    </div>
+
+                    <textarea name="dietitian_note" class="form-note"
+                        placeholder="Optional note or recommendation for this recipe…">{{ recipe['dietitian_note'] or '' }}</textarea>
+
+                    <div class="recommend-row">
+                        <input type="checkbox" name="recommend" value="1" id="rec_chk"
+                               {% if recipe['is_recommended'] %}checked{% endif %}>
+                        <label for="rec_chk">⭐ Mark as Recommended</label>
+                        <select name="expert_tag" class="tag-select">
+                            <option value="">— Pick a tag —</option>
+                            {% for tag in ['Weight Loss','High Protein','Low Carb','Heart Healthy','Diabetic Friendly','Vegan','Gluten Free','Kids Friendly'] %}
+                            <option value="{{ tag }}" {% if recipe['expert_tag'] == tag %}selected{% endif %}>{{ tag }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-brand">
+                        <i class="fas fa-paper-plane"></i> Save Assessment
+                    </button>
+                </form>
+            </div>
+
+            <!-- Flag as unhealthy -->
+            <div class="card panel-card">
+                <div class="section-title"><i class="fas fa-flag"></i> Flag as Unhealthy</div>
+                <form method="POST" action="/dietitian/flag-recipe/{{ recipe['id'] }}" class="flag-section">
+                    <select name="flag_reason" class="flag-select">
+                        <option value="">— Select reason —</option>
+                        <option>Too high in sodium</option>
+                        <option>Excessive sugar</option>
+                        <option>High saturated fat</option>
+                        <option>Unsafe for diabetics</option>
+                        <option>Unsafe for heart patients</option>
+                        <option>Inaccurate nutrition info</option>
+                        <option>Other</option>
+                    </select>
+                    <div class="flag-row">
+                        <input type="text" name="flag_note" class="flag-note" placeholder="Optional note for admin…">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-flag"></i> Flag
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</main>
+<script>
+    const editSections = ['nutrition', 'ingredients', 'steps'];
+
+    function toggleEdit(section) {
+        const viewEl  = document.getElementById(section + '-view');
+        const editEl  = document.getElementById(section + '-edit');
+        const iconEl  = document.getElementById(section + '-icon');
+        const btn     = iconEl.closest('button');
+        const saveRow = document.getElementById('save-edit-row');
+
+        const isOpen = editEl.style.display !== 'none';
+
+        if (isOpen) {
+            editEl.style.display = 'none';
+            viewEl.style.display = '';
+            btn.classList.remove('active');
+            iconEl.className = 'fas fa-pen';
+        } else {
+            editEl.style.display = '';
+            viewEl.style.display = 'none';
+            btn.classList.add('active');
+            iconEl.className = 'fas fa-check';
+        }
+
+        // Show save row if any section is open
+        const anyOpen = editSections.some(s =>
+            document.getElementById(s + '-edit').style.display !== 'none'
+        );
+        saveRow.style.display = anyOpen ? 'flex' : 'none';
+    }
+
+    function cancelAllEdits() {
+        editSections.forEach(s => {
+            document.getElementById(s + '-edit').style.display = 'none';
+            document.getElementById(s + '-view').style.display = '';
+            const btn = document.getElementById(s + '-icon').closest('button');
+            btn.classList.remove('active');
+            document.getElementById(s + '-icon').className = 'fas fa-pen';
+        });
+        document.getElementById('save-edit-row').style.display = 'none';
+    }
+</script>
+</body>
+</html>

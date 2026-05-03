@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ recipe.name }} | NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #ffffff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0, 0, 0, .08), 0 4px 16px rgba(0, 0, 0, .04);
+            --radius: 14px;
+            --gap: 20px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* ── Page ── */
+        .page {
+            width: 100%;
+            padding: 20px 32px 64px;
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            color: var(--brand);
+            font-weight: 700;
+            font-size: .85rem;
+            padding: 7px 14px;
+            border-radius: 999px;
+            background: var(--brand-soft);
+            transition: opacity .2s;
+        }
+
+        .back-link:hover {
+            opacity: .8;
+        }
+
+        .breadcrumb {
+            font-size: .78rem;
+            color: var(--muted);
+        }
+
+        .breadcrumb b {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* ══════════════════════════════════
+           SECTION 1 — Hero (image + info)
+           Image LEFT 45%, Panel RIGHT 55%
+        ══════════════════════════════════ */
+        .hero {
+            display: grid;
+            grid-template-columns: 45% 1fr;
+            gap: var(--gap);
+            margin-bottom: var(--gap);
+        }
+
+        /* Image */
+        .image-wrap {
+            border-radius: var(--radius);
+            overflow: hidden;
+            background: #e9ecef;
+            box-shadow: var(--shadow);
+            position: relative;
+            height: 360px;
+        }
+
+        .image-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform .5s ease;
+        }
+
+        .image-wrap:hover img {
+            transform: scale(1.03);
+        }
+
+        .img-ph {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: var(--brand);
+            opacity: .4;
+        }
+
+        .img-ph i {
+            font-size: 3rem;
+        }
+
+        .img-ph span {
+            font-size: .82rem;
+            color: var(--muted);
+            opacity: 1;
+        }
+
+        .diet-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: .7rem;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 999px;
+        }
+
+        .badge-vegan {
+            background: #059669;
+            color: #fff;
+        }
+
+        .badge-veg {
+            background: #16a34a;
+            color: #fff;
+        }
+
+        .watch-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            background: rgba(233, 30, 99, .92);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: .8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background .2s, transform .15s;
+        }
+
+        .watch-btn:hover {
+            background: var(--brand-dark);
+            transform: translateY(-1px);
+        }
+
+        .watch-btn.hidden {
+            display: none;
+        }
+
+        .upload-photo-btn {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            background: rgba(0,0,0,.55);
+            color: #fff;
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: .8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            transition: background .2s;
+            backdrop-filter: blur(4px);
+        }
+        .upload-photo-btn:hover {
+            background: var(--brand);
+        }
+
+        /* Info panel */
+        .info-panel {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 26px 28px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 360px;
+        }
+
+        .recipe-name {
+            font-size: clamp(1.2rem, 2vw, 1.65rem);
+            font-weight: 800;
+            letter-spacing: -.02em;
+            line-height: 1.2;
+            color: var(--text);
+        }
+
+        .cat-tag {
+            display: inline-block;
+            background: var(--brand-soft);
+            color: var(--brand-dark);
+            font-size: .68rem;
+            font-weight: 700;
+            padding: 3px 11px;
+            border-radius: 999px;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        /* Nutrition stats — horizontal strip */
+        .stat-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .stat-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--text);
+        }
+
+        .stat-val.pink {
+            color: var(--brand);
+        }
+
+        .stat-lbl {
+            font-size: .62rem;
+            color: var(--muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-top: 3px;
+        }
+
+        /* Macro bars */
+        .macros {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .macro-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: .8rem;
+        }
+
+        .m-lbl {
+            width: 50px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .m-track {
+            flex: 1;
+            height: 7px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .m-fill {
+            height: 100%;
+            border-radius: 99px;
+        }
+
+        .fill-p {
+            background: #3b82f6;
+        }
+
+        .fill-c {
+            background: #f59e0b;
+        }
+
+        .fill-f {
+            background: #10b981;
+        }
+
+        .m-val {
+            width: 34px;
+            text-align: right;
+            font-weight: 700;
+            font-size: .78rem;
+        }
+
+        /* Daily % row */
+        .pct-strip {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+        }
+
+        .pct-strip .lbl {
+            font-size: .62rem;
+            color: var(--muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 7px;
+        }
+
+        .pct-row {
+            display: flex;
+            gap: 0;
+        }
+
+        .pct-cell {
+            flex: 1;
+            text-align: center;
+        }
+
+        .pct-cell:not(:last-child) {
+            border-right: 1px solid var(--border);
+        }
+
+        .pct-num {
+            font-size: .82rem;
+            font-weight: 800;
+            color: var(--brand);
+        }
+
+        .pct-key {
+            font-size: .6rem;
+            color: var(--muted);
+            margin-top: 1px;
+        }
+
+        /* ══════════════════════════════════
+           SECTION 2 — Ingredients + Steps
+           Same column split as hero
+        ══════════════════════════════════ */
+        .body-row {
+            display: grid;
+            grid-template-columns: 45% 1fr;
+            gap: var(--gap);
+            margin-bottom: var(--gap);
+        }
+
+        .panel {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px 26px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-title {
+            font-size: .92rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding-bottom: 14px;
+            border-bottom: 1.5px solid var(--border);
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .panel-title i {
+            color: var(--brand);
+            font-size: .9rem;
+        }
+
+        .panel-title .aside {
+            margin-left: auto;
+            font-size: .7rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* Ingredients list */
+        .ing-list {
+            list-style: none;
+        }
+
+        .ing-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 9px 4px;
+            border-bottom: 1px solid var(--border);
+            font-size: .88rem;
+            cursor: pointer;
+            user-select: none;
+            transition: background .12s;
+            border-radius: 6px;
+        }
+
+        .ing-item:last-child {
+            border-bottom: none;
+        }
+
+        .ing-item:hover {
+            background: #fdf2f8;
+            padding-left: 8px;
+        }
+
+        .ing-item input[type=checkbox] {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--brand);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .ing-item.done {
+            text-decoration: line-through;
+            color: #b0b7c0;
+        }
+
+        /* Steps stepper */
+        .steps {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .step {
+            display: flex;
+            gap: 14px;
+            padding-bottom: 20px;
+            position: relative;
+        }
+
+        .step:last-child {
+            padding-bottom: 0;
+        }
+
+        .step-aside {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .step-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--brand-soft);
+            color: var(--brand-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: .82rem;
+            cursor: pointer;
+            transition: background .22s, color .22s;
+            flex-shrink: 0;
+        }
+
+        .step-num.done {
+            background: var(--brand);
+            color: #fff;
+        }
+
+        .step-connector {
+            width: 2px;
+            flex: 1;
+            background: var(--border);
+            margin-top: 6px;
+            min-height: 16px;
+            border-radius: 2px;
+            transition: background .22s;
+        }
+
+        .step:last-child .step-connector {
+            display: none;
+        }
+
+        .step-connector.done {
+            background: var(--brand);
+        }
+
+        .step-body {
+            padding-top: 5px;
+            flex: 1;
+        }
+
+        .step-text {
+            font-size: .9rem;
+            color: #374151;
+            line-height: 1.65;
+        }
+
+        .step-text.done {
+            color: #b0b7c0;
+            text-decoration: line-through;
+        }
+
+        /* ══════════════════════════════════
+           SECTION 3 — Tips + Similar
+           Full width split 50/50
+        ══════════════════════════════════ */
+        .extra-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--gap);
+            margin-bottom: var(--gap);
+        }
+
+        /* Tips */
+        .tips {
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .tip {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            font-size: .86rem;
+            line-height: 1.55;
+        }
+
+        .tip-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .72rem;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .dot-green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .dot-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .dot-amber {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Similar */
+        .sim-list {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .sim-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 10px 13px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            text-decoration: none;
+            color: var(--text);
+            transition: border-color .18s, background .18s;
+        }
+
+        .sim-item:hover {
+            border-color: var(--brand);
+            background: var(--brand-soft);
+        }
+
+        .sim-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: var(--brand-soft);
+        }
+
+        .sim-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .sim-name {
+            font-size: .86rem;
+            font-weight: 700;
+            margin-bottom: 1px;
+        }
+
+        .sim-meta {
+            font-size: .72rem;
+            color: var(--muted);
+        }
+
+        .sim-arrow {
+            margin-left: auto;
+            color: var(--brand);
+            font-size: .78rem;
+        }
+
+        /* ══════════════════════════════════
+           ACTION BAR
+        ══════════════════════════════════ */
+        .action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 16px 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 18px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: .82rem;
+            cursor: pointer;
+            font-family: inherit;
+            border: 1.5px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            text-decoration: none;
+            transition: background .15s, border-color .15s, transform .12s;
+        }
+
+        .btn:hover {
+            background: #eff0f2;
+            transform: translateY(-1px);
+        }
+
+        .btn-pink {
+            background: var(--brand);
+            color: #fff;
+            border-color: var(--brand);
+        }
+
+        .btn-pink:hover {
+            background: var(--brand-dark);
+            border-color: var(--brand-dark);
+        }
+
+        .btn-pink.hidden {
+            display: none;
+        }
+
+        .btn-green {
+            background: #f0fdf4;
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
+
+        .btn-green:hover {
+            background: #dcfce7;
+        }
+
+        .btn-yellow {
+            background: #fefce8;
+            color: #854d0e;
+            border-color: #fde68a;
+        }
+
+        .btn-yellow:hover {
+            background: #fef9c3;
+        }
+
+        .btn-yellow.active {
+            background: #854d0e;
+            color: #fff;
+            border-color: #854d0e;
+        }
+
+        /* ── Video Modal ── */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .72);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 820px;
+            box-shadow: 0 24px 56px rgba(0, 0, 0, .35);
+        }
+
+        .modal-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .modal-head h3 {
+            font-size: .92rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: var(--bg);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .9rem;
+            color: var(--muted);
+            font-family: inherit;
+            transition: background .2s;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+        }
+
+        .vid-wrap {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+            background: #000;
+        }
+
+        .vid-wrap iframe {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 12px;
+        }
+
+        .no-vid {
+            padding: 44px 24px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .no-vid i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+            opacity: .3;
+        }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(70px);
+            background: #1a1a2e;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-size: .84rem;
+            font-weight: 600;
+            transition: transform .3s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+
+            .hero,
+            .body-row {
+                grid-template-columns: 1fr;
+            }
+
+            .image-wrap {
+                height: 220px;
+            }
+
+            .info-panel {
+                height: auto;
+            }
+
+            .extra-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .page {
+                padding: 14px 14px 48px;
+            }
+
+            .stat-strip {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media print {
+
+            .topbar,
+            .action-bar,
+            .modal,
+            .watch-btn {
+                display: none !important;
+            }
+
+            body {
+                background: #fff;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+
+        <!-- Top bar -->
+        <div class="topbar">
+            <a href="javascript:history.back()" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back to Recipes
+            </a>
+            <div class="breadcrumb">
+                NutriLens &rsaquo; Recipes &rsaquo; <b>{{ recipe.name }}</b>
+            </div>
+        </div>
+
+        <!-- ══ SECTION 1: Hero ══ -->
+        <div class="hero">
+
+            <!-- Image — LEFT -->
+            <div class="image-wrap" id="imageCard">
+                {% if recipe.image_url %}
+                <img id="recipeImg" src="{{ recipe.image_url }}" alt="{{ recipe.name }}">
+                {% else %}
+                <div class="img-ph">
+                    <i class="fas fa-utensils"></i>
+                    <span>No photo uploaded</span>
+                </div>
+                {% endif %}
+
+                {# Show upload button only to the recipe owner #}
+                {% if session.get('user_id') and session.get('user_id') == recipe.user_id %}
+                <form method="POST" action="/update_recipe_photo/{{ recipe.id }}"
+                      enctype="multipart/form-data" id="photoUploadForm">
+                    <label for="photoInput" class="upload-photo-btn" title="Change photo">
+                        <i class="fas fa-camera"></i>
+                        {{ 'Change Photo' if recipe.image_url else 'Add Photo' }}
+                    </label>
+                    <input type="file" id="photoInput" name="recipe_image"
+                           accept="image/*" style="display:none"
+                           onchange="document.getElementById('photoUploadForm').submit()">
+                </form>
+                {% endif %}
+
+                {% set cat_low = (recipe.category or '')|lower %}
+                {% if 'vegan' in cat_low %}
+                <span class="diet-badge badge-vegan">🌱 Vegan</span>
+                {% elif 'vegetarian' in cat_low %}
+                <span class="diet-badge badge-veg">🥗 Vegetarian</span>
+                {% endif %}
+
+                <button
+                    class="watch-btn {% if not recipe.video_link or recipe.video_link == 'https://youtube.com/example' or recipe.video_link == 'None' %}hidden{% endif %}"
+                    onclick="openModal()">
+                    <i class="fas fa-play"></i> Watch Video
+                </button>
+            </div>
+
+            <!-- Info panel — RIGHT -->
+            <div class="info-panel">
+                <div>
+                    <p class="recipe-name">{{ recipe.name }}</p>
+                    <span class="cat-tag">{{ recipe.category or 'Healthy Recipe' }}</span>
+                </div>
+
+                <!-- 4 nutrition stats -->
+                <div class="stat-strip">
+                    <div class="stat-box">
+                        <div class="stat-val pink">{{ recipe.calories }}</div>
+                        <div class="stat-lbl">Calories</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val">{{ recipe.protein|int }}g</div>
+                        <div class="stat-lbl">Protein</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val">{{ recipe.carbs|int }}g</div>
+                        <div class="stat-lbl">Carbs</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val">{{ recipe.fat|int }}g</div>
+                        <div class="stat-lbl">Fat</div>
+                    </div>
+                </div>
+
+                <!-- Macro bars -->
+                {% set tm = (recipe.protein + recipe.carbs + recipe.fat)|float %}
+                {% if tm > 0 %}
+                <div class="macros">
+                    <div class="macro-row">
+                        <span class="m-lbl">Protein</span>
+                        <div class="m-track">
+                            <div class="m-fill fill-p" style="width:{{ ((recipe.protein/tm)*100)|int }}%"></div>
+                        </div>
+                        <span class="m-val">{{ recipe.protein|int }}g</span>
+                    </div>
+                    <div class="macro-row">
+                        <span class="m-lbl">Carbs</span>
+                        <div class="m-track">
+                            <div class="m-fill fill-c" style="width:{{ ((recipe.carbs/tm)*100)|int }}%"></div>
+                        </div>
+                        <span class="m-val">{{ recipe.carbs|int }}g</span>
+                    </div>
+                    <div class="macro-row">
+                        <span class="m-lbl">Fat</span>
+                        <div class="m-track">
+                            <div class="m-fill fill-f" style="width:{{ ((recipe.fat/tm)*100)|int }}%"></div>
+                        </div>
+                        <span class="m-val">{{ recipe.fat|int }}g</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- % of daily intake -->
+                <div class="pct-strip">
+                    <div class="lbl">% of daily recommended intake</div>
+                    <div class="pct-row">
+                        <div class="pct-cell">
+                            <div class="pct-num">{{ ((recipe.calories/2000)*100)|int }}%</div>
+                            <div class="pct-key">Calories</div>
+                        </div>
+                        <div class="pct-cell">
+                            <div class="pct-num">{{ ((recipe.protein/50)*100)|int }}%</div>
+                            <div class="pct-key">Protein</div>
+                        </div>
+                        <div class="pct-cell">
+                            <div class="pct-num">{{ ((recipe.carbs/225)*100)|int }}%</div>
+                            <div class="pct-key">Carbs</div>
+                        </div>
+                        <div class="pct-cell">
+                            <div class="pct-num">{{ ((recipe.fat/65)*100)|int }}%</div>
+                            <div class="pct-key">Fat</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ SECTION 2: Ingredients + Instructions ══ -->
+        <div class="body-row">
+
+            <!-- Ingredients -->
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-list-check"></i> Ingredients
+                    <span class="aside">{{ recipe.ingredients|length }} items</span>
+                </div>
+                <ul class="ing-list" id="ingList">
+                    {% for item in recipe.ingredients %}
+                    <li class="ing-item" onclick="toggleIng(this)">
+                        <input type="checkbox" onclick="event.stopPropagation()">
+                        {{ item }}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Instructions -->
+            <div class="panel">
+                <div class="panel-title">
+                    <i class="fas fa-fire-burner"></i> Instructions
+                    <span class="aside" id="stepLbl">Tap a step to mark done</span>
+                </div>
+                <div class="steps">
+                    {% for step in recipe.instructions %}
+                    <div class="step" id="s{{ loop.index }}">
+                        <div class="step-aside">
+                            <div class="step-num" onclick="toggleStep({{ loop.index }})">{{ loop.index }}</div>
+                            <div class="step-connector" id="sc{{ loop.index }}"></div>
+                        </div>
+                        <div class="step-body">
+                            <p class="step-text" id="st{{ loop.index }}">{{ step }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ SECTION 3: Insights + Similar ══ -->
+        <div class="extra-row">
+
+            <!-- Nutrition insights -->
+            <div class="panel">
+                <div class="panel-title"><i class="fas fa-lightbulb"></i> Nutrition Insights</div>
+                <div class="tips">
+                    {% if recipe.protein >= 25 %}
+                    <div class="tip">
+                        <div class="tip-dot dot-green"><i class="fas fa-check"></i></div><span>High protein ({{
+                            recipe.protein|int }}g) — excellent for muscle repair and keeping you full.</span>
+                    </div>
+                    {% else %}
+                    <div class="tip">
+                        <div class="tip-dot dot-amber"><i class="fas fa-info"></i></div><span>Moderate protein ({{
+                            recipe.protein|int }}g) — pair with eggs or legumes for a boost.</span>
+                    </div>
+                    {% endif %}
+
+                    {% if recipe.carbs <= 30 %} <div class="tip">
+                        <div class="tip-dot dot-green"><i class="fas fa-check"></i></div><span>Low carb ({{
+                            recipe.carbs|int }}g) — great for keto and low-carb diets.</span>
+                </div>
+                {% elif recipe.carbs >= 60 %}
+                <div class="tip">
+                    <div class="tip-dot dot-amber"><i class="fas fa-info"></i></div><span>Higher carbs ({{
+                        recipe.carbs|int }}g) — ideal fuel before a workout.</span>
+                </div>
+                {% else %}
+                <div class="tip">
+                    <div class="tip-dot dot-blue"><i class="fas fa-star"></i></div><span>Balanced carbs ({{
+                        recipe.carbs|int }}g) — steady energy throughout the day.</span>
+                </div>
+                {% endif %}
+
+                {% if recipe.calories <= 350 %} <div class="tip">
+                    <div class="tip-dot dot-green"><i class="fas fa-check"></i></div><span>Low calorie ({{
+                        recipe.calories }} kcal) — works well in a calorie-deficit plan.</span>
+            </div>
+            {% elif recipe.calories >= 550 %}
+            <div class="tip">
+                <div class="tip-dot dot-amber"><i class="fas fa-info"></i></div><span>Higher calorie ({{ recipe.calories
+                    }} kcal) — ideal as a satisfying main meal.</span>
+            </div>
+            {% else %}
+            <div class="tip">
+                <div class="tip-dot dot-blue"><i class="fas fa-star"></i></div><span>Moderate calories ({{
+                    recipe.calories }} kcal) — a well-balanced meal choice.</span>
+            </div>
+            {% endif %}
+
+            {% if recipe.fat <= 10 %} <div class="tip">
+                <div class="tip-dot dot-green"><i class="fas fa-check"></i></div><span>Low fat ({{ recipe.fat|int }}g) —
+                    heart-healthy and diet-friendly.</span>
+        </div>
+        {% endif %}
+    </div>
+    </div>
+
+    <!-- Similar recipes -->
+    <div class="panel">
+        <div class="panel-title"><i class="fas fa-compass"></i> Similar Recipes</div>
+        <div class="sim-list">
+            {% if similar_recipes %}
+            {% for s in similar_recipes %}
+            <a href="{{ url_for('recipe_detail', recipe_id=s.id) }}" class="sim-item">
+                <div class="sim-thumb">
+                    {% if s.image_url %}
+                    <img src="{{ s.image_url }}" alt="{{ s.name }}">
+                    {% else %}
+                    <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🍽️</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="sim-name">{{ s.name }}</div>
+                    <div class="sim-meta">{{ s.calories }} kcal &middot; {{ s.protein|int }}g protein</div>
+                </div>
+                <i class="fas fa-chevron-right sim-arrow"></i>
+            </a>
+            {% endfor %}
+            {% else %}
+            <p style="font-size:.86rem;color:var(--muted)">No similar recipes found.</p>
+            {% endif %}
+        </div>
+    </div>
+    </div>
+
+    <!-- ══ ACTION BAR ══ -->
+    <div class="action-bar">
+        <div class="btn-row">
+            <button class="btn" onclick="window.print()">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <button class="btn" onclick="doShare()">
+                <i class="fas fa-share-nodes"></i> Share
+            </button>
+            <button class="btn btn-green" onclick="logMeal()">
+                <i class="fas fa-plus"></i> Log This Meal
+            </button>
+            <button class="btn btn-yellow" id="saveBtn" onclick="doSave()">
+                <i class="far fa-bookmark"></i> Save Recipe
+            </button>
+            {% if session.get('user_id') == recipe.user_id %}
+            <button class="btn" style="background:#f0f9ff;color:#0369a1;border-color:#bae6fd" onclick="document.getElementById('ownerPhotoModal').classList.add('open')">
+                <i class="fas fa-camera"></i> {% if recipe.image_url %}Change Photo{% else %}Add Photo{% endif %}
+            </button>
+            {% endif %}
+        </div>
+        <button
+            class="btn btn-pink {% if not recipe.video_link or recipe.video_link == 'https://youtube.com/example' or recipe.video_link == 'None' %}hidden{% endif %}"
+            onclick="openModal()">
+            <i class="fas fa-circle-play"></i> Watch Video
+        </button>
+    </div>
+
+    </div><!-- /page -->
+
+    <!-- Video Modal -->
+    <div class="modal" id="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3><i class="fas fa-circle-play" style="color:var(--brand);margin-right:7px"></i>{{ recipe.name }}</h3>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Report Button -->
+    <button class="btn btn-ghost" onclick="openReportModal()">
+        <i class="fas fa-flag"></i> Report
+    </button>
+
+    <!-- Modal (hidden by default) -->
+    <div id="reportModal"
+        style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:1000;">
+        <div style="background:white; border-radius:12px; padding:20px; max-width:400px; width:90%;">
+            <h3>Report Recipe</h3>
+            <p>Why are you reporting this recipe?</p>
+            <textarea id="reportReason" rows="3"
+                style="width:100%; padding:8px; margin:10px 0; border:1px solid #ccc; border-radius:8px;"></textarea>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn btn-ghost" onclick="closeReportModal()">Cancel</button>
+                <button class="btn btn-brand" onclick="submitReport()">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openReportModal() {
+            document.getElementById('reportModal').style.display = 'flex';
+        }
+        function closeReportModal() {
+            document.getElementById('reportModal').style.display = 'none';
+            document.getElementById('reportReason').value = '';
+        }
+        function submitReport() {
+            const reason = document.getElementById('reportReason').value.trim();
+            if (!reason) {
+                alert('Please provide a reason.');
+                return;
+            }
+            const recipeId = {{ recipe.id }};
+        fetch('/report_recipe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `recipe_id=${recipeId}&reason=${encodeURIComponent(reason)}`
+        })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message || data.error);
+                if (data.message) closeReportModal();
+            })
+            .catch(err => alert('Error submitting report.'));
+}
+    </script>
+
+    <script>
+        const R = {
+            id: {{ recipe.id or 0 }},
+        name: "{{ recipe.name | replace('"', '\\"') }}",
+            video: "{{ recipe.video_link or '' }}",
+                calories: {{ recipe.calories or 0 }},
+        protein: {{ recipe.protein or 0 }},
+        carbs: {{ recipe.carbs or 0 }},
+        fat: {{ recipe.fat or 0 }},
+    };
+        const N_STEPS = {{ recipe.instructions| length }};
+
+        /* ── Video ── */
+        function embedUrl(url) {
+            if (!url) return null;
+            let m = url.match(/youtube\.com\/watch\?v=([\w-]+)/);
+            if (m) return `https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`;
+            m = url.match(/youtu\.be\/([\w-]+)/);
+            if (m) return `https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`;
+            return null;
+        }
+        function openModal() {
+            const e = embedUrl(R.video);
+            document.getElementById('modalBody').innerHTML = e
+                ? `<div class="vid-wrap"><iframe src="${e}" allowfullscreen allow="autoplay;encrypted-media"></iframe></div>`
+                : `<div class="no-vid"><i class="fas fa-video-slash"></i><p>No video available. Search YouTube for <strong>${R.name}</strong>.</p></div>`;
+            document.getElementById('modal').classList.add('open');
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('open');
+            document.getElementById('modalBody').innerHTML = '';
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+        /* ── Ingredient toggle ── */
+        function toggleIng(item) {
+            const cb = item.querySelector('input');
+            cb.checked = !cb.checked;
+            item.classList.toggle('done', cb.checked);
+        }
+
+        /* ── Step toggle ── */
+        let doneSt = 0;
+        function toggleStep(n) {
+            const num = document.querySelector(`#s${n} .step-num`);
+            const txt = document.getElementById(`st${n}`);
+            const conn = document.getElementById(`sc${n}`);
+            const done = num.classList.toggle('done');
+            txt.classList.toggle('done', done);
+            if (conn) conn.classList.toggle('done', done);
+            doneSt = document.querySelectorAll('.step-num.done').length;
+            document.getElementById('stepLbl').textContent =
+                doneSt === N_STEPS ? '🎉 All done!' : `${doneSt} / ${N_STEPS} done`;
+        }
+
+        /* ── Save ── */
+        function doSave() {
+            const btn = document.getElementById('saveBtn');
+            fetch('/save_recipe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ recipe_id: R.id })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'saved') {
+                    btn.classList.add('active');
+                    btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved!';
+                    toast('Recipe saved!');
+                } else {
+                    btn.classList.remove('active');
+                    btn.innerHTML = '<i class="far fa-bookmark"></i> Save Recipe';
+                    toast('Removed from saved');
+                }
+            })
+            .catch(() => toast('Could not save — are you logged in?'));
+        }
+
+        /* ── Share ── */
+        function doShare() {
+            if (navigator.share) {
+                navigator.share({ title: R.name, text: 'Check this out on NutriLens!', url: location.href }).catch(() => { });
+            } else {
+                navigator.clipboard.writeText(location.href)
+                    .then(() => toast('Link copied!'))
+                    .catch(() => toast('Copy the URL from your address bar.'));
+            }
+        }
+
+        /* ── Log meal ── */
+        function logMeal() {
+            fetch('/save_food', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ food: R.name, calories: R.calories, protein: R.protein, carbs: R.carbs, fat: R.fat })
+            })
+                .then(r => r.json())
+                .then(d => toast(d.status === 'saved' ? '✓ Logged to diary!' : 'Could not log meal.'))
+                .catch(() => toast('Could not log — are you logged in?'));
+        }
+
+        /* ── Toast ── */
+        function toast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2800);
+        }
+
+        /* ── Init ── */
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/saved_recipe_ids')
+                .then(r => r.json())
+                .then(ids => {
+                    if (ids.includes(R.id)) {
+                        const btn = document.getElementById('saveBtn');
+                        if (btn) { btn.classList.add('active'); btn.innerHTML = '<i class="fas fa-bookmark"></i> Saved!'; }
+                    }
+                }).catch(() => {});
+        });
+    </script>
+    <!-- Owner photo/video update modal -->
+    {% if session.get('user_id') == recipe.user_id %}
+    <div id="ownerPhotoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center;padding:20px"
+         onclick="if(event.target===this)this.classList.remove('open')"
+         class="">
+        <div style="background:#fff;border-radius:16px;padding:26px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.25)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                <div style="font-size:1rem;font-weight:800">📸 Update Photo & Video</div>
+                <button onclick="document.getElementById('ownerPhotoModal').classList.remove('open')"
+                    style="background:var(--bg);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:.9rem;color:var(--muted)">✕</button>
+            </div>
+            <form method="POST" action="/update_recipe_photo/{{ recipe.id }}" enctype="multipart/form-data">
+                <div style="margin-bottom:14px">
+                    <label style="display:block;font-size:.76rem;font-weight:700;margin-bottom:6px">Recipe Photo</label>
+                    <div style="border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;background:var(--bg);position:relative;transition:all .2s"
+                         onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='var(--border)'">
+                        <input type="file" name="recipe_image" accept="image/*" id="detailFileInput"
+                               style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="previewDetailImg(this)">
+                        <i class="fas fa-cloud-arrow-up" style="font-size:1.6rem;color:var(--brand);opacity:.5;display:block;margin-bottom:6px"></i>
+                        <div style="font-size:.84rem;font-weight:700">Click to upload</div>
+                        <div style="font-size:.7rem;color:var(--muted)">JPG, PNG or WEBP · Max 5MB</div>
+                    </div>
+                    <div id="detailPreviewWrap" style="display:none;margin-top:10px">
+                        <img id="detailPreviewImg" src="" style="width:100%;max-height:150px;object-fit:cover;border-radius:8px;border:1.5px solid var(--border)">
+                    </div>
+                </div>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:.76rem;font-weight:700;margin-bottom:6px">YouTube / Video Link</label>
+                    <input type="url" name="video_link" value="{{ recipe.video_link or '' }}"
+                           placeholder="https://youtube.com/watch?v=..."
+                           style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit;outline:none;background:var(--bg)">
+                </div>
+                <button type="submit" style="width:100%;padding:11px;background:var(--brand);color:#fff;border:none;border-radius:9px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit">
+                    <i class="fas fa-floppy-disk"></i> Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Make the modal display:flex when open class is toggled
+        const om = document.getElementById('ownerPhotoModal');
+        const origOpen = om.classList.add.bind(om.classList);
+        new MutationObserver(() => {
+            om.style.display = om.classList.contains('open') ? 'flex' : 'none';
+        }).observe(om, { attributes: true, attributeFilter: ['class'] });
+
+        function previewDetailImg(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB.'); input.value=''; return; }
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('detailPreviewImg').src = e.target.result;
+                document.getElementById('detailPreviewWrap').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+    {% endif %}
+
+</body>
+</html>

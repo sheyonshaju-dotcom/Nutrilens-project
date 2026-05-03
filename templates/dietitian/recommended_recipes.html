@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recommended Recipes | NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #ffffff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .04);
+            --radius: 14px;
+            --gold: #f59e0b;
+            --gold-soft: #fef3c7;
+            --gold-dark: #92400e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .sidebar-logo {
+            padding: 24px 20px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .logo-text b {
+            display: block;
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .logo-text span {
+            font-size: .68rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: .875rem;
+            font-weight: 600;
+            transition: all .15s;
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: .88rem;
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .nav-item.active i {
+            color: var(--brand);
+        }
+
+        .sidebar-footer {
+            padding: 14px 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-item.logout {
+            color: #ef4444;
+        }
+
+        .nav-item.logout:hover {
+            background: #fef2f2;
+        }
+
+        /* Main */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 32px 60px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .page-header p {
+            font-size: .85rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* Hero banner */
+        .rec-hero {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 60%, #fde68a 100%);
+            border: 1.5px solid #f59e0b;
+            border-radius: var(--radius);
+            padding: 22px 28px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .rec-hero-left h2 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--gold-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+
+        .rec-hero-left p {
+            font-size: .82rem;
+            color: #a16207;
+        }
+
+        .rec-hero-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slot-indicator {
+            display: flex;
+            gap: 5px;
+        }
+
+        .slot-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fde68a;
+            border: 1.5px solid #f59e0b;
+        }
+
+        .slot-dot.filled {
+            background: #f59e0b;
+        }
+
+        .slot-label {
+            font-size: .72rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-left: 4px;
+        }
+
+        /* Cards */
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 18px;
+        }
+
+        .rec-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1.5px solid #fde68a;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+            transition: box-shadow .2s, transform .2s;
+        }
+
+        .rec-card:hover {
+            box-shadow: 0 6px 24px rgba(245, 158, 11, .15);
+            transform: translateY(-2px);
+        }
+
+        .rec-card-rank {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--gold);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .72rem;
+            font-weight: 800;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, .4);
+        }
+
+        .rec-card-body {
+            padding: 18px 18px 14px;
+        }
+
+        .rec-card-name {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            padding-left: 36px;
+            line-height: 1.3;
+        }
+
+        .expert-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--gold-soft);
+            color: var(--gold-dark);
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            border: 1px solid #fde68a;
+        }
+
+        .expert-tag i {
+            color: var(--gold);
+        }
+
+        .rec-macros {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .macro-chip {
+            font-size: .7rem;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 999px;
+        }
+
+        .chip-cal {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .chip-p {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .chip-c {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .chip-f {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .rec-description {
+            font-size: .78rem;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .rec-meta {
+            font-size: .7rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .rec-meta i {
+            color: var(--brand);
+        }
+
+        .view-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            border-radius: 8px;
+            background: var(--brand);
+            color: #fff;
+            font-size: .75rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background .15s;
+            margin-left: auto;
+        }
+
+        .view-btn:hover {
+            background: var(--brand-dark);
+        }
+
+        /* Empty */
+        .empty {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--muted);
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .empty i {
+            font-size: 2.4rem;
+            opacity: .2;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .empty h3 {
+            font-size: .95rem;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .empty p {
+            font-size: .84rem;
+        }
+
+        .empty a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 16px;
+            padding: 9px 20px;
+            border-radius: 8px;
+            background: var(--brand);
+            color: #fff;
+            text-decoration: none;
+            font-size: .82rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🩺</div>
+            <div class="logo-text"><b>NutriLens</b><span>Dietitian Panel</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dietitian/dashboard" class="nav-item"><i class="fas fa-gauge"></i> Dashboard</a>
+            <a href="/dietitian/clients" class="nav-item "><i class="fas fa-users"></i> Clients</a>
+            <a href="/dietitian/meal-reviews" class="nav-item"><i class="fas fa-clipboard-list"></i> Meal Reviews</a>
+            <a href="/dietitian/progress" class="nav-item"><i class="fas fa-chart-line"></i> Progress</a>
+            <a href="/dietitian/messages" class="nav-item"><i class="fas fa-comments"></i> Messages</a>
+            <a href="/dietitian/recipes" class="nav-item"><i class="fas fa-flask"></i> Recipe Verification</a>
+            <a href="/dietitian/recommended" class="nav-item active"><i class="fas fa-star"></i> Recommended</a>
+            <a href="/dietitian/my-recipes" class="nav-item "><i class="fas fa-book-open"></i> My Recipes</a>
+            <a href="/dietitian/feedback" class="nav-item"><i class="fas fa-star-half-stroke"></i> Client Feedback</a>
+            <a href="/dietitian/profile" class="nav-item"><i class="fas fa-user-circle"></i> My Profile</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('dietitian_logout') }}" class="nav-item logout"><i
+                    class="fas fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="page-header">
+            <h1>⭐ Recommended Recipes</h1>
+            <p>Top recipes hand-picked by dietitians — shown to all clients on their dashboard</p>
+        </div>
+
+        <!-- Hero: slot indicator -->
+        <div class="rec-hero">
+            <div class="rec-hero-left">
+                <h2><i class="fas fa-star"></i> Expert Pick Slots</h2>
+                <p>Up to 5 recipes can be featured at any time. When a new one is added, the oldest is automatically
+                    removed.</p>
+            </div>
+            <div class="rec-hero-right">
+                <div class="slot-indicator">
+                    {% for i in range(5) %}
+                    <div class="slot-dot {% if i < recommended|length %}filled{% endif %}"></div>
+                    {% endfor %}
+                </div>
+                <span class="slot-label">{{ recommended|length }}/5 filled</span>
+            </div>
+        </div>
+
+        {% if recommended %}
+        <div class="rec-grid">
+            {% for recipe in recommended %}
+            <div class="rec-card">
+                <div class="rec-card-rank">{{ loop.index }}</div>
+                <div class="rec-card-body">
+                    <div class="rec-card-name">{{ recipe['name'] }}</div>
+
+                    {% if recipe['expert_tag'] %}
+                    <div class="expert-tag">
+                        <i class="fas fa-tag"></i> {{ recipe['expert_tag'] }}
+                    </div>
+                    {% endif %}
+
+                    <div class="rec-macros">
+                        <span class="macro-chip chip-cal"><i class="fas fa-fire"></i> {{ recipe['calories'] or 0 }}
+                            kcal</span>
+                        {% if recipe['protein'] %}<span class="macro-chip chip-p">P: {{ recipe['protein']|int
+                            }}g</span>{% endif %}
+                        {% if recipe['carbs'] %}<span class="macro-chip chip-c">C: {{ recipe['carbs']|int }}g</span>{%
+                        endif %}
+                        {% if recipe['fat'] %}<span class="macro-chip chip-f">F: {{ recipe['fat']|int }}g</span>{% endif
+                        %}
+                    </div>
+
+                    {% if recipe['description'] %}
+                    <div class="rec-description">{{ recipe['description'][:120] }}{% if recipe['description']|length >
+                        120 %}…{% endif %}</div>
+                    {% endif %}
+
+                    <div class="rec-meta">
+                        <i class="fas fa-user-md"></i>
+                        Recommended by <strong>{{ recipe['rec_by_name'] or 'Dietitian' }}</strong>
+                        {% if recipe['recommended_at'] %}
+                        &nbsp;·&nbsp; {{ recipe['recommended_at'][:10] }}
+                        {% endif %}
+                        <a href="/recipe/{{ recipe['id'] }}" class="view-btn">
+                            <i class="fas fa-arrow-right"></i> View
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">
+            <i class="fas fa-star"></i>
+            <h3>No recommended recipes yet</h3>
+            <p>Go to Recipe Verification, mark any recipe with ⭐ and assign a category tag to feature it here.</p>
+            <a href="/dietitian/recipes"><i class="fas fa-flask"></i> Go to Recipe Verification</a>
+        </div>
+        {% endif %}
+    </main>
+</body>
+
+</html>

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Recipe · NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand:      #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg:         #f4f5f7;
+            --surface:    #fff;
+            --text:       #1a1a2e;
+            --muted:      #6b7280;
+            --border:     #e8eaed;
+            --shadow:     0 2px 12px rgba(0,0,0,.07);
+            --radius:     14px;
+            --green:      #10b981;
+            --green-soft: #d1fae5;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        .page { width: 100%; padding: 40px 48px 100px; }
+        .form-inner { display: grid; grid-template-columns: 1fr 400px; gap: 28px; align-items: flex-start; }
+        @media(max-width:1024px) { .form-inner { grid-template-columns: 1fr; } }
+
+        /* Back */
+        .back-link { display: inline-flex; align-items: center; gap: 7px; font-size: .82rem;
+            font-weight: 700; color: var(--muted); text-decoration: none; margin-bottom: 24px;
+            transition: color .15s; }
+        .back-link:hover { color: var(--brand); }
+
+        /* Page title */
+        .page-title { font-size: 1.75rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: 6px; }
+        .page-title span { color: var(--brand); }
+        .page-sub { font-size: .92rem; color: var(--muted); margin-bottom: 28px; }
+
+        /* Review notice banner */
+        .review-notice {
+            display: flex; align-items: flex-start; gap: 14px;
+            background: #fffbeb; border: 1.5px solid #fcd34d;
+            border-radius: var(--radius); padding: 16px 18px; margin-bottom: 28px;
+        }
+        .review-notice i { color: #d97706; font-size: 1.2rem; margin-top: 2px; flex-shrink: 0; }
+        .review-notice h4 { font-size: .92rem; font-weight: 800; color: #92400e; margin-bottom: 3px; }
+        .review-notice p  { font-size: .82rem; color: #78350f; line-height: 1.5; }
+
+        /* Flash messages */
+        .flash { display: flex; align-items: center; gap: 10px; padding: 14px 18px;
+            border-radius: var(--radius); font-size: .92rem; font-weight: 600; margin-bottom: 24px; }
+        .flash-success { background: var(--green-soft); border: 1.5px solid #6ee7b7; color: #065f46; }
+        .flash-error   { background: #fef2f2; border: 1.5px solid #fecaca; color: #dc2626; }
+        .flash-success .view-link { color: var(--green); font-weight: 700; text-decoration: none; margin-left: 6px; }
+        .flash-success .view-link:hover { text-decoration: underline; }
+
+        /* Form card */
+        .form-card { background: var(--surface); border-radius: var(--radius);
+            padding: 40px 44px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+
+        /* Section headers */
+        .section-label { font-size: .7rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: .08em; color: var(--muted); margin: 28px 0 14px;
+            display: flex; align-items: center; gap: 8px; }
+        .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .section-label:first-child { margin-top: 0; }
+
+        /* Fields */
+        .field { margin-bottom: 18px; }
+        .field label { display: block; font-size: .8rem; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+        .field label .req { color: var(--brand); }
+        .field input, .field select, .field textarea {
+            width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
+            border-radius: 10px; font-size: .9rem; font-family: inherit;
+            outline: none; background: var(--bg); color: var(--text);
+            transition: border-color .2s, background .2s; }
+        .field input:focus, .field select:focus, .field textarea:focus {
+            border-color: var(--brand); background: #fff; }
+        .field textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+        .field .hint { font-size: .74rem; color: var(--muted); margin-top: 5px; }
+
+        /* Two-col grid */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+
+        /* Macro grid */
+        .macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+        /* Image upload */
+        .img-upload-wrap { border: 2px dashed var(--border); border-radius: var(--radius);
+            padding: 28px 20px; text-align: center; cursor: pointer; transition: all .2s;
+            background: var(--bg); position: relative; }
+        .img-upload-wrap:hover, .img-upload-wrap.drag { border-color: var(--brand); background: var(--brand-soft); }
+        .img-upload-wrap input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .img-upload-wrap i { font-size: 2rem; color: var(--brand); opacity: .5; display: block; margin-bottom: 10px; }
+        .img-upload-wrap .up-label { font-size: .92rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+        .img-upload-wrap .up-hint  { font-size: .76rem; color: var(--muted); }
+        .img-preview { display: none; margin-top: 14px; }
+        .img-preview img { width: 100%; max-height: 220px; object-fit: cover;
+            border-radius: 10px; border: 1.5px solid var(--border); }
+
+        /* Steps builder */
+        .steps-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+        .step-item { display: flex; gap: 10px; align-items: flex-start; }
+        .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--brand-soft);
+            color: var(--brand-dark); font-size: .75rem; font-weight: 800; display: flex;
+            align-items: center; justify-content: center; flex-shrink: 0; margin-top: 9px; }
+        .step-item textarea { flex: 1; min-height: 70px; }
+        .step-del { background: none; border: 1.5px solid var(--border); color: var(--muted);
+            width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: .82rem;
+            display: flex; align-items: center; justify-content: center; margin-top: 9px;
+            flex-shrink: 0; transition: all .15s; }
+        .step-del:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+        .add-step-btn { display: inline-flex; align-items: center; gap: 7px; background: none;
+            border: 1.5px dashed var(--brand); color: var(--brand); border-radius: 10px;
+            padding: 9px 18px; font-size: .85rem; font-weight: 700; cursor: pointer;
+            font-family: inherit; transition: all .15s; }
+        .add-step-btn:hover { background: var(--brand-soft); }
+
+        /* Ingredient tags */
+        .ing-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; min-height: 36px; }
+        .ing-tag { background: var(--brand-soft); color: var(--brand-dark); border-radius: 999px;
+            padding: 5px 12px; font-size: .8rem; font-weight: 700; display: flex;
+            align-items: center; gap: 6px; }
+        .ing-tag button { background: none; border: none; cursor: pointer; color: var(--brand-dark);
+            font-size: .75rem; line-height: 1; padding: 0; opacity: .7; }
+        .ing-tag button:hover { opacity: 1; }
+        .ing-input-row { display: flex; gap: 8px; }
+        .ing-input-row input { flex: 1; }
+        .ing-add-btn { background: var(--brand); color: #fff; border: none; border-radius: 10px;
+            padding: 11px 18px; font-size: .92rem; font-weight: 700; cursor: pointer;
+            font-family: inherit; white-space: nowrap; transition: background .2s; }
+        .ing-add-btn:hover { background: var(--brand-dark); }
+
+        /* Submit */
+        .submit-row { display: flex; align-items: center; gap: 14px; margin-top: 32px; flex-wrap: wrap; }
+        .submit-btn { background: var(--brand); color: #fff; border: none; border-radius: 10px;
+            padding: 13px 32px; font-size: .95rem; font-weight: 800; cursor: pointer;
+            font-family: inherit; transition: background .2s; display: inline-flex;
+            align-items: center; gap: 8px; }
+        .submit-btn:hover { background: var(--brand-dark); }
+        .submit-btn:disabled { opacity: .6; cursor: not-allowed; }
+        .cancel-link { font-size: .85rem; color: var(--muted); text-decoration: none; font-weight: 600; }
+        .cancel-link:hover { color: var(--brand); }
+
+        @media(max-width:640px) {
+            .form-card { padding: 22px 18px; }
+            .two-col { grid-template-columns: 1fr; }
+            .macro-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <a href="/recipes" class="back-link"><i class="fas fa-arrow-left"></i> Back to Recipes</a>
+
+    <h1 class="page-title">Share Your <span>Recipe</span></h1>
+    <p class="page-sub">Contribute a recipe to the NutriLens community. It will be reviewed by a dietitian before going live.</p>
+
+    <!-- Dietitian review notice -->
+    <div class="review-notice">
+        <i class="fas fa-shield-halved"></i>
+        <div>
+            <h4>Dietitian Review Required</h4>
+            <p>All user-submitted recipes go through a dietitian validation step to ensure nutritional accuracy and safety. Your recipe will be visible publicly once a dietitian approves it — usually within 24–48 hours.</p>
+        </div>
+    </div>
+
+    <!-- Flash messages -->
+    {% if success %}
+    <div class="flash flash-success">
+        <i class="fas fa-circle-check"></i>
+        {{ success }}
+        {% if recipe_id %}
+        <a href="{{ url_for('recipe_detail', recipe_id=recipe_id) }}" class="view-link">Preview your recipe →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% if error %}
+    <div class="flash flash-error"><i class="fas fa-circle-exclamation"></i> {{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/add_recipe" enctype="multipart/form-data" id="recipeForm">
+        <div class="form-inner">
+
+        <!-- ── LEFT COLUMN ── -->
+        <div class="form-card">
+
+            <!-- ── Basic Info ── -->
+            <div class="section-label"><i class="fas fa-utensils" style="color:var(--brand)"></i> Basic Info</div>
+
+            <div class="field">
+                <label>Recipe Name <span class="req">*</span></label>
+                <input type="text" name="name" placeholder="e.g. Spinach Chicken Stir-fry"
+                    value="{{ form.name if form else '' }}" required maxlength="120">
+            </div>
+
+            <div class="field">
+                <label>Short Description</label>
+                <input type="text" name="description" placeholder="e.g. Quick 15-min high-protein meal"
+                    value="{{ form.description if form else '' }}" maxlength="200">
+            </div>
+
+            <div class="two-col">
+                <div class="field">
+                    <label>Category</label>
+                    <select name="category" required>
+                        <option value="" disabled selected>Select category</option>
+                        <option value="breakfast">🌅 Breakfast</option>
+                        <option value="lunch">☀️ Lunch</option>
+                        <option value="dinner">🌙 Dinner</option>
+                        <option value="snack">🍎 Snack</option>
+                        <option value="dessert">🍮 Dessert</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>YouTube / Video Link <span style="color:var(--muted);font-weight:500">(optional)</span></label>
+                    <input type="url" name="video_link" placeholder="https://youtube.com/watch?v=..."
+                        value="{{ form.video_link if form else '' }}">
+                </div>
+            </div>
+
+            <!-- ── Ingredients ── -->
+            <div class="section-label"><i class="fas fa-carrot" style="color:var(--brand)"></i> Ingredients <span class="req">*</span></div>
+
+            <div class="ing-tags" id="ingTags"></div>
+            <div class="ing-input-row">
+                <input type="text" id="ingInput" placeholder="e.g. 200g chicken breast"
+                    onkeydown="if(event.key==='Enter'){event.preventDefault();addIngredient();}">
+                <button type="button" class="ing-add-btn" onclick="addIngredient()">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+            <p class="hint" style="margin-top:6px;font-size:.74rem;color:var(--muted);">Press Enter or click Add after each ingredient. Include quantity and unit.</p>
+            <input type="hidden" name="ingredients" id="ingredientsHidden"
+                value="{{ form.ingredients if form else '' }}">
+
+            <!-- ── Steps ── -->
+            <div class="section-label"><i class="fas fa-list-ol" style="color:var(--brand)"></i> Cooking Steps <span class="req">*</span></div>
+
+            <div class="steps-list" id="stepsList"></div>
+            <button type="button" class="add-step-btn" onclick="addStep()">
+                <i class="fas fa-plus"></i> Add Step
+            </button>
+            <input type="hidden" name="instructions" id="instructionsHidden"
+                value="{{ form.instructions if form else '' }}">
+
+            <!-- Submit -->
+            <div class="submit-row">
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <i class="fas fa-paper-plane"></i> Submit for Review
+                </button>
+                <a href="/recipes" class="cancel-link">Cancel</a>
+            </div>
+
+        </div><!-- /left col -->
+
+        <!-- ── RIGHT COLUMN ── -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+            <!-- Image upload card -->
+            <div class="form-card">
+                <div class="section-label" style="margin-top:0"><i class="fas fa-image" style="color:var(--brand)"></i> Recipe Photo</div>
+                <div class="img-upload-wrap" id="uploadWrap">
+                    <input type="file" name="recipe_image" id="imageInput" accept="image/*"
+                        onchange="previewImage(this)">
+                    <i class="fas fa-cloud-arrow-up"></i>
+                    <div class="up-label">Click to upload a photo</div>
+                    <div class="up-hint">JPG, PNG or WEBP · Max 5MB · Optional</div>
+                </div>
+                <div class="img-preview" id="imgPreview">
+                    <img id="previewImg" src="" alt="Preview">
+                </div>
+            </div>
+
+            <!-- Nutrition card -->
+            <div class="form-card">
+                <div class="section-label" style="margin-top:0"><i class="fas fa-fire" style="color:var(--brand)"></i> Nutrition <span style="color:var(--muted);font-weight:500;font-size:.68rem">(per serving, optional)</span></div>
+                <div class="macro-grid">
+                    <div class="field">
+                        <label>Calories</label>
+                        <input type="number" name="calories" min="0" max="5000" placeholder="kcal"
+                            value="{{ form.calories if form else '' }}">
+                    </div>
+                    <div class="field">
+                        <label>Protein (g)</label>
+                        <input type="number" name="protein" min="0" max="200" placeholder="g"
+                            value="{{ form.protein if form else '' }}">
+                    </div>
+                    <div class="field">
+                        <label>Carbs (g)</label>
+                        <input type="number" name="carbs" min="0" max="500" placeholder="g"
+                            value="{{ form.carbs if form else '' }}">
+                    </div>
+                    <div class="field">
+                        <label>Fat (g)</label>
+                        <input type="number" name="fat" min="0" max="200" placeholder="g"
+                            value="{{ form.fat if form else '' }}">
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /right col -->
+
+        </div><!-- /form-inner -->
+    </form>
+</div>
+
+<script>
+    // ── Ingredient tag builder ──
+    let ingredients = [];
+
+    // Pre-populate from server (edit/error case)
+    const hiddenIng = document.getElementById('ingredientsHidden');
+    if (hiddenIng.value.trim()) {
+        ingredients = hiddenIng.value.split(',').map(s => s.trim()).filter(Boolean);
+        renderTags();
+    }
+
+    function addIngredient() {
+        const input = document.getElementById('ingInput');
+        const val   = input.value.trim();
+        if (!val) return;
+        if (!ingredients.includes(val)) {
+            ingredients.push(val);
+            renderTags();
+            syncIngredients();
+        }
+        input.value = '';
+        input.focus();
+    }
+
+    function removeIngredient(idx) {
+        ingredients.splice(idx, 1);
+        renderTags();
+        syncIngredients();
+    }
+
+    function renderTags() {
+        const wrap = document.getElementById('ingTags');
+        wrap.innerHTML = ingredients.map((ing, i) =>
+            `<span class="ing-tag">${ing}<button type="button" onclick="removeIngredient(${i})">✕</button></span>`
+        ).join('');
+    }
+
+    function syncIngredients() {
+        document.getElementById('ingredientsHidden').value = ingredients.join(', ');
+    }
+
+    // ── Steps builder ──
+    let steps = [];
+
+    // Pre-populate steps from server (edit/error case)
+    const hiddenInst = document.getElementById('instructionsHidden');
+    if (hiddenInst.value.trim()) {
+        // Parse numbered steps like "1. Step text\n2. Step text"
+        const parts = hiddenInst.value.split(/\n?\d+\.\s+/).filter(Boolean);
+        steps = parts.length > 0 ? parts : [hiddenInst.value];
+        renderSteps();
+    } else {
+        // Start with 2 empty steps
+        steps = ['', ''];
+        renderSteps();
+    }
+
+    function addStep() {
+        steps.push('');
+        renderSteps();
+        // Focus the new textarea
+        const textareas = document.querySelectorAll('#stepsList textarea');
+        textareas[textareas.length - 1].focus();
+    }
+
+    function removeStep(idx) {
+        if (steps.length <= 1) return; // keep at least 1
+        steps.splice(idx, 1);
+        renderSteps();
+        syncSteps();
+    }
+
+    function renderSteps() {
+        const list = document.getElementById('stepsList');
+        list.innerHTML = steps.map((s, i) => `
+            <div class="step-item" data-idx="${i}">
+                <div class="step-num">${i + 1}</div>
+                <textarea placeholder="Describe step ${i + 1}…"
+                    oninput="steps[${i}]=this.value;syncSteps()"
+                    onblur="syncSteps()">${s}</textarea>
+                <button type="button" class="step-del" onclick="removeStep(${i})"
+                    title="Remove step"><i class="fas fa-xmark"></i></button>
+            </div>
+        `).join('');
+    }
+
+    function syncSteps() {
+        // Sync textarea values back to steps array
+        document.querySelectorAll('#stepsList textarea').forEach((ta, i) => {
+            steps[i] = ta.value;
+        });
+        // Store as numbered list
+        document.getElementById('instructionsHidden').value =
+            steps.filter(s => s.trim()).map((s, i) => `${i + 1}. ${s.trim()}`).join('\n');
+    }
+
+    // ── Image preview ──
+    function previewImage(input) {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            alert('Image must be under 5MB.');
+            input.value = '';
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('imgPreview').style.display = 'block';
+            document.querySelector('.up-label').textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ── Form validation before submit ──
+    document.getElementById('recipeForm').addEventListener('submit', function(e) {
+        syncIngredients();
+        syncSteps();
+
+        const name = document.querySelector('[name=name]').value.trim();
+        const ings = document.getElementById('ingredientsHidden').value.trim();
+        const inst = document.getElementById('instructionsHidden').value.trim();
+
+        if (!name) { e.preventDefault(); alert('Please enter a recipe name.'); return; }
+        if (!ings)  { e.preventDefault(); alert('Please add at least one ingredient.'); return; }
+        if (!inst)  { e.preventDefault(); alert('Please add at least one cooking step.'); return; }
+
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting…';
+    });
+
+    // Drag-and-drop on upload area
+    const wrap = document.getElementById('uploadWrap');
+    wrap.addEventListener('dragover',  e => { e.preventDefault(); wrap.classList.add('drag'); });
+    wrap.addEventListener('dragleave', () => wrap.classList.remove('drag'));
+    wrap.addEventListener('drop', e => {
+        e.preventDefault(); wrap.classList.remove('drag');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            document.getElementById('imageInput').files = e.dataTransfer.files;
+            previewImage(document.getElementById('imageInput'));
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account – NutriLens</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-0: #fffaf5;
+            --bg-1: #ffe3d0;
+            --bg-2: #ffd4e6;
+            --text: #16202b;
+            --muted: #5f6b7a;
+            --card: rgba(255, 255, 255, 0.92);
+            --line: #e8ebef;
+            --accent: #e0437a;
+            --accent-2: #f08a24;
+            --accent-soft: #ffe8f2;
+            --ok-soft: #e7faf0;
+            --ok-text: #178a53;
+            --shadow: 0 18px 45px rgba(27, 36, 48, 0.12);
+            --sidebar-bg: #ffffffd9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background:
+                radial-gradient(circle at 6% 8%, var(--bg-1) 0%, transparent 35%),
+                radial-gradient(circle at 94% 12%, var(--bg-2) 0%, transparent 33%),
+                linear-gradient(180deg, #fffefc 0%, var(--bg-0) 100%);
+            background-size: 100% 100%, 100% 100%, 100% 100%;
+            color: var(--text);
+            font-size: 17px;
+            min-height: 100vh;
+            padding: 24px 20px 40px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(4px);
+            z-index: -1;
+            opacity: 0.55;
+            pointer-events: none;
+            animation: drift 16s ease-in-out infinite;
+        }
+
+        .ambient-orb.a {
+            width: 210px;
+            height: 210px;
+            background: radial-gradient(circle, #ffc3df 0%, #ffd9e9 65%, transparent 100%);
+            top: 7%;
+            right: 4%;
+        }
+
+        .ambient-orb.b {
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, #ffd4ab 0%, #ffe2ca 65%, transparent 100%);
+            left: -40px;
+            bottom: 14%;
+            animation-delay: 2s;
+        }
+
+        .ambient-orb.c {
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, #d0f0ff 0%, #e2f6ff 70%, transparent 100%);
+            right: 24%;
+            bottom: 7%;
+            animation-delay: 5s;
+        }
+
+        /* layout with sidebar */
+        .account-layout {
+            display: flex;
+            gap: 28px;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        /* ----- left sidebar (exactly like image) ----- */
+        .sidebar {
+            flex: 0 0 240px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 28px 12px;
+            border: 1px solid #fad5e6;
+            box-shadow: 0 16px 30px rgba(100, 70, 90, 0.12);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-item {
+            padding: 14px 18px;
+            font-weight: 700;
+            font-size: 18px;
+            color: #2b3648;
+            border-radius: 18px;
+            transition: all 0.2s ease;
+            cursor: default;
+            /* non-interactive, just for looks */
+            background: transparent;
+            border: none;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .sidebar-item.active {
+            background: linear-gradient(135deg, #ffe5f1, #fff0dd);
+            color: #c5306a;
+            box-shadow: inset 3px 0 0 #d53369;
+        }
+
+        .sidebar-item:not(.active):hover {
+            background: #ffeef5;
+        }
+
+        /* divider in sidebar (like in image) */
+        .sidebar-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f4b8d2, transparent);
+            margin: 18px 10px 10px;
+        }
+
+        /* main content */
+        .main-content {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        /* profile header card (blend with image style) */
+        .profile-mini-card {
+            background: var(--card);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+            padding: 24px 26px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .profile-img-large {
+            width: 108px;
+            height: 108px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 10px 20px rgba(224, 67, 122, 0.25);
+            transition: transform 0.2s;
+        }
+
+        .profile-header-info {
+            flex: 1;
+        }
+
+        .profile-header-info h2 {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin: 0 0 4px;
+        }
+
+        .profile-header-info .email {
+            color: var(--muted);
+            font-size: 17px;
+        }
+
+        .bmi-badge {
+            background: var(--ok-soft);
+            color: var(--ok-text);
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 15px;
+            border: 1px solid #bdecd1;
+        }
+
+        .upload-compact {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .upload-compact label {
+            font-weight: 700;
+            color: #3f4b5a;
+            background: #fff0f5;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 15px;
+            border: 1px solid #ffc1d6;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .upload-compact label:hover {
+            background: #ffe2ef;
+        }
+
+        .upload-compact input {
+            display: none;
+        }
+
+        .upload-hint {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* progress bar reimagined */
+        .profile-stats-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 12px 0 0;
+            background: #ffffffb0;
+            border-radius: 60px;
+            padding: 12px 22px;
+            border: 1px solid #ffe1ef;
+        }
+
+        .completion-compact {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .progress-circle-text {
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .progress-track-mini {
+            width: 160px;
+            height: 8px;
+            border-radius: 999px;
+            background: #f5dbe7;
+            overflow: hidden;
+        }
+
+        .progress-fill-mini {
+            height: 100%;
+            background: linear-gradient(90deg, #d53369, #f08a24);
+            width: 0%;
+        }
+
+        .view-profile-link {
+            font-weight: 600;
+            color: #ab2d5f;
+            text-decoration: none;
+            border-bottom: 2px dotted #f392b8;
+        }
+
+        .fake-url {
+            font-size: 16px;
+            color: #4a5c72;
+            background: #f0f3f8;
+            padding: 4px 14px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+
+        /* favorites heading (exactly like image) */
+        .favorites-heading {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            margin: 28px 0 16px;
+            color: #1f2a37;
+            border-left: 10px solid #f08a24;
+            padding-left: 18px;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #e0437a, #f08a24);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            box-shadow: 0 6px 14px rgba(224, 67, 122, 0.3);
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 18px rgba(224, 67, 122, 0.4);
+        }
+
+        /* main form card — two‑column grid with section headers */
+        .form-card {
+            background: var(--card);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 28px;
+            padding: 36px 32px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .form-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px 28px;
+        }
+
+        .section-header {
+            grid-column: 1 / -1;
+            font-size: 22px;
+            font-weight: 800;
+            color: #1f2a37;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #ffd9e8;
+            padding-bottom: 10px;
+        }
+
+        .section-header:first-of-type {
+            margin-top: 0;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            color: #3f4b5a;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 13px;
+            border-radius: 11px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: #1f2937;
+            font-size: 17px;
+            font-family: inherit;
+            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #f18cb1;
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-save {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            padding: 16px 18px;
+            background: linear-gradient(120deg, var(--accent), var(--accent-2));
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            box-shadow: 0 12px 24px rgba(224, 67, 122, 0.28);
+            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            margin-top: 20px;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 30px rgba(224, 67, 122, 0.4);
+        }
+
+        /* dirty banner, toast unchanged */
+        .dirty-banner {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 1000;
+            background: #1e293b;
+            color: #f8fafc;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.35);
+            transform: translateY(14px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .dirty-banner.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .tiny-btn {
+            border: 0;
+            background: #334155;
+            color: #f8fafc;
+            border-radius: 8px;
+            padding: 6px 9px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .tiny-btn:hover {
+            background: #475569;
+        }
+
+        .toast-wrap {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: #111827;
+            color: #f9fafb;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 15px;
+            box-shadow: 0 10px 20px rgba(17, 24, 39, 0.3);
+            animation: toastIn 0.25s ease;
+        }
+
+        .toast.ok {
+            background: #065f46;
+        }
+
+        .toast.warn {
+            background: #7c2d12;
+        }
+
+        @keyframes drift {
+
+            0%,
+            100% {
+                transform: translateY(0) translateX(0);
+            }
+
+            50% {
+                transform: translateY(-14px) translateX(10px);
+            }
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                flex: 0 0 200px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .account-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: static;
+                width: 100%;
+            }
+
+            .form-two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding: 16px 12px;
+            }
+
+            .form-card {
+                padding: 24px 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient-orb a"></div>
+    <div class="ambient-orb b"></div>
+    <div class="ambient-orb c"></div>
+
+    <div class="account-layout">
+        <!-- LEFT SIDEBAR – Account Settings, Security, Notifications (Documents & Shipping removed) -->
+        <aside class="sidebar">
+            <div class="sidebar-nav">
+                <a href="{{ url_for('profile') }}" class="sidebar-item active">Account Settings</a>
+                <a href="{{ url_for('security') }}" class="sidebar-item">Security</a>
+                <a href="{{ url_for('notifications') }}" class="sidebar-item">Notifications</a>
+                <!-- subtle divider (kept) -->
+                <div class="sidebar-divider"></div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT (right area) -->
+        <main class="main-content">
+
+            <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+                <a href="{{ url_for('dashboard') }}" class="back-btn">
+                    🏠 Dashboard
+                </a>
+            </div>
+
+            <!-- profile header – compact with image, name, bmi, and upload -->
+            <div class="profile-mini-card">
+                <img src="{{ user.profile_image if user.profile_image else '/static/images/default.png' }}"
+                    class="profile-img-large" alt="profile" id="profilePreview">
+                <div class="profile-header-info">
+                    <h2>{{ user.full_name }}</h2>
+                    <div class="email">{{ user.email }}</div>
+                    {% if bmi %}
+                    <div class="bmi-badge">BMI: <span id="bmiLive">{{ bmi }}</span></div>
+                    {% endif %}
+
+                    <!-- upload field integrated -->
+                    <div class="upload-compact">
+                        <label for="profile_image">📸 Update photo</label>
+                        <input type="file" id="profile_image" name="profile_image" accept="image/*">
+                        <span class="upload-hint">JPG, PNG</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- profile completion bar – View Public Profile and URL have been removed -->
+            <div class="profile-stats-row">
+                <div class="completion-compact">
+                    <span class="progress-circle-text"><span id="completionPct">0</span>% complete</span>
+                    <div class="progress-track-mini">
+                        <div class="progress-fill-mini" id="completionFill"></div>
+                    </div>
+                </div>
+                <!-- the right-aligned "View Public Profile" and fake URL div is removed -->
+            </div>
+
+            <!-- FAVORITES heading (exactly as in the image) -->
+            <div class="favorites-heading">Favorites</div>
+
+            <!-- MAIN FORM – all fields arranged in two‑column layout with section headers (contents unchanged) -->
+            <form method="POST" action="/update_account" enctype="multipart/form-data" id="mainForm">
+                <div class="form-card">
+                    <div class="form-two-col">
+
+                        <!-- PERSONAL INFORMATION section -->
+                        <div class="section-header">Personal Information</div>
+
+                        <div class="field full">
+                            <label for="full_name">Full Name</label>
+                            <input id="full_name" type="text" name="full_name" value="{{ user.full_name }}"
+                                placeholder="Full Name" required>
+                        </div>
+                        <div class="field">
+                            <label for="age">Age</label>
+                            <input id="age" type="number" name="age" value="{{ user.age or '' }}" placeholder="Age">
+                        </div>
+                        <div class="field">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender">
+                                <option value="">Gender</option>
+                                <option value="Male" {% if user.gender=='Male' %}selected{% endif %}>Male</option>
+                                <option value="Female" {% if user.gender=='Female' %}selected{% endif %}>Female</option>
+                            </select>
+                        </div>
+
+                        <!-- HEALTH METRICS -->
+                        <div class="section-header">Health Metrics</div>
+                        <div class="field">
+                            <label for="height">Height (cm)</label>
+                            <input id="height" type="number" name="height" value="{{ user.height or '' }}"
+                                placeholder="Height (cm)">
+                        </div>
+                        <div class="field">
+                            <label for="weight">Weight (kg)</label>
+                            <input id="weight" type="number" name="weight" value="{{ user.weight or '' }}"
+                                placeholder="Weight (kg)">
+                        </div>
+                        <div class="field full">
+                            <label for="activity_level">Activity Level</label>
+                            <select id="activity_level" name="activity_level">
+                                <option value="">Activity Level</option>
+                                <option value="Sedentary" {% if user.activity_level=='Sedentary' %}selected{% endif %}>
+                                    Sedentary</option>
+                                <option value="Moderate" {% if user.activity_level=='Moderate' %}selected{% endif %}>
+                                    Moderate</option>
+                                <option value="Active" {% if user.activity_level=='Active' %}selected{% endif %}>Active
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- NUTRITION GOALS -->
+                        <div class="section-header">Nutrition Goals</div>
+                        <div class="field">
+                            <label for="goal_type">Goal Type</label>
+                            <select id="goal_type" name="goal_type">
+                                <option value="">Goal Type</option>
+                                <option value="Weight Loss" {% if user.goal_type=='Weight Loss' %}selected{% endif %}>
+                                    Weight Loss</option>
+                                <option value="Maintenance" {% if user.goal_type=='Maintenance' %}selected{% endif %}>
+                                    Maintenance</option>
+                                <option value="Weight Gain" {% if user.goal_type=='Weight Gain' %}selected{% endif %}>
+                                    Weight Gain</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="target_weight">Target Weight (kg)</label>
+                            <input id="target_weight" type="number" name="target_weight"
+                                value="{{ user.target_weight or '' }}" placeholder="Target Weight">
+                        </div>
+                        <div class="field full">
+                            <label for="water_goal">Daily Water Goal (Liters)</label>
+                            <input id="water_goal" type="number" name="water_goal" value="{{ user.water_goal or '' }}"
+                                placeholder="Daily Water Goal (L)">
+                        </div>
+
+                        <!-- PREFERENCES -->
+                        <div class="section-header">Preferences</div>
+                        <div class="field">
+                            <label for="diet_preference">Diet Preference</label>
+                            <select id="diet_preference" name="diet_preference">
+                                <option value="">Diet Preference</option>
+                                <option value="Vegetarian" {% if user.diet_preference=='Vegetarian' %}selected{% endif
+                                    %}>Vegetarian</option>
+                                <option value="Vegan" {% if user.diet_preference=='Vegan' %}selected{% endif %}>Vegan
+                                </option>
+                                <option value="Non-Veg" {% if user.diet_preference=='Non-Veg' %}selected{% endif %}>
+                                    Non-Veg</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="macro_preference">Macro Preference</label>
+                            <select id="macro_preference" name="macro_preference">
+                                <option value="">Macro Preference</option>
+                                <option value="High Protein" {% if user.macro_preference=='High Protein' %}selected{%
+                                    endif %}>High Protein</option>
+                                <option value="Low Carb" {% if user.macro_preference=='Low Carb' %}selected{% endif %}>
+                                    Low Carb</option>
+                                <option value="Balanced" {% if user.macro_preference=='Balanced' %}selected{% endif %}>
+                                    Balanced</option>
+                            </select>
+                        </div>
+                        <div class="field full">
+                            <label for="allergies">Allergies</label>
+                            <textarea id="allergies" name="allergies"
+                                placeholder="Allergies">{{ user.allergies or '' }}</textarea>
+                        </div>
+                        <div class="field full">
+                            <label for="medical_conditions">Medical Conditions</label>
+                            <textarea id="medical_conditions" name="medical_conditions"
+                                placeholder="Medical Conditions">{{ user.medical_conditions or '' }}</textarea>
+                        </div>
+                    </div> <!-- end two-col -->
+
+                    <button type="submit" class="btn-save" id="saveBtn">Save Changes</button>
+                </div> <!-- end form-card -->
+            </form>
+        </main>
+    </div>
+
+    <!-- dirty banner + toast (unchanged functionality) -->
+    <div class="toast-wrap" id="toastWrap"></div>
+    <div class="dirty-banner" id="dirtyBanner">
+        <span>You have unsaved changes</span>
+        <button class="tiny-btn" type="button" id="resetFormBtn">Reset</button>
+    </div>
+
+    <script>
+        (function () {
+            const form = document.getElementById('mainForm');
+            const inputs = form ? Array.from(form.querySelectorAll('input, select, textarea')) : [];
+            const dirtyBanner = document.getElementById('dirtyBanner');
+            const resetBtn = document.getElementById('resetFormBtn');
+            const toastWrap = document.getElementById('toastWrap');
+            const profileImageInput = document.getElementById('profile_image');
+            const profilePreview = document.getElementById('profilePreview');
+            const completionPct = document.getElementById('completionPct');
+            const completionFill = document.getElementById('completionFill');
+            const bmiLive = document.getElementById('bmiLive');
+            const ageInput = document.getElementById('age');
+            const genderInput = document.getElementById('gender');
+            const heightInput = document.getElementById('height');
+            const weightInput = document.getElementById('weight');
+            const activityInput = document.getElementById('activity_level');
+            const goalInput = document.getElementById('goal_type');
+            const dietInput = document.getElementById('diet_preference');
+
+            let isDirty = false;
+
+            function toast(message, type = '') {
+                const el = document.createElement('div');
+                el.className = `toast ${type}`.trim();
+                el.textContent = message;
+                toastWrap.appendChild(el);
+                setTimeout(() => el.remove(), 2200);
+            }
+
+            function setDirty(value) {
+                isDirty = value;
+                dirtyBanner.classList.toggle('show', isDirty);
+            }
+
+            function updateCompletion() {
+                const fields = [ageInput, genderInput, heightInput, weightInput, activityInput, goalInput, dietInput];
+                const filled = fields.filter(el => el && String(el.value).trim() !== '').length;
+                const pct = Math.round((filled / fields.length) * 100);
+                if (completionPct) completionPct.textContent = pct;
+                if (completionFill) completionFill.style.width = `${pct}%`;
+            }
+
+            function updateBmiPreview() {
+                if (!bmiLive || !heightInput || !weightInput) return;
+                const h = parseFloat(heightInput.value);
+                const w = parseFloat(weightInput.value);
+                if (!h || !w || h <= 0) return;
+                const bmi = (w / Math.pow(h / 100, 2)).toFixed(2);
+                bmiLive.textContent = bmi;
+            }
+
+            // mark dirty on any input
+            if (inputs.length) {
+                inputs.forEach(el => {
+                    const event = el.type === 'file' ? 'change' : 'input';
+                    el.addEventListener(event, () => {
+                        if (!isDirty) toast('Changes detected');
+                        setDirty(true);
+                        updateCompletion();
+                        updateBmiPreview();
+                    });
+                });
+            }
+
+            // reset button
+            if (resetBtn && form) {
+                resetBtn.addEventListener('click', () => {
+                    form.reset();
+                    setDirty(false);
+                    toast('Form reset', 'warn');
+                });
+            }
+
+            // save button ripple
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', (e) => {
+                    const rect = saveBtn.getBoundingClientRect();
+                    const ripple = document.createElement('span');
+                    ripple.className = 'ripple';
+                    ripple.style.left = `${e.clientX - rect.left}px`;
+                    ripple.style.top = `${e.clientY - rect.top}px`;
+                    ripple.style.width = ripple.style.height = '20px';
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    ripple.style.backgroundColor = 'rgba(255,255,255,0.45)';
+                    ripple.style.pointerEvents = 'none';
+                    saveBtn.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 650);
+                });
+            }
+
+            // profile image preview
+            if (profileImageInput && profilePreview) {
+                profileImageInput.addEventListener('change', () => {
+                    const file = profileImageInput.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        profilePreview.src = ev.target.result;
+                        profilePreview.classList.add('pop');
+                        setTimeout(() => profilePreview.classList.remove('pop'), 300);
+                        toast('Profile photo preview updated');
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // form submit
+            if (form) {
+                form.addEventListener('submit', () => {
+                    toast('Saving profile...', 'ok');
+                    setDirty(false);
+                });
+            }
+
+            // init
+            updateCompletion();
+            updateBmiPreview();
+
+            // add missing ripple style
+            const style = document.createElement('style');
+            style.innerHTML = `@keyframes ripple { to { transform: scale(4); opacity: 0; } } .pop { animation: profilePop 0.3s ease; } @keyframes profilePop { 0% { transform: scale(0.95); } 60% { transform: scale(1.05); } 100% { transform: scale(1); } }`;
+            document.head.appendChild(style);
+        })();
+    </script>
+</body>
+
+</html>

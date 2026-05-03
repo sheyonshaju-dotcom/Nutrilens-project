@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | NutriLens Dietitian</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #fff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .04);
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0
+        }
+
+        .sidebar-logo {
+            padding: 22px 20px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0
+        }
+
+        .logo-text b {
+            display: block;
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--text)
+        }
+
+        .logo-text span {
+            font-size: .68rem;
+            color: var(--muted);
+            font-weight: 600
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: .875rem;
+            font-weight: 600;
+            transition: all .15s;
+            position: relative
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: .88rem
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        .nav-item.active {
+            background: var(--brand-soft);
+            color: var(--brand)
+        }
+
+        .nav-item.active i {
+            color: var(--brand)
+        }
+
+        .sidebar-footer {
+            padding: 14px 10px;
+            border-top: 1px solid var(--border)
+        }
+
+        .nav-item.logout {
+            color: #ef4444
+        }
+
+        .nav-item.logout:hover {
+            background: #fef2f2
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--brand);
+            color: #fff;
+            font-size: .6rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 999px;
+            min-width: 18px;
+            text-align: center
+        }
+
+        /* ── Main ── */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 26px 30px 60px
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 10px
+        }
+
+        .topbar h1 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: -.02em
+        }
+
+        .topbar p {
+            font-size: .84rem;
+            color: var(--muted);
+            margin-top: 2px
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px
+        }
+
+        .date-chip {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: .78rem;
+            font-weight: 600;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px
+        }
+
+        /* ── Stat cards ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: border-color .2s
+        }
+
+        .stat-card:hover {
+            border-color: var(--brand)
+        }
+
+        .stat-card.accent {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: #fff
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .82rem;
+            color: var(--brand)
+        }
+
+        .stat-card.accent .stat-icon {
+            background: rgba(255, 255, 255, .2);
+            color: #fff
+        }
+
+        .stat-val {
+            font-size: 1.75rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-top: 6px
+        }
+
+        .stat-lbl {
+            font-size: .67rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--muted)
+        }
+
+        .stat-card.accent .stat-lbl {
+            color: rgba(255, 255, 255, .75)
+        }
+
+        .stat-delta {
+            font-size: .7rem;
+            color: #10b981;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            margin-top: 2px
+        }
+
+        /* ── Two-col layout ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border)
+        }
+
+        .card-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px
+        }
+
+        .card-title {
+            font-size: .92rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .card-title i {
+            color: var(--brand);
+            font-size: .88rem
+        }
+
+        .card-link {
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--brand);
+            text-decoration: none
+        }
+
+        .card-link:hover {
+            opacity: .8
+        }
+
+        /* ── Activity feed ── */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0
+        }
+
+        .activity-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .activity-row:last-child {
+            border-bottom: none
+        }
+
+        .act-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .82rem;
+            font-weight: 800;
+            color: var(--brand);
+            flex-shrink: 0
+        }
+
+        .act-name {
+            font-weight: 700;
+            font-size: .86rem;
+            margin-bottom: 1px
+        }
+
+        .act-meta {
+            font-size: .73rem;
+            color: var(--muted)
+        }
+
+        .act-cal {
+            font-size: .9rem;
+            font-weight: 800;
+            color: var(--brand);
+            margin-left: auto;
+            white-space: nowrap
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 7px;
+            font-size: .75rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all .15s
+        }
+
+        .btn-brand {
+            background: var(--brand);
+            color: #fff
+        }
+
+        .btn-brand:hover {
+            background: var(--brand-dark)
+        }
+
+        .btn-ghost {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border)
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--brand);
+            color: var(--brand)
+        }
+
+        /* ── Chart ── */
+        .chart-wrap {
+            position: relative;
+            height: 180px;
+            margin-top: 4px
+        }
+
+        /* ── Client health table ── */
+        .health-table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        .health-table th {
+            text-align: left;
+            font-size: .67rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--muted);
+            padding: 0 10px 10px 0;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        .health-table td {
+            padding: 11px 10px 11px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: .84rem
+        }
+
+        .health-table tr:last-child td {
+            border-bottom: none
+        }
+
+        .health-table tr:hover td {
+            background: #fafafa
+        }
+
+        .cal-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px
+        }
+
+        .cal-bar-outer {
+            flex: 1;
+            height: 5px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden
+        }
+
+        .cal-bar-inner {
+            height: 100%;
+            border-radius: 99px;
+            background: var(--brand)
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-size: .68rem;
+            font-weight: 700
+        }
+
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46
+        }
+
+        .badge-amber {
+            background: #fef3c7;
+            color: #92400e
+        }
+
+        .badge-red {
+            background: #fef2f2;
+            color: #dc2626
+        }
+
+        /* ── Alert cards ── */
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .alert-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: var(--bg);
+            border-radius: 10px;
+            border-left: 3px solid var(--brand);
+            border: 1px solid var(--border);
+            border-left: 3px solid #f59e0b
+        }
+
+        .alert-card.risk {
+            border-left-color: #ef4444
+        }
+
+        .alert-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            flex-shrink: 0;
+            background: #fef3c7;
+            color: #d97706
+        }
+
+        .alert-card.risk .alert-icon {
+            background: #fef2f2;
+            color: #ef4444
+        }
+
+        .alert-name {
+            font-weight: 700;
+            font-size: .85rem
+        }
+
+        .alert-msg {
+            font-size: .75rem;
+            color: var(--muted)
+        }
+
+        .alert-action {
+            margin-left: auto;
+            flex-shrink: 0
+        }
+
+        /* ── Messages preview ── */
+        .msg-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0
+        }
+
+        .msg-row {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--text);
+            transition: background .15s;
+            border-radius: 6px
+        }
+
+        .msg-row:last-child {
+            border-bottom: none
+        }
+
+        .msg-row:hover {
+            background: var(--bg);
+            padding-left: 6px
+        }
+
+        .msg-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            font-weight: 800;
+            color: var(--brand);
+            flex-shrink: 0
+        }
+
+        .msg-name {
+            font-weight: 700;
+            font-size: .84rem
+        }
+
+        .msg-preview {
+            font-size: .73rem;
+            color: var(--muted)
+        }
+
+        .msg-arrow {
+            margin-left: auto;
+            color: var(--brand);
+            font-size: .72rem
+        }
+
+        .msg-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--brand);
+            flex-shrink: 0
+        }
+
+        /* ── Empty state ── */
+        .empty {
+            text-align: center;
+            padding: 36px 20px;
+            color: var(--muted)
+        }
+
+        .empty i {
+            font-size: 1.8rem;
+            opacity: .2;
+            display: block;
+            margin-bottom: 10px
+        }
+
+        .empty p {
+            font-size: .83rem
+        }
+
+        @media(max-width:1100px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .two-col,
+            .three-col {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🩺</div>
+            <div class="logo-text"><b>NutriLens</b><span>Dietitian Panel</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dietitian/dashboard" class="nav-item active"><i class="fas fa-gauge"></i> Dashboard</a>
+            <a href="/dietitian/clients" class="nav-item"><i class="fas fa-users"></i> Clients</a>
+            <a href="/dietitian/meal-reviews" class="nav-item">
+                <i class="fas fa-clipboard-list"></i> Meal Reviews
+                {% if pending_count and pending_count > 0 %}
+                <span class="nav-badge">{{ pending_count }}</span>
+                {% endif %}
+            </a>
+            <a href="/dietitian/progress" class="nav-item"><i class="fas fa-chart-line"></i> Progress</a>
+            <a href="/dietitian/messages" class="nav-item">
+                <i class="fas fa-comments"></i> Messages
+                {% if unread_messages and unread_messages > 0 %}
+                <span class="nav-badge">{{ unread_messages }}</span>
+                {% endif %}
+            </a>
+            <a href="/dietitian/recipes" class="nav-item"><i class="fas fa-flask"></i> Recipe Verification</a>
+            <a href="/dietitian/recommended" class="nav-item"><i class="fas fa-star"></i> Recommended</a>
+            <a href="/dietitian/my-recipes" class="nav-item"><i class="fas fa-book-open"></i> My Recipes</a>
+            <a href="/dietitian/feedback" class="nav-item"><i class="fas fa-star-half-stroke"></i> Client Feedback</a>
+            <a href="/dietitian/profile" class="nav-item"><i class="fas fa-user-circle"></i> My Profile</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('dietitian_logout') }}" class="nav-item logout">
+                <i class="fas fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div>
+                <h1>Good {{ 'Morning' if now_hour < 12 else ('Afternoon' if now_hour < 17 else 'Evening') }}, {{ dietitian_name }} 👋</h1>
+                        <p>Here's your client health overview for today</p>
+            </div>
+            <div class="topbar-right">
+                <div class="date-chip"><i class="fas fa-calendar"></i> <span id="todayDate"></span></div>
+            </div>
+        </div>
+
+        <!-- 4 Stat cards -->
+        <div class="stats-row">
+            <div class="stat-card accent">
+                <div class="stat-top">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                </div>
+                <div class="stat-val">{{ clients|length if clients else 0 }}</div>
+                <div class="stat-lbl">Active Clients</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
+                </div>
+                <div class="stat-val">{{ reviewed_count or 0 }}</div>
+                <div class="stat-lbl">Meals Reviewed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon" style="background:#fef3c7;color:#d97706"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="stat-val" style="color:{{ '#ef4444' if (pending_count or 0) > 5 else 'var(--text)' }}">{{
+                    pending_count or 0 }}</div>
+                <div class="stat-lbl">Pending Reviews</div>
+                {% if pending_count and pending_count > 0 %}
+                <a href="/dietitian/meal-reviews"
+                    style="font-size:.7rem;font-weight:700;color:var(--brand);text-decoration:none;margin-top:2px">Review
+                    now →</a>
+                {% endif %}
+            </div>
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon" style="background:#dbeafe;color:#2563eb"><i class="fas fa-comments"></i>
+                    </div>
+                </div>
+                <div class="stat-val" style="color:{{ '#e91e63' if (unread_messages or 0) > 0 else 'var(--text)' }}">{{
+                    unread_messages or 0 }}</div>
+                <div class="stat-lbl">Unread Messages</div>
+                {% if unread_messages and unread_messages > 0 %}
+                <a href="/dietitian/messages"
+                    style="font-size:.7rem;font-weight:700;color:var(--brand);text-decoration:none;margin-top:2px">Reply
+                    now →</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Row 1: Chart + At-risk alerts -->
+        <div class="three-col">
+
+            <!-- 7-Day Calorie Trend chart -->
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title"><i class="fas fa-chart-line"></i> 7-Day Client Calorie Trend</div>
+                    <a href="/dietitian/progress" class="card-link">View all →</a>
+                </div>
+                {% if trend_labels %}
+                <div class="chart-wrap">
+                    <canvas id="trendChart"></canvas>
+                </div>
+                {% else %}
+                <div class="empty"><i class="fas fa-chart-line"></i>
+                    <p>No meal data in the last 7 days</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- At-risk clients -->
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title"><i class="fas fa-triangle-exclamation"></i> Needs Attention</div>
+                </div>
+                <!-- FIX: at_risk is not passed by the backend; default to empty so the block is skipped -->
+                {% set at_risk = at_risk if at_risk is defined else [] %}
+                {% if at_risk %}
+                <div class="alert-list">
+                    {% for c in at_risk[:4] %}
+                    <div class="alert-card risk">
+                        <div class="alert-icon"><i class="fas fa-user-xmark"></i></div>
+                        <div>
+                            <div class="alert-name">{{ c.full_name }}</div>
+                            <div class="alert-msg">
+                                {% if c.last_date %}
+                                No log for {{ c.days_since }} day{{ 's' if c.days_since != 1 else '' }}
+                                {% else %}
+                                Never logged a meal
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="alert-action">
+                            <a href="/dietitian/messages/{{ c.id }}" class="btn btn-brand">
+                                <i class="fas fa-comment"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty"><i class="fas fa-circle-check" style="color:#10b981;opacity:1"></i>
+                    <p style="color:#10b981;font-weight:700">All clients are active!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Row 2: Client health table + Messages -->
+        <div class="three-col">
+
+            <!-- Client nutrition overview -->
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title"><i class="fas fa-table"></i> Client Nutrition (7-day avg)</div>
+                    <a href="/dietitian/clients" class="card-link">All clients →</a>
+                </div>
+                <!-- FIX: client_health is not passed by the backend; default to empty -->
+                {% set client_health = client_health if client_health is defined else [] %}
+                {% if client_health %}
+                <table class="health-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Avg Calories</th>
+                            <th>Avg Protein</th>
+                            <th>Days Logged</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in client_health %}
+                        <tr>
+                            <td>
+                                <a href="/dietitian/client/{{ c.id }}"
+                                    style="font-weight:700;text-decoration:none;color:var(--text)">
+                                    {{ c.full_name }}
+                                </a>
+                            </td>
+                            <td>
+                                <div class="cal-bar-wrap">
+                                    <div class="cal-bar-outer">
+                                        <div class="cal-bar-inner"
+                                            style="width:{{ [((c.avg_cal or 0) / 2000 * 100)|int, 100]|min }}%"></div>
+                                    </div>
+                                    <span style="font-size:.8rem;font-weight:700;white-space:nowrap">{{ c.avg_cal|int if
+                                        c.avg_cal else '—' }} kcal</span>
+                                </div>
+                            </td>
+                            <td style="font-weight:600">{{ c.avg_prot|int if c.avg_prot else '—' }}g</td>
+                            <td>{{ c.days_logged or 0 }}/7</td>
+                            <td>
+                                {% if not c.days_logged or c.days_logged == 0 %}
+                                <span class="badge badge-red">Inactive</span>
+                                {% elif c.days_logged >= 5 %}
+                                <span class="badge badge-green">Consistent</span>
+                                {% else %}
+                                <span class="badge badge-amber">Irregular</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty"><i class="fas fa-users"></i>
+                    <p>No clients assigned yet</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Messages preview -->
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title">
+                        <i class="fas fa-comments"></i> Recent Messages
+                        {% if unread_messages and unread_messages > 0 %}
+                        <span
+                            style="background:var(--brand);color:#fff;font-size:.6rem;padding:2px 7px;border-radius:999px;font-weight:800">{{
+                            unread_messages }} new</span>
+                        {% endif %}
+                    </div>
+                    <a href="/dietitian/messages" class="card-link">All →</a>
+                </div>
+                {% if clients %}
+                <div class="msg-list">
+                    {% for c in clients[:5] %}
+                    <a href="/dietitian/messages/{{ c.id }}" class="msg-row">
+                        <div class="msg-dot" {% if loop.index <=(unread_messages or 0) %}style="background:var(--brand)"
+                            {% else %}style="background:var(--border)" {% endif %}></div>
+                        <div class="msg-avatar">{{ c.full_name[0]|upper }}</div>
+                        <div>
+                            <div class="msg-name">{{ c.full_name }}</div>
+                            <div class="msg-preview">Tap to open conversation</div>
+                        </div>
+                        <i class="fas fa-chevron-right msg-arrow"></i>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty"><i class="fas fa-comments"></i>
+                    <p>No client conversations yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Row 3: Recent activity -->
+        <div class="card">
+            <div class="card-head">
+                <div class="card-title"><i class="fas fa-bolt"></i> Recent Client Meals</div>
+                <a href="/dietitian/meal-reviews" class="card-link">Review all →</a>
+            </div>
+            {% if activities %}
+            <div class="activity-list">
+                {% for a in activities %}
+                <div class="activity-row">
+                    <div class="act-avatar">{{ a.full_name[0]|upper }}</div>
+                    <div style="flex:1">
+                        <div class="act-name">{{ a.full_name }}</div>
+                        <div class="act-meta"><i class="fas fa-bowl-food" style="font-size:.65rem"></i> {{ a.food_name
+                            }} &middot; {{ a.date }}</div>
+                    </div>
+                    <div class="act-cal">{{ a.calories }} kcal</div>
+                    <a href="/dietitian/client/{{ a.user_id }}" class="btn btn-brand" style="margin-left:12px">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty"><i class="fas fa-inbox"></i>
+                <p>No recent client meal activity</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </main>
+
+    <script>
+        // Date chip
+        document.getElementById('todayDate').textContent =
+            new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+
+        // 7-day trend chart
+        const trendLabels = {{ trend_labels| tojson }};
+        const trendData = {{ trend_data| tojson }};
+
+        if (trendLabels.length && document.getElementById('trendChart')) {
+            new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: {
+                    labels: trendLabels,
+                    datasets: [{
+                        label: 'Avg Calories',
+                        data: trendData,
+                        borderColor: '#e91e63',
+                        backgroundColor: 'rgba(233,30,99,.08)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#e91e63',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ' ' + ctx.parsed.y + ' avg kcal'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 11, family: 'Plus Jakarta Sans' } } },
+                        y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 11, family: 'Plus Jakarta Sans' }, callback: v => v + ' kcal' } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

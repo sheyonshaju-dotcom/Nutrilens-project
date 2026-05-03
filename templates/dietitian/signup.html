@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dietitian Sign Up - NutriLens</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Decorative Images */
+        .decorative-image {
+            position: absolute;
+            top: 25%;
+            width: 280px;
+            height: 280px;
+            display: none;
+            z-index: 1;
+        }
+
+        .decorative-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
+        }
+
+        .decorative-image.left {
+            left: 5%;
+        }
+
+        .decorative-image.right {
+            right: 5%;
+        }
+
+        @media (min-width: 1200px) {
+            .decorative-image {
+                display: block;
+            }
+        }
+
+        /* Header */
+        .header {
+            padding: 1.5rem 2rem;
+            position: relative;
+            z-index: 10;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 2px solid #d81b60; 
+        }
+
+        .logo-circle {
+            width: 32px;
+            height: 32px;
+            background-color: #d81b60;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text .brand-name {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #1f2937;
+        }
+
+        .logo-text .brand-tagline {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            position: relative;
+            z-index: 5;
+        }
+
+        .signup-container {
+            width: 100%;
+            max-width: 480px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem 2rem;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* Signup Header */
+        .signup-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .signup-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+        }
+
+        .signup-header p {
+            color: #6b7280;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .signup-header .highlight {
+            color: #d81b60; /* Changed to green for dietitian */
+            font-weight: 600;
+        }
+
+        /* Form Elements */
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 16px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 14px 14px 44px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.2s;
+            background-color: #f9fafb;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #d81b60; /* Changed to green for dietitian */
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(216, 27, 96, 0.1); /* Green shadow */
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-password:hover {
+            color: #4b5563;
+        }
+
+        /* Password Strength Indicator */
+        .password-strength {
+            display: none;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .password-strength.show {
+            display: block;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background-color: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+
+        .strength-fill.weak {
+            width: 33%;
+            background-color: #ef4444;
+        }
+
+        .strength-fill.medium {
+            width: 66%;
+            background-color: #f59e0b;
+        }
+
+        .strength-fill.strong {
+            width: 100%;
+            background-color: #d81b60; /* Green for strong */
+        }
+
+        .strength-text {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        /* Terms and Conditions */
+        .terms-conditions {
+            margin-bottom: 1.5rem;
+        }
+
+        .terms-conditions label {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 14px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .terms-conditions input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #d81b60; /* Changed to green for dietitian */
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .terms-conditions a {
+            color: #d81b60; /* Changed to green for dietitian */
+            text-decoration: none;
+        }
+
+        .terms-conditions a:hover {
+            text-decoration: underline;
+        }
+
+        /* Messages */
+        .error-message, .success-message {
+            display: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .success-message {
+            background-color: #d1fae5;
+            color: #d81b60;
+            border: 1px solid #a7f3d0;
+        }
+
+        .error-message.show, .success-message.show {
+            display: block;
+        }
+
+        /* Signup Button */
+        .signup-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #d81b60; /* Changed to green for dietitian */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+
+        .signup-btn:hover {
+            background-color: #d81b60; /* Darker green */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); /* Green shadow */
+        }
+
+        .signup-btn:active {
+            transform: translateY(0);
+        }
+
+        .signup-btn:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Divider */
+        .divider {
+            position: relative;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background-color: #e5e7eb;
+        }
+
+        .divider span {
+            position: relative;
+            background-color: white;
+            padding: 0 1rem;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* Social Signup */
+        .social-signup {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+            color: #4b5563;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+
+        .social-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-btn.facebook:hover {
+            background-color: #1877f2;
+            color: white;
+            border-color: #1877f2;
+        }
+
+        .social-btn.google:hover {
+            background-color: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .social-btn.twitter:hover {
+            background-color: #0ea5e9;
+            color: white;
+            border-color: #0ea5e9;
+        }
+
+        /* Login Link */
+        .login-link {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .login-link a {
+            color: #d81b60; /* Changed to green for dietitian */
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #d81b60; /* Changed to green for dietitian */
+        }
+
+        .footer-bottom {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icons a {
+            color: #9ca3af;
+            transition: color 0.2s;
+            font-size: 16px;
+        }
+
+        .social-icons a:hover {
+            color: #d81b60; /* Changed to green for dietitian */
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .decorative-image {
+                display: none;
+            }
+            
+            .signup-container {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+            
+            .signup-header h1 {
+                font-size: 28px;
+            }
+            
+            .footer-links {
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .signup-container {
+                padding: 1.5rem;
+            }
+            
+            .footer-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative food images -->
+    <div class="decorative-image left">
+        <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoZWFsdGh5JTIwZWF0aW5nJTIwZGlldGl0aWFufGVufDF8fHx8MTc2NTAwMzE1OXww&ixlib=rb-4.1.0&q=80&w=1080" alt="Healthy eating">
+    </div>
+
+    <div class="decorative-image right">
+        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxudXRyaXRpb24lMjBhbmFseXNpc3xlbnwxfHx8fDE3NjUwMDMxNTl8MA&ixlib=rb-4.1.0&q=80&w=1080" alt="Nutrition analysis">
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-container">
+            <!-- NutriLens Logo Image -->
+            <img src="/static/images/Logo.png" 
+                 alt="NutriLens Logo" 
+                 style="width:60px; height:60px; border-radius:50%; object-fit:cover; border: 2px solid #d81b60;">
+
+            <div class="logo-text">
+                <div class="brand-name">NutriLens</div>
+                <div class="brand-tagline">Dietitian Portal</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="signup-container">
+            <div class="signup-header">
+                <h1>Dietitian Registration</h1>
+                <p>Join the <span class="highlight">NutriLens</span> dietitian network and help others achieve their health goals!</p>
+            </div>
+
+            <!-- Error Message Display -->
+            {% if error %}
+            <div class="error-message show">
+                <i class="fas fa-exclamation-circle"></i> {{ error }}
+            </div>
+            {% endif %}
+
+            <!-- Success Message Display -->
+            {% if request.args.get('signup') == 'success' %}
+            <div class="success-message show">
+                <i class="fas fa-check-circle"></i> Registration submitted successfully! Please wait for admin approval.
+            </div>
+            {% endif %}
+
+            <form action="/dietitian/signup" method="POST">
+                <!-- Full Name -->
+                <div class="input-group">
+                    <i class="fas fa-user-md input-icon"></i>
+                    <input type="text" id="fullName" name="full_name" placeholder="Full Name" required value="{{ request.form.full_name if request.form }}">
+                </div>
+
+                <!-- Email -->
+                <div class="input-group">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" name="email" placeholder="Professional Email" required value="{{ request.form.email if request.form }}">
+                </div>
+
+                <!-- License/Certification Number -->
+                <div class="input-group">
+                    <i class="fas fa-id-card input-icon"></i>
+                    <input type="text" id="license" name="license_number" placeholder="License/Certification Number" required value="{{ request.form.license_number if request.form }}">
+                </div>
+
+                <!-- Specialization -->
+                <div class="input-group">
+                    <i class="fas fa-stethoscope input-icon"></i>
+                    <input type="text" id="specialization" name="specialization" placeholder="Specialization (e.g., Sports, Pediatric)" value="{{ request.form.specialization if request.form }}">
+                </div>
+
+                <!-- Years of Experience -->
+                <div class="input-group">
+                    <i class="fas fa-chart-line input-icon"></i>
+                    <input type="number" id="experience" name="experience_years" placeholder="Years of Experience" min="0" value="{{ request.form.experience_years if request.form }}">
+                </div>
+
+                <!-- Password -->
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" name="password" placeholder="Password" required minlength="8">
+                    <button type="button" class="toggle-password" id="togglePassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="confirmPassword" name="confirm_password" placeholder="Confirm Password" required minlength="8">
+                    <button type="button" class="toggle-password" id="toggleConfirmPassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+
+                <!-- Bio/Introduction -->
+                <div class="input-group">
+                    <i class="fas fa-file-alt input-icon"></i>
+                    <textarea id="bio" name="bio" placeholder="Professional Bio/Introduction (Optional)" rows="3" style="width: 100%; padding: 14px 14px 14px 44px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 15px; background-color: #f9fafb; resize: vertical;">{{ request.form.bio if request.form }}</textarea>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="terms-conditions">
+                    <label>
+                        <input type="checkbox" required>
+                        I certify that I am a licensed/certified dietitian and agree to the Dietitian Terms of Service and Privacy Policy</a>
+                    </label>
+                </div>
+
+                <!-- Signup Button -->
+                <button type="submit" class="signup-btn">REGISTER AS DIETITIAN</button>
+
+                <div class="login-link">
+                    Already registered? <a href="/dietitian/login">Login here</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="#">For Dietitians</a>
+            <a href="#">Resources</a>
+            <a href="#">Help & Support</a>
+            <a href="#">Contact Admin</a>
+        </div>
+        <div class="footer-bottom">
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+            </div>
+            <p>© 2025 NutriLens Dietitian Network. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Password toggle functionality for password field
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+
+        togglePasswordBtn.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            if (type === 'password') {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        });
+
+        // Password toggle functionality for confirm password field
+        const toggleConfirmPasswordBtn = document.getElementById('toggleConfirmPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+
+        toggleConfirmPasswordBtn.addEventListener('click', function() {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            if (type === 'password') {
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            } else {
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            }
+        });
+
+        // Password strength indicator
+        const passwordStrength = document.createElement('div');
+        passwordStrength.className = 'password-strength';
+        passwordStrength.innerHTML = `
+            <div class="strength-bar">
+                <div class="strength-fill"></div>
+            </div>
+            <div class="strength-text">Password strength: <span id="strengthText">Weak</span></div>
+        `;
+        passwordInput.parentNode.insertBefore(passwordStrength, passwordInput.nextSibling);
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const strengthFill = passwordStrength.querySelector('.strength-fill');
+            const strengthText = passwordStrength.querySelector('#strengthText');
+            
+            if (password.length === 0) {
+                passwordStrength.classList.remove('show');
+                return;
+            }
+            
+            passwordStrength.classList.add('show');
+            
+            let strength = 0;
+            if (password.length >= 8) strength += 1;
+            if (/[A-Z]/.test(password)) strength += 1;
+            if (/[0-9]/.test(password)) strength += 1;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+            
+            if (strength === 0) {
+                strengthFill.className = 'strength-fill';
+                strengthText.textContent = 'Weak';
+            } else if (strength <= 2) {
+                strengthFill.className = 'strength-fill weak';
+                strengthText.textContent = 'Weak';
+            } else if (strength === 3) {
+                strengthFill.className = 'strength-fill medium';
+                strengthText.textContent = 'Medium';
+            } else {
+                strengthFill.className = 'strength-fill strong';
+                strengthText.textContent = 'Strong';
+            }
+        });
+
+        // Email validation function
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Form validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+            
+            if (password.length < 8) {
+                e.preventDefault();
+                alert('Password must be at least 8 characters long!');
+                return false;
+            }
+            
+            const email = document.getElementById('email').value;
+            if (!validateEmail(email)) {
+                e.preventDefault();
+                alert('Please enter a valid email address!');
+                return false;
+            }
+            
+            return true;
+        });
+
+        // Input focus effects
+        const inputs = document.querySelectorAll('.input-group input, .input-group textarea');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>

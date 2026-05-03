@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Recipes · NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand:      #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg:         #f4f5f7;
+            --surface:    #fff;
+            --text:       #1a1a2e;
+            --muted:      #6b7280;
+            --border:     #e8eaed;
+            --shadow:     0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.04);
+            --radius:     14px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .page {
+            width: 100%;
+            min-height: 100vh;
+            padding: 36px 40px 80px;
+        }
+
+        /* Top bar */
+        .topbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 28px; }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; font-size: .88rem; font-weight: 700; color: var(--muted); text-decoration: none; transition: color .15s; }
+        .back-link:hover { color: var(--brand); }
+        .page-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 10px; }
+        .page-title i { color: var(--brand); font-size: 1.5rem; }
+
+        .add-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: var(--brand); color: #fff; text-decoration: none;
+            padding: 10px 18px; border-radius: 10px; font-size: .86rem; font-weight: 700;
+            transition: background .15s, transform .15s;
+        }
+        .add-btn:hover { background: var(--brand-dark); transform: translateY(-1px); }
+
+        /* Stats row */
+        .stats-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 28px; }
+        .stat-chip {
+            background: var(--surface); border: 1.5px solid var(--border);
+            border-radius: 12px; padding: 14px 20px;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: var(--shadow); min-width: 140px; flex: 1;
+        }
+        .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .stat-label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+        .stat-value { font-size: 1.4rem; font-weight: 800; }
+
+        /* Filter tabs */
+        .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 22px; }
+        .ftab {
+            padding: 7px 16px; border-radius: 999px; font-size: .8rem; font-weight: 700;
+            text-decoration: none; color: var(--muted); border: 1.5px solid var(--border);
+            background: var(--surface); transition: all .15s; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .ftab:hover { border-color: var(--brand); color: var(--brand); }
+        .ftab.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+        /* Recipe cards grid */
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 18px;
+            width: 100%;
+        }
+
+        .recipe-card {
+            background: var(--surface); border-radius: var(--radius);
+            border: 1.5px solid var(--border); padding: 20px;
+            box-shadow: var(--shadow); transition: border-color .15s, box-shadow .15s;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .recipe-card:hover { border-color: var(--brand); box-shadow: 0 4px 20px rgba(233,30,99,.1); }
+
+        /* Status stripe */
+        .recipe-card.status-pending  { border-top: 4px solid #f59e0b; }
+        .recipe-card.status-approved { border-top: 4px solid #10b981; }
+        .recipe-card.status-rejected { border-top: 4px solid #ef4444; }
+
+        .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+        .recipe-emoji { font-size: 2rem; line-height: 1; }
+
+        /* Status badge */
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 999px; font-size: .7rem; font-weight: 800;
+            text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+        }
+        .badge-pending  { background: #fef3c7; color: #92400e; }
+        .badge-approved { background: #d1fae5; color: #065f46; }
+        .badge-rejected { background: #fef2f2; color: #dc2626; }
+        .badge-active   { background: #d1fae5; color: #065f46; }
+
+        .recipe-name { font-size: 1rem; font-weight: 800; margin-bottom: 2px; }
+        .recipe-category { font-size: .74rem; color: var(--muted); font-weight: 600; }
+
+        /* Macros row */
+        .macros { display: flex; gap: 8px; flex-wrap: wrap; }
+        .macro-pill {
+            background: var(--bg); border-radius: 7px; padding: 5px 10px;
+            font-size: .72rem; font-weight: 700; color: var(--text);
+            display: flex; align-items: center; gap: 4px;
+        }
+
+        /* Dietitian note */
+        .dietitian-note {
+            background: var(--brand-soft); border-radius: 9px;
+            padding: 10px 12px; font-size: .78rem; color: var(--brand-dark);
+            border-left: 3px solid var(--brand);
+        }
+        .dietitian-note-label { font-size: .65rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; color: var(--brand); }
+
+        .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; }
+        .recipe-date { font-size: .7rem; color: var(--muted); font-weight: 600; }
+        .view-btn {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: var(--brand-soft); color: var(--brand); text-decoration: none;
+            padding: 6px 14px; border-radius: 8px; font-size: .78rem; font-weight: 700;
+            transition: background .15s;
+        }
+        .view-btn:hover { background: var(--brand); color: #fff; }
+
+        /* Upload modal */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:999; align-items:center; justify-content:center; padding:20px; }
+        .modal-overlay.open { display:flex; }
+        .modal-box { background:#fff; border-radius:16px; padding:24px; width:100%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+        .modal-title { font-size:1rem; font-weight:800; margin-bottom:4px; }
+        .modal-sub { font-size:.78rem; color:var(--muted); margin-bottom:18px; }
+        .modal-close-btn { float:right; background:var(--bg); border:none; width:30px; height:30px; border-radius:50%; cursor:pointer; font-size:.9rem; color:var(--muted); }
+        .img-upload-wrap { border:2px dashed var(--border); border-radius:10px; padding:20px; text-align:center; cursor:pointer; background:var(--bg); position:relative; transition:all .2s; }
+        .img-upload-wrap:hover { border-color:var(--brand); background:var(--brand-soft); }
+        .img-upload-wrap input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+        .img-preview-thumb { display:none; margin-top:12px; }
+        .img-preview-thumb img { width:100%; max-height:160px; object-fit:cover; border-radius:8px; border:1.5px solid var(--border); }
+        .modal-field { margin-bottom:14px; }
+        .modal-field label { display:block; font-size:.76rem; font-weight:700; margin-bottom:5px; }
+        .modal-field input { width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; font-size:.85rem; font-family:inherit; outline:none; background:var(--bg); }
+        .modal-field input:focus { border-color:var(--brand); background:#fff; }
+        .modal-save-btn { width:100%; padding:11px; background:var(--brand); color:#fff; border:none; border-radius:9px; font-size:.9rem; font-weight:700; cursor:pointer; font-family:inherit; margin-top:6px; transition:background .15s; }
+        .modal-save-btn:hover { background:var(--brand-dark); }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center; padding: 80px 24px;
+            background: var(--surface); border-radius: var(--radius);
+            box-shadow: var(--shadow); border: 1px solid var(--border); grid-column: 1 / -1;
+        }
+        .empty-state i { font-size: 3rem; color: var(--brand); opacity: .2; display: block; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 1.1rem; margin-bottom: 8px; }
+        .empty-state p { font-size: .88rem; color: var(--muted); margin-bottom: 20px; }
+
+        @media(max-width: 600px) {
+            .page { padding: 20px 16px 60px; }
+            .page-title { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <a href="/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <h1 class="page-title"><i class="fas fa-clipboard-list"></i> My Recipes</h1>
+        <a href="/add_recipe" class="add-btn"><i class="fas fa-plus"></i> Add New Recipe</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-chip">
+            <div class="stat-icon" style="background:#f3f4f6">📋</div>
+            <div>
+                <div class="stat-label">Total</div>
+                <div class="stat-value">{{ recipes | length }}</div>
+            </div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-icon" style="background:#fef3c7">⏳</div>
+            <div>
+                <div class="stat-label">Pending</div>
+                <div class="stat-value" style="color:#92400e">{{ recipes | selectattr('status','equalto','pending') | list | length }}</div>
+            </div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-icon" style="background:#d1fae5">✅</div>
+            <div>
+                <div class="stat-label">Approved</div>
+                <div class="stat-value" style="color:#065f46">{{ recipes | selectattr('status','in',['approved','active']) | list | length }}</div>
+            </div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-icon" style="background:#fef2f2">❌</div>
+            <div>
+                <div class="stat-label">Rejected</div>
+                <div class="stat-value" style="color:#dc2626">{{ recipes | selectattr('status','equalto','rejected') | list | length }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filter-tabs">
+        <a href="/submitted_recipes"                   class="ftab {% if filter == 'all' %}active{% endif %}">All</a>
+        <a href="/submitted_recipes?filter=pending"    class="ftab {% if filter == 'pending' %}active{% endif %}">⏳ Pending</a>
+        <a href="/submitted_recipes?filter=approved"   class="ftab {% if filter == 'approved' %}active{% endif %}">✅ Approved</a>
+        <a href="/submitted_recipes?filter=rejected"   class="ftab {% if filter == 'rejected' %}active{% endif %}">❌ Rejected</a>
+    </div>
+
+    <!-- Recipe grid -->
+    <div class="recipe-grid">
+        {% if recipes %}
+        {% for r in recipes %}
+
+        {% set status = r.status if r.status else 'pending' %}
+        {% set display_status = 'approved' if status == 'active' else status %}
+
+        <div class="recipe-card status-{{ display_status }}">
+
+            <div class="card-top">
+                <div style="display:flex;gap:12px;align-items:flex-start">
+                    <div class="recipe-emoji">🍽️</div>
+                    <div>
+                        <div class="recipe-name">{{ r.name }}</div>
+                        <div class="recipe-category">
+                            <i class="fas fa-tag" style="font-size:.65rem"></i>
+                            {{ r.category or 'General' }}
+                        </div>
+                    </div>
+                </div>
+                <span class="status-badge badge-{{ display_status }}">
+                    {% if display_status == 'pending' %}⏳ Pending
+                    {% elif display_status == 'approved' %}✅ Approved
+                    {% elif display_status == 'rejected' %}❌ Rejected
+                    {% else %}{{ display_status | title }}
+                    {% endif %}
+                </span>
+            </div>
+
+            {% if r.description %}
+            <div style="font-size:.82rem;color:var(--muted);line-height:1.5">{{ r.description[:100] }}{% if r.description|length > 100 %}…{% endif %}</div>
+            {% endif %}
+
+            <!-- Macros -->
+            <div class="macros">
+                {% if r.calories %}
+                <span class="macro-pill">🔥 {{ r.calories }} kcal</span>
+                {% endif %}
+                {% if r.protein %}
+                <span class="macro-pill">💪 {{ r.protein }}g protein</span>
+                {% endif %}
+                {% if r.carbs %}
+                <span class="macro-pill">🌾 {{ r.carbs }}g carbs</span>
+                {% endif %}
+                {% if r.fat %}
+                <span class="macro-pill">🥑 {{ r.fat }}g fat</span>
+                {% endif %}
+            </div>
+
+            <!-- Dietitian note (if any) -->
+            {% if r.dietitian_note %}
+            <div class="dietitian-note">
+                <div class="dietitian-note-label"><i class="fas fa-user-md"></i> Dietitian Note</div>
+                {{ r.dietitian_note }}
+            </div>
+            {% endif %}
+
+            <!-- Pending message -->
+            {% if display_status == 'pending' %}
+            <div style="background:#fef3c7;border-radius:9px;padding:9px 12px;font-size:.78rem;color:#92400e;border-left:3px solid #f59e0b;">
+                <i class="fas fa-hourglass-half"></i> Your recipe is under review by our dietitian team.
+            </div>
+            {% elif display_status == 'rejected' %}
+            <div style="background:#fef2f2;border-radius:9px;padding:9px 12px;font-size:.78rem;color:#dc2626;border-left:3px solid #ef4444;">
+                <i class="fas fa-circle-info"></i> This recipe was not approved. Check the dietitian note above for details.
+            </div>
+            {% endif %}
+
+            <div class="card-footer">
+                <span class="recipe-date">
+                    <i class="fas fa-calendar" style="font-size:.65rem"></i>
+                    {{ r.created_at[:10] if r.created_at else '' }}
+                </span>
+                <div style="display:flex;gap:6px;align-items:center">
+                    <button onclick="openPhotoModal({{ r.id }}, '{{ r.video_url or '' }}')"
+                        style="display:inline-flex;align-items:center;gap:5px;background:var(--bg);color:var(--muted);border:1.5px solid var(--border);padding:6px 12px;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;"
+                        onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'"
+                        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+                        <i class="fas fa-camera"></i> {% if r.image_url %}Change Photo{% else %}Add Photo{% endif %}
+                    </button>
+                    {% if display_status == 'approved' %}
+                    <a href="/recipe/{{ r.id }}" class="view-btn"><i class="fas fa-eye"></i> View</a>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-utensils"></i>
+            <h3>No recipes yet</h3>
+            <p>
+                {% if filter != 'all' %}
+                No {{ filter }} recipes found. <a href="/submitted_recipes" style="color:var(--brand);font-weight:700">View all</a>
+                {% else %}
+                You haven't added any recipes yet. Share your favourite healthy meals!
+                {% endif %}
+            </p>
+            <a href="/add_recipe" class="add-btn"><i class="fas fa-plus"></i> Add Your First Recipe</a>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+<!-- Photo / Video update modal -->
+<div class="modal-overlay" id="photoModal" onclick="if(event.target===this)closePhotoModal()">
+    <div class="modal-box">
+        <button class="modal-close-btn" onclick="closePhotoModal()"><i class="fas fa-xmark"></i></button>
+        <div class="modal-title">📸 Update Photo & Video</div>
+        <div class="modal-sub">Upload a photo or update the YouTube link for this recipe.</div>
+        <form id="photoForm" method="POST" enctype="multipart/form-data">
+            <div class="modal-field">
+                <label>Recipe Photo</label>
+                <div class="img-upload-wrap" id="modalUploadWrap">
+                    <input type="file" name="recipe_image" id="modalFileInput" accept="image/*" onchange="previewModalImg(this)">
+                    <i class="fas fa-cloud-arrow-up" style="font-size:1.8rem;color:var(--brand);opacity:.5;display:block;margin-bottom:8px"></i>
+                    <div style="font-size:.85rem;font-weight:700">Click to upload photo</div>
+                    <div style="font-size:.72rem;color:var(--muted)">JPG, PNG or WEBP · Max 5MB</div>
+                </div>
+                <div class="img-preview-thumb" id="modalPreviewWrap">
+                    <img id="modalPreviewImg" src="" alt="Preview">
+                </div>
+            </div>
+            <div class="modal-field">
+                <label>YouTube / Video Link <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+                <input type="url" name="video_link" id="modalVideoInput" placeholder="https://youtube.com/watch?v=...">
+            </div>
+            <button type="submit" class="modal-save-btn"><i class="fas fa-floppy-disk"></i> Save Changes</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openPhotoModal(recipeId, videoUrl) {
+        document.getElementById('photoForm').action = `/update_recipe_photo/${recipeId}`;
+        document.getElementById('modalVideoInput').value = videoUrl || '';
+        document.getElementById('modalPreviewWrap').style.display = 'none';
+        document.getElementById('modalFileInput').value = '';
+        document.getElementById('photoModal').classList.add('open');
+    }
+    function closePhotoModal() {
+        document.getElementById('photoModal').classList.remove('open');
+    }
+    function previewModalImg(input) {
+        const file = input.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB.'); input.value = ''; return; }
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('modalPreviewImg').src = e.target.result;
+            document.getElementById('modalPreviewWrap').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closePhotoModal(); });
+</script>
+</body>
+</html>

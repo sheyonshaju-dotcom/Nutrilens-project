@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Recipes | NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #ffffff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .04);
+            --radius: 14px;
+            --green: #059669;
+            --green-soft: #d1fae5;
+            --gold: #f59e0b;
+            --gold-soft: #fef3c7;
+            --gold-dark: #92400e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .sidebar-logo {
+            padding: 24px 20px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .logo-text b {
+            display: block;
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .logo-text span {
+            font-size: .68rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: .875rem;
+            font-weight: 600;
+            transition: all .15s;
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: .88rem;
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .nav-item.active i {
+            color: var(--brand);
+        }
+
+        .sidebar-footer {
+            padding: 14px 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-item.logout {
+            color: #ef4444;
+        }
+
+        .nav-item.logout:hover {
+            background: #fef2f2;
+        }
+
+        /* Main */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 32px 60px;
+        }
+
+        .page-header {
+            margin-bottom: 22px;
+        }
+
+        .page-header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .page-header p {
+            font-size: .85rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 11px 15px;
+            border-radius: 10px;
+            font-size: .84rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .alert-success {
+            background: var(--green-soft);
+            color: var(--green);
+            border: 1px solid #a7f3d0;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .add-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            background: var(--brand);
+            color: #fff;
+            font-size: .84rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background .15s;
+            flex-shrink: 0;
+        }
+
+        .add-btn:hover {
+            background: var(--brand-dark);
+        }
+
+        .search-wrap {
+            position: relative;
+            margin-left: auto;
+        }
+
+        .search-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+        .search-input {
+            padding: 9px 14px 9px 34px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: .84rem;
+            font-family: inherit;
+            background: var(--surface);
+            outline: none;
+            color: var(--text);
+            transition: border-color .2s;
+            width: 220px;
+        }
+
+        .search-input:focus {
+            border-color: var(--brand);
+        }
+
+        /* Stats */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .stat-icon {
+            font-size: .78rem;
+            margin-bottom: 4px;
+        }
+
+        .stat-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: .66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* Recipe cards grid */
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .recipe-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: box-shadow .2s, transform .2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .recipe-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
+            transform: translateY(-2px);
+        }
+
+        .card-top {
+            padding: 18px 18px 14px;
+            flex: 1;
+        }
+
+        .card-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: .97rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        /* Status badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: .67rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .badge-verified {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        .badge-rec {
+            background: var(--gold-soft);
+            color: var(--gold-dark);
+        }
+
+        .badge-active {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Macros */
+        .macro-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .macro-chip {
+            font-size: .7rem;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 999px;
+        }
+
+        .chip-cal {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .chip-p {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .chip-c {
+            background: var(--gold-soft);
+            color: var(--gold-dark);
+        }
+
+        .chip-f {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        /* Description */
+        .card-desc {
+            font-size: .78rem;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        /* Tags */
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .card-tag {
+            font-size: .67rem;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 999px;
+            background: var(--bg);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        /* Category */
+        .card-category {
+            font-size: .7rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .card-category i {
+            color: var(--brand);
+            margin-right: 4px;
+        }
+
+        /* Card actions */
+        .card-actions {
+            border-top: 1px solid var(--border);
+            padding: 12px 18px;
+            display: flex;
+            gap: 8px;
+            background: #fafbfc;
+        }
+
+        .btn-sm {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: .76rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all .15s;
+        }
+
+        .btn-edit {
+            background: var(--bg);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-edit:hover {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+
+        .btn-view {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .btn-view:hover {
+            background: var(--brand);
+            color: #fff;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #dc2626;
+            margin-left: auto;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        /* Empty */
+        .empty {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--muted);
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .empty i {
+            font-size: 2.4rem;
+            opacity: .2;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .empty h3 {
+            font-size: .95rem;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .empty p {
+            font-size: .84rem;
+            margin-bottom: 20px;
+        }
+
+        /* Delete confirm modal */
+        .modal-bg {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .4);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-bg.open {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 28px;
+            max-width: 360px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+            text-align: center;
+        }
+
+        .modal h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .modal p {
+            font-size: .84rem;
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🩺</div>
+            <div class="logo-text"><b>NutriLens</b><span>Dietitian Panel</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dietitian/dashboard" class="nav-item"><i class="fas fa-gauge"></i> Dashboard</a>
+            <a href="/dietitian/clients" class="nav-item "><i class="fas fa-users"></i> Clients</a>
+            <a href="/dietitian/meal-reviews" class="nav-item"><i class="fas fa-clipboard-list"></i> Meal Reviews</a>
+            <a href="/dietitian/progress" class="nav-item"><i class="fas fa-chart-line"></i> Progress</a>
+            <a href="/dietitian/messages" class="nav-item"><i class="fas fa-comments"></i> Messages</a>
+            <a href="/dietitian/recipes" class="nav-item"><i class="fas fa-flask"></i> Recipe Verification</a>
+            <a href="/dietitian/recommended" class="nav-item"><i class="fas fa-star"></i> Recommended</a>
+            <a href="/dietitian/my-recipes" class="nav-item active"><i class="fas fa-book-open"></i> My Recipes</a>
+            <a href="/dietitian/feedback" class="nav-item"><i class="fas fa-star-half-stroke"></i> Client Feedback</a>
+            <a href="/dietitian/profile" class="nav-item"><i class="fas fa-user-circle"></i> My Profile</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('dietitian_logout') }}" class="nav-item logout">
+                <i class="fas fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="page-header">
+            <h1>My Recipes</h1>
+            <p>Professional recipes you've created — visible to all clients in the recipe library</p>
+        </div>
+
+        {% if success %}
+        <div class="alert alert-success"><i class="fas fa-circle-check"></i> {{ success }}</div>
+        {% endif %}
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <a href="/dietitian/add-recipe" class="add-btn">
+                <i class="fas fa-plus"></i> Add New Recipe
+            </a>
+            <form method="GET" action="/dietitian/my-recipes" class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" class="search-input" placeholder="Search recipes…"
+                    value="{{ search }}">
+            </form>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon" style="color:var(--brand)"><i class="fas fa-book-open"></i></div>
+                <div class="stat-val">{{ recipes|length }}</div>
+                <div class="stat-lbl">Total Recipes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color:var(--gold)"><i class="fas fa-star"></i></div>
+                <div class="stat-val" style="color:var(--gold)">
+                    {{ recipes | selectattr('is_recommended', 'equalto', 1) | list | length }}
+                </div>
+                <div class="stat-lbl">Recommended</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color:var(--green)"><i class="fas fa-circle-check"></i></div>
+                <div class="stat-val" style="color:var(--green)">
+                    {{ recipes | selectattr('is_verified', 'equalto', 1) | list | length }}
+                </div>
+                <div class="stat-lbl">Verified</div>
+            </div>
+        </div>
+
+        <!-- Recipe cards -->
+        {% if recipes %}
+        <div class="recipes-grid">
+            {% for recipe in recipes %}
+            <div class="recipe-card">
+                <div class="card-top">
+                    <div class="card-title-row">
+                        <div class="card-title">{{ recipe['name'] }}</div>
+                        <div style="display:flex;gap:4px;flex-direction:column;align-items:flex-end">
+                            {% if recipe['is_recommended'] %}
+                            <span class="badge badge-rec"><i class="fas fa-star"></i> Recommended</span>
+                            {% endif %}
+                            {% if recipe['is_verified'] %}
+                            <span class="badge badge-verified"><i class="fas fa-circle-check"></i> Verified</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if recipe['category'] %}
+                    <div class="card-category">
+                        <i class="fas fa-folder"></i> {{ recipe['category'] }}
+                    </div>
+                    {% endif %}
+
+                    <div class="macro-row">
+                        <span class="macro-chip chip-cal"><i class="fas fa-fire"></i> {{ recipe['calories'] or 0 }}
+                            kcal</span>
+                        {% if recipe['protein'] %}<span class="macro-chip chip-p">P: {{ recipe['protein']|int
+                            }}g</span>{% endif %}
+                        {% if recipe['carbs'] %}<span class="macro-chip chip-c">C: {{ recipe['carbs']|int }}g</span>{%
+                        endif %}
+                        {% if recipe['fat'] %}<span class="macro-chip chip-f">F: {{ recipe['fat']|int }}g</span>{% endif
+                        %}
+                    </div>
+
+                    {% if recipe['description'] %}
+                    <div class="card-desc">{{ recipe['description'][:100] }}{% if recipe['description']|length > 100
+                        %}…{% endif %}</div>
+                    {% endif %}
+
+                    {% if recipe['recipe_tags'] %}
+                    <div class="card-tags">
+                        {% for tag in recipe['recipe_tags'].split(',') %}
+                        {% set tag = tag.strip() %}
+                        {% if tag %}
+                        <span class="card-tag">{{ tag }}</span>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if recipe['expert_tag'] %}
+                    <div style="margin-top:4px">
+                        <span class="badge badge-rec" style="font-size:.65rem"><i class="fas fa-tag"></i> {{
+                            recipe['expert_tag'] }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-actions">
+                    <a href="/dietitian/edit-recipe/{{ recipe['id'] }}" class="btn-sm btn-edit">
+                        <i class="fas fa-pen"></i> Edit
+                    </a>
+                    <a href="/recipe/{{ recipe['id'] }}" class="btn-sm btn-view" target="_blank">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                    <button type="button" class="btn-sm btn-delete"
+                        onclick="confirmDelete({{ recipe['id'] }}, '{{ recipe['name']|replace("'", "\\'") }}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">
+            <i class="fas fa-book-open"></i>
+            <h3>No recipes yet{% if search %} matching "{{ search }}"{% endif %}</h3>
+            <p>{% if search %}Try a different search term.{% else %}Start adding professional recipes for your
+                clients.{% endif %}</p>
+            {% if not search %}
+            <a href="/dietitian/add-recipe" class="add-btn" style="display:inline-flex">
+                <i class="fas fa-plus"></i> Add Your First Recipe
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- Delete confirmation modal -->
+    <div class="modal-bg" id="deleteModal">
+        <div class="modal">
+            <h3>Delete Recipe?</h3>
+            <p id="deleteMsg">This will permanently remove the recipe.</p>
+            <div class="modal-btns">
+                <form id="deleteForm" method="POST">
+                    <div style="display:flex;gap:10px">
+                        <button type="button" onclick="closeModal()"
+                            style="padding:9px 20px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);color:var(--text);font-weight:700;font-family:inherit;cursor:pointer;font-size:.84rem">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            style="padding:9px 20px;border-radius:8px;border:none;background:#dc2626;color:#fff;font-weight:700;font-family:inherit;cursor:pointer;font-size:.84rem">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('deleteMsg').textContent = `"${name}" will be permanently removed.`;
+            document.getElementById('deleteForm').action = `/dietitian/delete-recipe/${id}`;
+            document.getElementById('deleteModal').classList.add('open');
+        }
+        function closeModal() {
+            document.getElementById('deleteModal').classList.remove('open');
+        }
+        document.getElementById('deleteModal').addEventListener('click', function (e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+</body>
+
+</html>

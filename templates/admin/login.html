@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - NutriLens</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Decorative Images */
+        .decorative-image {
+            position: absolute;
+            top: 25%;
+            width: 280px;
+            height: 280px;
+            display: none;
+            z-index: 1;
+        }
+
+        .decorative-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
+        }
+
+        .decorative-image.left {
+            left: 5%;
+        }
+
+        .decorative-image.right {
+            right: 5%;
+        }
+
+        @media (min-width: 1200px) {
+            .decorative-image {
+                display: block;
+            }
+        }
+
+        /* Header */
+        .header {
+            padding: 1.5rem 2rem;
+            position: relative;
+            z-index: 10;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 2px solid #e91e63; /* Admin pink color */
+        }
+
+        .logo-circle {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 2px solid #e91e63;
+       }
+
+        .logo-img {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+        border-radius: 50%;
+        }
+
+        .logo-text .brand-name {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #1f2937;
+        }
+
+        .logo-text .brand-tagline {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        /* Navigation */
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            padding: 1.5rem 0;
+            background-color: white;
+            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+            z-index: 10;
+        }
+
+        .nav-links a {
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.2s;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .nav-links a:hover {
+            color: #e91e63; /* Admin pink color */
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: #e91e63; /* Admin pink color */
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            position: relative;
+            z-index: 5;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem 2rem;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* Login Header */
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+        }
+
+        .login-header p {
+            color: #6b7280;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .login-header .highlight {
+            color: #e91e63; /* Admin pink color */
+            font-weight: 600;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff4081, #e91e63);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        /* Form Elements */
+        .input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 16px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 14px 14px 44px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.2s;
+            background-color: #f9fafb;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #e91e63; /* Admin pink color */
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1); /* Admin pink color */
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.2s;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toggle-password:hover {
+            color: #4b5563;
+        }
+
+        
+        /* Messages */
+        .error-message, .success-message {
+            display: none;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .success-message {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .error-message.show, .success-message.show {
+            display: block;
+        }
+
+        /* Login Button */
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #e91e63; /* Admin pink color */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-btn:hover {
+            background-color: #c2185b; /* Darker pink */
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3); /* Admin pink color */
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Security Notice */
+        .security-notice {
+            background-color: #fff3f7;
+            border: 1px solid #ffc2d6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 1.5rem;
+            font-size: 13px;
+            color: #8a4b6a;
+            text-align: center;
+        }
+
+        .security-notice i {
+            color: #e91e63;
+            margin-right: 8px;
+        }
+
+        /* Divider */
+        .divider {
+            position: relative;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            height: 1px;
+            background-color: #e5e7eb;
+        }
+
+        .divider span {
+            position: relative;
+            background-color: white;
+            padding: 0 1rem;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* Back to User Login */
+        .back-to-user {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .back-to-user a {
+            color: #e91e63;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .back-to-user a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            background-color: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #e91e63; /* Admin pink color */
+        }
+
+        .footer-bottom {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icons a {
+            color: #9ca3af;
+            transition: color 0.2s;
+            font-size: 16px;
+        }
+
+        .social-icons a:hover {
+            color: #e91e63; /* Admin pink color */
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .decorative-image {
+                display: none;
+            }
+            
+            .login-container {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+            
+            .login-header h1 {
+                font-size: 28px;
+            }
+            
+            .nav-links {
+                gap: 1.5rem;
+                padding: 1rem 0;
+            }
+            
+            .footer-links {
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .login-container {
+                padding: 1.5rem;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 1rem;
+                padding: 0.75rem 0;
+            }
+            
+            .form-options {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .footer-links {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative images for admin -->
+    <div class="decorative-image left">
+        <img src="https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1080&q=80" alt="Admin Dashboard">
+    </div>
+
+    <div class="decorative-image right">
+        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=1080&q=80" alt="Healthy Food">
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo-container">
+            <div class="logo">
+                <div class="logo-circle">
+                    <img src="/static/images/logo.png"
+                        alt="NutriLens Logo"
+                        class="logo-img">
+                </div>
+
+            </div>
+            <div class="logo-text">
+                <div class="brand-name">NutriLens</div>
+                <div class="brand-tagline">Admin Control Panel</div>
+            </div>
+        </div>
+    </header>
+
+    
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>Admin Login</h1>
+                <p><span class="highlight">Secure access to system controls</span></p>
+                <div class="admin-badge">
+                    <i class="fas fa-shield-alt"></i> RESTRICTED ACCESS
+                </div>
+            </div>
+
+            <form id="adminLoginForm" action="/admin/login" method="POST">
+                <!-- Email Input -->
+                <div class="input-group">
+                    <i class="fas fa-user-shield input-icon"></i>
+                    <input type="email" id="adminEmail" name="email" placeholder="Admin Email Address" required>
+                </div>
+
+                <!-- Password Input -->
+                <div class="input-group">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="adminPassword" name="password" placeholder="Admin Password" required>
+                    <button type="button" class="toggle-password" id="toggleAdminPassword">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+
+                
+                
+
+                <!-- Error Message -->
+                <div id="adminErrorMessage" class="error-message">
+                    Invalid admin credentials. Please try again.
+                </div>
+
+                <!-- Login Button -->
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> ACCESS ADMIN PANEL
+                </button>
+
+                
+            </form>
+
+            
+            
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Security</a>
+            <a href="#">Contact Support</a>
+        </div>
+        <div class="footer-bottom">
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-github"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <p>© 2025 NutriLens Admin Portal. All rights reserved.</p>
+            <p style="font-size: 11px; color: #9ca3af;">v2.1.0 | Last updated: Jan 28, 2026</p>
+        </div>
+    </footer>
+
+    <script>
+    // Password toggle functionality ONLY
+    const toggleAdminPasswordBtn = document.getElementById('toggleAdminPassword');
+    const adminPasswordInput = document.getElementById('adminPassword');
+
+    toggleAdminPasswordBtn.addEventListener('click', function () {
+        const isPassword = adminPasswordInput.type === 'password';
+        adminPasswordInput.type = isPassword ? 'text' : 'password';
+
+        const icon = this.querySelector('i');
+        icon.classList.toggle('fa-eye');
+        icon.classList.toggle('fa-eye-slash');
+    });
+</script>
+
+</body>
+</html>

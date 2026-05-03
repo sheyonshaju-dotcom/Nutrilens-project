@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dietitian Flags | NutriLens Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #ffffff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .04);
+            --radius: 14px;
+            --red: #be123c;
+            --red-soft: #fff1f2;
+            --red-border: #fda4af;
+            --green: #059669;
+            --green-soft: #d1fae5;
+            --amber: #d97706;
+            --amber-soft: #fef3c7;
+            --blue: #1e40af;
+            --blue-soft: #dbeafe;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── Top bar (matches admin layout) ── */
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: var(--shadow);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .topbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .logo-text b {
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .logo-text span {
+            font-size: .68rem;
+            color: var(--muted);
+            font-weight: 600;
+            display: block;
+        }
+
+        .topbar-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: .82rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: all .15s;
+        }
+
+        .topbar-back:hover {
+            color: var(--brand);
+            border-color: var(--brand);
+        }
+
+        /* ── Page ── */
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 28px 24px 60px;
+        }
+
+        .page-header {
+            margin-bottom: 22px;
+        }
+
+        .page-header h1 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header h1 i {
+            color: var(--red);
+        }
+
+        .page-header p {
+            font-size: .84rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* ── Stats ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .stat-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: .66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        /* ── Filter tabs ── */
+        .filter-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 7px 16px;
+            border-radius: 999px;
+            font-size: .78rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--muted);
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            transition: all .15s;
+        }
+
+        .filter-tab:hover {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+
+        .filter-tab.active {
+            background: var(--brand);
+            color: #fff;
+            border-color: var(--brand);
+        }
+
+        /* ── Flag cards ── */
+        .flags-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .flag-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .flag-card.status-pending {
+            border-left: 4px solid var(--red);
+        }
+
+        .flag-card.status-reviewed {
+            border-left: 4px solid var(--amber);
+        }
+
+        .flag-card.status-resolved {
+            border-left: 4px solid var(--green);
+        }
+
+        .flag-card.status-dismissed {
+            border-left: 4px solid var(--muted);
+        }
+
+        .flag-card-header {
+            padding: 14px 20px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .flag-recipe-name {
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .flag-meta {
+            font-size: .74rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .flag-meta i {
+            color: var(--brand);
+            margin-right: 2px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 11px;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .sb-pending {
+            background: var(--red-soft);
+            color: var(--red);
+            border: 1px solid var(--red-border);
+        }
+
+        .sb-reviewed {
+            background: var(--amber-soft);
+            color: var(--amber);
+        }
+
+        .sb-resolved {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        .sb-dismissed {
+            background: var(--bg);
+            color: var(--muted);
+            border: 1px solid var(--border);
+        }
+
+        /* Reason tag */
+        .reason-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 13px;
+            border-radius: 999px;
+            background: var(--red-soft);
+            color: var(--red);
+            border: 1px solid var(--red-border);
+            font-size: .72rem;
+            font-weight: 700;
+        }
+
+        /* Macros */
+        .macro-row {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .macro-chip {
+            font-size: .68rem;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 999px;
+        }
+
+        .chip-cal {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .chip-p {
+            background: var(--blue-soft);
+            color: var(--blue);
+        }
+
+        .chip-c {
+            background: var(--amber-soft);
+            color: var(--amber);
+        }
+
+        .chip-f {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        /* Note from dietitian */
+        .dietitian-note {
+            padding: 10px 14px;
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: .78rem;
+            color: var(--text);
+            line-height: 1.5;
+            border-left: 3px solid var(--red);
+            margin: 8px 0 0;
+        }
+
+        .dietitian-note .note-lbl {
+            font-size: .66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--muted);
+            margin-bottom: 3px;
+        }
+
+        /* Admin response section */
+        .flag-card-body {
+            padding: 14px 20px;
+        }
+
+        .admin-response-existing {
+            padding: 10px 14px;
+            background: var(--green-soft);
+            border-radius: 8px;
+            font-size: .78rem;
+            color: #065f46;
+            line-height: 1.5;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--green);
+        }
+
+        .admin-response-existing .note-lbl {
+            font-size: .66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #065f46;
+            margin-bottom: 3px;
+        }
+
+        /* Action form */
+        .action-form {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .action-select {
+            padding: 8px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: .78rem;
+            font-family: inherit;
+            font-weight: 600;
+            background: var(--bg);
+            outline: none;
+            color: var(--text);
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+
+        .action-select:focus {
+            border-color: var(--brand);
+        }
+
+        .action-note {
+            flex: 1;
+            min-width: 180px;
+            padding: 8px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: .78rem;
+            font-family: inherit;
+            background: var(--bg);
+            outline: none;
+            color: var(--text);
+            transition: border-color .2s;
+        }
+
+        .action-note:focus {
+            border-color: var(--brand);
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: .78rem;
+            font-weight: 700;
+            background: var(--brand);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background .15s;
+            flex-shrink: 0;
+        }
+
+        .btn-action:hover {
+            background: var(--brand-dark);
+        }
+
+        .btn-view-recipe {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 13px;
+            border-radius: 8px;
+            font-size: .76rem;
+            font-weight: 700;
+            background: var(--bg);
+            color: var(--muted);
+            border: 1.5px solid var(--border);
+            text-decoration: none;
+            transition: all .15s;
+            flex-shrink: 0;
+        }
+
+        .btn-view-recipe:hover {
+            color: var(--brand);
+            border-color: var(--brand);
+        }
+
+        /* Empty */
+        .empty {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--muted);
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .empty i {
+            font-size: 2.4rem;
+            opacity: .2;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .empty h3 {
+            font-size: .95rem;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <a href="/admin/dashboard" class="topbar-logo">
+                <div class="logo-icon">🩺</div>
+                <div class="logo-text"><b>NutriLens</b><span>Admin Panel</span></div>
+            </a>
+            <a href="/admin/dashboard" class="topbar-back">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+        <a href="/admin/logout" style="font-size:.78rem;color:var(--muted);text-decoration:none;font-weight:600">
+            <i class="fas fa-right-from-bracket"></i> Logout
+        </a>
+    </div>
+
+    <div class="page">
+        <div class="page-header">
+            <h1><i class="fas fa-flag"></i> Dietitian-Flagged Recipes</h1>
+            <p>Recipes marked as unhealthy by dietitians — review and take action</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-val">{{ counts.total or 0 }}</div>
+                <div class="stat-lbl">Total Flags</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" style="color:var(--red)">{{ counts.pending or 0 }}</div>
+                <div class="stat-lbl" style="color:var(--red)">⚠ Pending</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" style="color:var(--amber)">{{ counts.reviewed or 0 }}</div>
+                <div class="stat-lbl">In Review</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" style="color:var(--green)">{{ counts.resolved or 0 }}</div>
+                <div class="stat-lbl">Resolved</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+            <a href="/admin/dietitian-flags?status=all"
+                class="filter-tab {% if status_filter == 'all' %}active{% endif %}">
+                All <span style="opacity:.7">({{ counts.total or 0 }})</span>
+            </a>
+            <a href="/admin/dietitian-flags?status=pending"
+                class="filter-tab {% if status_filter == 'pending' %}active{% endif %}">
+                ⚠ Pending <span style="opacity:.7">({{ counts.pending or 0 }})</span>
+            </a>
+            <a href="/admin/dietitian-flags?status=reviewed"
+                class="filter-tab {% if status_filter == 'reviewed' %}active{% endif %}">
+                🔍 Reviewed <span style="opacity:.7">({{ counts.reviewed or 0 }})</span>
+            </a>
+        </div>
+
+        <!-- Flag cards -->
+        {% if flags %}
+        <div class="flags-list">
+            {% for flag in flags %}
+            <div class="flag-card status-{{ flag['flag_status'] }}">
+
+                <!-- Header -->
+                <div class="flag-card-header">
+                    <div>
+                        <div class="flag-recipe-name">{{ flag['recipe_name'] }}</div>
+                        <div class="flag-meta">
+                            <span><i class="fas fa-user-md"></i> {{ flag['dietitian_name'] }}</span>
+                            <span><i class="fas fa-clock"></i> {{ flag['flagged_at'][:16] if flag['flagged_at'] else '—'
+                                }}</span>
+                        </div>
+                        <div class="macro-row">
+                            <span class="macro-chip chip-cal"><i class="fas fa-fire"></i> {{ flag['calories'] or 0 }}
+                                kcal</span>
+                            {% if flag['protein'] %}<span class="macro-chip chip-p">P: {{ flag['protein']|int
+                                }}g</span>{% endif %}
+                            {% if flag['carbs'] %}<span class="macro-chip chip-c">C: {{ flag['carbs']|int }}g</span>{%
+                            endif %}
+                            {% if flag['fat'] %}<span class="macro-chip chip-f">F: {{ flag['fat']|int }}g</span>{% endif
+                            %}
+                        </div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+                        {% set s = flag['flag_status'] %}
+                        {% if s == 'pending' %}
+                        <span class="status-badge sb-pending"><i class="fas fa-triangle-exclamation"></i> Pending</span>
+                        {% elif s == 'reviewed' %}
+                        <span class="status-badge sb-reviewed"><i class="fas fa-magnifying-glass"></i> In Review</span>
+                        {% elif s == 'resolved' %}
+                        <span class="status-badge sb-resolved"><i class="fas fa-circle-check"></i> Resolved</span>
+                        {% else %}
+                        <span class="status-badge sb-dismissed"><i class="fas fa-ban"></i> Dismissed</span>
+                        {% endif %}
+                        <span class="reason-tag"><i class="fas fa-flag"></i> {{ flag['flag_reason'] }}</span>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="flag-card-body">
+                    {% if flag['extra_note'] %}
+                    <div class="dietitian-note">
+                        <div class="note-lbl"><i class="fas fa-comment" style="margin-right:4px"></i>Dietitian Note
+                        </div>
+                        {{ flag['extra_note'] }}
+                    </div>
+                    {% endif %}
+
+                    {% if flag['admin_response'] %}
+                    <div class="admin-response-existing" style="margin-top:10px">
+                        <div class="note-lbl"><i class="fas fa-shield-halved" style="margin-right:4px"></i>Admin
+                            Response</div>
+                        {{ flag['admin_response'] }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Action form -->
+                    <form method="POST" action="/admin/dietitian-flags/resolve/{{ flag['id'] }}"
+                        style="margin-top:14px">
+                        <div class="action-form">
+                            <select name="action" class="action-select">
+                                <option value="reviewed" {% if flag['flag_status']=='reviewed' %}selected{% endif %}>🔍
+                                    Mark as Reviewed</option>
+                                <option value="resolved" {% if flag['flag_status']=='resolved' %}selected{% endif %}>✅
+                                    Resolve — Take Action</option>
+                                <option value="dismissed" {% if flag['flag_status']=='dismissed' %}selected{% endif %}>
+                                    🚫 Dismiss Flag</option>
+                            </select>
+                            <input type="text" name="admin_response" class="action-note"
+                                placeholder="Admin response or note (optional)…"
+                                value="{{ flag['admin_response'] or '' }}">
+                            <button type="submit" class="btn-action">
+                                <i class="fas fa-paper-plane"></i> Save
+                            </button>
+                            <a href="/recipe/{{ flag['recipe_id'] }}" target="_blank" class="btn-view-recipe">
+                                <i class="fas fa-eye"></i> View Recipe
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">
+            <i class="fas fa-flag"></i>
+            <h3>
+                {% if status_filter == 'pending' %}No pending flags
+                {% elif status_filter == 'reviewed' %}No flags in review
+                {% else %}No flagged recipes yet{% endif %}
+            </h3>
+            <p>Dietitians can flag unhealthy recipes from the Recipe Verification page.</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>

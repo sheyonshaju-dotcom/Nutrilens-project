@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Verification | NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #ffffff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .04);
+            --radius: 14px;
+            --green: #059669;
+            --green-soft: #d1fae5;
+            --red: #dc2626;
+            --red-soft: #fee2e2;
+            --amber: #d97706;
+            --amber-soft: #fef3c7;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .sidebar-logo {
+            padding: 24px 20px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .logo-text b {
+            display: block;
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .logo-text span {
+            font-size: .68rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: .875rem;
+            font-weight: 600;
+            transition: all .15s;
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: .88rem;
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .nav-item.active i {
+            color: var(--brand);
+        }
+
+        .sidebar-footer {
+            padding: 14px 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-item.logout {
+            color: #ef4444;
+        }
+
+        .nav-item.logout:hover {
+            background: #fef2f2;
+        }
+
+        /* ── Main ── */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 32px 60px;
+        }
+
+        .page-header {
+            margin-bottom: 22px;
+        }
+
+        .page-header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .page-header p {
+            font-size: .85rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* ── Stat cards ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .stat-icon {
+            font-size: .78rem;
+            margin-bottom: 4px;
+        }
+
+        .stat-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: .66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* ── Filter bar ── */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 7px 16px;
+            border-radius: 999px;
+            font-size: .78rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--muted);
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            transition: all .15s;
+        }
+
+        .filter-tab:hover {
+            border-color: var(--brand);
+            color: var(--brand);
+        }
+
+        .filter-tab.active {
+            background: var(--brand);
+            color: #fff;
+            border-color: var(--brand);
+        }
+
+        .search-wrap {
+            position: relative;
+            margin-left: auto;
+        }
+
+        .search-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+        .search-input {
+            padding: 8px 14px 8px 34px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: .84rem;
+            font-family: inherit;
+            background: var(--surface);
+            outline: none;
+            color: var(--text);
+            transition: border-color .2s;
+            width: 220px;
+        }
+
+        .search-input:focus {
+            border-color: var(--brand);
+        }
+
+        /* ── Recipe cards grid ── */
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .recipe-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: box-shadow .2s;
+        }
+
+        .recipe-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, .1);
+        }
+
+        /* status border accent */
+        .recipe-card.status-verified {
+            border-left: 4px solid var(--green);
+        }
+
+        .recipe-card.status-not_recommended {
+            border-left: 4px solid var(--red);
+        }
+
+        .recipe-card.status-pending {
+            border-left: 4px solid var(--amber);
+        }
+
+        .card-body {
+            padding: 18px 18px 14px;
+        }
+
+        .recipe-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .recipe-title {
+            font-size: .97rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        /* ── Status badges ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: .68rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .badge-verified {
+            background: var(--green-soft);
+            color: var(--green);
+        }
+
+        .badge-not_recommended {
+            background: var(--red-soft);
+            color: var(--red);
+        }
+
+        .badge-pending {
+            background: var(--amber-soft);
+            color: var(--amber);
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .meta-chip {
+            font-size: .7rem;
+            font-weight: 700;
+            padding: 2px 9px;
+            border-radius: 999px;
+        }
+
+        .chip-cal {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .chip-p {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .chip-c {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .chip-f {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .recipe-ingredients {
+            font-size: .78rem;
+            color: var(--muted);
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .recipe-ingredients span {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .existing-note {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 9px 12px;
+            margin-bottom: 10px;
+            font-size: .78rem;
+            color: var(--text);
+            line-height: 1.5;
+            border-left: 3px solid var(--brand);
+        }
+
+        .existing-note .note-label {
+            font-size: .66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--muted);
+            margin-bottom: 3px;
+        }
+
+        .verified-by {
+            font-size: .7rem;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        /* ── Inline action form ── */
+        .action-form {
+            border-top: 1px solid var(--border);
+            padding: 14px 18px 16px;
+        }
+
+        .action-form-label {
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 7px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .verify-radio {
+            display: none;
+        }
+
+        .verify-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: .78rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            color: var(--muted);
+            transition: all .15s;
+            user-select: none;
+        }
+
+        .verify-radio:checked+.verify-label {
+            border-color: transparent;
+        }
+
+        /* Verified */
+        #vr_verified_ {
+                {
+                loop.index
+            }
+        }
+
+        :checked+.verify-label.lbl-verified,
+        .verify-radio.v-verified:checked+.verify-label {
+            background: var(--green-soft);
+            color: var(--green);
+            border-color: var(--green);
+        }
+
+        /* Not recommended */
+        .verify-radio.v-not:checked+.verify-label {
+            background: var(--red-soft);
+            color: var(--red);
+            border-color: var(--red);
+        }
+
+        /* Reset */
+        .verify-radio.v-reset:checked+.verify-label {
+            background: var(--amber-soft);
+            color: var(--amber);
+            border-color: var(--amber);
+        }
+
+        .note-textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: .82rem;
+            font-family: inherit;
+            background: var(--bg);
+            outline: none;
+            resize: vertical;
+            min-height: 62px;
+            color: var(--text);
+            transition: border-color .2s;
+            margin-bottom: 10px;
+        }
+
+        .note-textarea:focus {
+            border-color: var(--brand);
+            background: #fff;
+        }
+
+        .btn-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: .8rem;
+            font-weight: 700;
+            background: var(--brand);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background .15s;
+        }
+
+        .btn-submit:hover {
+            background: var(--brand-dark);
+        }
+
+        /* ── Empty state ── */
+        .empty {
+            text-align: center;
+            padding: 56px 24px;
+            color: var(--muted);
+            grid-column: 1/-1;
+        }
+
+        .empty i {
+            font-size: 2.2rem;
+            opacity: .2;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .empty h3 {
+            font-size: .95rem;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .empty p {
+            font-size: .84rem;
+        }
+
+        /* ── Expert Recommendation section ── */
+        .rec-divider {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0 8px;
+        }
+
+        .rec-divider span {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .rec-divider::before,
+        .rec-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .rec-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        /* Star checkbox */
+        .star-check {
+            display: none;
+        }
+
+        .star-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: .78rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            color: var(--muted);
+            transition: all .15s;
+            user-select: none;
+        }
+
+        .star-label i {
+            color: #f59e0b;
+        }
+
+        .star-check:checked+.star-label {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #f59e0b;
+        }
+
+        /* Expert tag select */
+        .tag-select {
+            flex: 1;
+            padding: 7px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: .78rem;
+            font-family: inherit;
+            font-weight: 600;
+            background: var(--bg);
+            outline: none;
+            color: var(--text);
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+
+        .tag-select:focus {
+            border-color: var(--brand);
+            background: #fff;
+        }
+
+        .tag-select:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        /* Recommended section panel */
+        .rec-panel {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1.5px solid #f59e0b;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .rec-panel-header {
+            background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #fde68a;
+        }
+
+        .rec-panel-title {
+            font-size: .95rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #92400e;
+        }
+
+        .rec-count-badge {
+            background: #f59e0b;
+            color: #fff;
+            font-size: .68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+
+        .rec-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            padding: 16px 20px;
+        }
+
+        .rec-item {
+            background: var(--bg);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            padding: 12px 14px;
+            position: relative;
+        }
+
+        .rec-item-name {
+            font-size: .86rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .rec-item-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 9px;
+            border-radius: 999px;
+            font-size: .66rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .rec-item-cal {
+            font-size: .72rem;
+            color: var(--muted);
+        }
+
+        .rec-star {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #f59e0b;
+            font-size: .9rem;
+        }
+
+        .rec-empty {
+            padding: 24px;
+            text-align: center;
+            color: var(--muted);
+            font-size: .84rem;
+            grid-column: 1/-1;
+        }
+
+        /* ── Flag Unhealthy controls ── */
+        .flag-divider {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0 8px;
+        }
+
+        .flag-divider span {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .flag-divider::before,
+        .flag-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Already-flagged banner */
+        .flag-active-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 9px 12px;
+            background: #fff1f2;
+            border: 1.5px solid #fda4af;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .flag-active-banner-left {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: .78rem;
+            font-weight: 700;
+            color: #be123c;
+        }
+
+        .flag-active-banner-left i {
+            font-size: .82rem;
+        }
+
+        .flag-reason-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 9px;
+            border-radius: 999px;
+            background: #fda4af;
+            color: #881337;
+            font-size: .66rem;
+            font-weight: 700;
+        }
+
+        .btn-unflag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 11px;
+            border-radius: 7px;
+            font-size: .72rem;
+            font-weight: 700;
+            background: #fff;
+            color: #be123c;
+            border: 1.5px solid #fda4af;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all .15s;
+            flex-shrink: 0;
+        }
+
+        .btn-unflag:hover {
+            background: #be123c;
+            color: #fff;
+            border-color: #be123c;
+        }
+
+        /* Flag form */
+        .flag-form-wrap {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .flag-reason-select {
+            flex: 1;
+            min-width: 160px;
+            padding: 7px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: .78rem;
+            font-family: inherit;
+            font-weight: 600;
+            background: var(--bg);
+            outline: none;
+            color: var(--text);
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+
+        .flag-reason-select:focus {
+            border-color: #be123c;
+        }
+
+        .flag-note-input {
+            flex: 1;
+            min-width: 140px;
+            padding: 7px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: .78rem;
+            font-family: inherit;
+            background: var(--bg);
+            outline: none;
+            color: var(--text);
+            transition: border-color .2s;
+        }
+
+        .flag-note-input:focus {
+            border-color: #be123c;
+        }
+
+        .btn-flag-submit {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 15px;
+            border-radius: 8px;
+            font-size: .76rem;
+            font-weight: 700;
+            background: #fff1f2;
+            color: #be123c;
+            border: 1.5px solid #fda4af;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all .15s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-flag-submit:hover {
+            background: #be123c;
+            color: #fff;
+            border-color: #be123c;
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🩺</div>
+            <div class="logo-text"><b>NutriLens</b><span>Dietitian Panel</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dietitian/dashboard" class="nav-item"><i class="fas fa-gauge"></i> Dashboard</a>
+            <a href="/dietitian/clients" class="nav-item "><i class="fas fa-users"></i> Clients</a>
+            <a href="/dietitian/meal-reviews" class="nav-item"><i class="fas fa-clipboard-list"></i> Meal Reviews</a>
+            <a href="/dietitian/progress" class="nav-item"><i class="fas fa-chart-line"></i> Progress</a>
+            <a href="/dietitian/messages" class="nav-item"><i class="fas fa-comments"></i> Messages</a>
+            <a href="/dietitian/recipes" class="nav-item active"><i class="fas fa-flask"></i> Recipe Verification</a>
+            <a href="/dietitian/recommended" class="nav-item"><i class="fas fa-star"></i> Recommended</a>
+            <a href="/dietitian/my-recipes" class="nav-item "><i class="fas fa-book-open"></i> My Recipes</a>
+            <a href="/dietitian/feedback" class="nav-item"><i class="fas fa-star-half-stroke"></i> Client Feedback</a>
+            <a href="/dietitian/profile" class="nav-item"><i class="fas fa-user-circle"></i> My Profile</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('dietitian_logout') }}" class="nav-item logout">
+                <i class="fas fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="page-header">
+            <h1>Recipe Verification</h1>
+            <p>Review recipes and mark them as verified or not recommended for your clients</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-icon" style="color:var(--muted)"><i class="fas fa-book-open"></i> Total</div>
+                <div class="stat-val">{{ counts.total or 0 }}</div>
+                <div class="stat-lbl">All Recipes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color:var(--amber)"><i class="fas fa-clock"></i> Awaiting</div>
+                <div class="stat-val" style="color:var(--amber)">{{ counts.pending or 0 }}</div>
+                <div class="stat-lbl">Pending Review</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color:var(--green)"><i class="fas fa-circle-check"></i> Approved</div>
+                <div class="stat-val" style="color:var(--green)">{{ counts.verified or 0 }}</div>
+                <div class="stat-lbl">Verified</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color:var(--red)"><i class="fas fa-circle-xmark"></i> Flagged</div>
+                <div class="stat-val" style="color:var(--red)">{{ counts.not_recommended or 0 }}</div>
+                <div class="stat-lbl">Not Recommended</div>
+            </div>
+        </div>
+
+        <!-- Expert Recommended Section (Top 5) -->
+        <div class="rec-panel">
+            <div class="rec-panel-header">
+                <div class="rec-panel-title">
+                    <i class="fas fa-star"></i> Expert Recommended Recipes
+                    <span class="rec-count-badge">{{ recommended|length }}/5</span>
+                </div>
+                <span style="font-size:.74rem;color:#92400e;font-weight:600">
+                    Visible to all clients on their dashboard
+                </span>
+            </div>
+            <div class="rec-list">
+                {% if recommended %}
+                {% for r in recommended %}
+                <div class="rec-item">
+                    <i class="fas fa-star rec-star"></i>
+                    <div class="rec-item-name">{{ r['name'] }}</div>
+                    {% if r['expert_tag'] %}
+                    <div class="rec-item-tag"><i class="fas fa-tag"></i> {{ r['expert_tag'] }}</div>
+                    {% endif %}
+                    <div class="rec-item-cal"><i class="fas fa-fire" style="color:var(--brand)"></i> {{ r['calories'] }}
+                        kcal</div>
+                    {% if r['rec_by_name'] %}
+                    <div style="font-size:.65rem;color:var(--muted);margin-top:4px">by {{ r['rec_by_name'] }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="rec-empty">No recipes recommended yet. Mark recipes below with ⭐ to feature them here.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Filter + Search -->
+        <div class="filter-bar">
+            <div class="filter-tabs">
+                <a href="/dietitian/recipes?status=all{% if search %}&search={{ search }}{% endif %}"
+                    class="filter-tab {% if status == 'all' %}active{% endif %}">
+                    All <span style="opacity:.7">({{ counts.total or 0 }})</span>
+                </a>
+                <a href="/dietitian/recipes?status=pending{% if search %}&search={{ search }}{% endif %}"
+                    class="filter-tab {% if status == 'pending' %}active{% endif %}">
+                    ⏳ Pending <span style="opacity:.7">({{ counts.pending or 0 }})</span>
+                </a>
+                <a href="/dietitian/recipes?status=verified{% if search %}&search={{ search }}{% endif %}"
+                    class="filter-tab {% if status == 'verified' %}active{% endif %}">
+                    ✔ Verified <span style="opacity:.7">({{ counts.verified or 0 }})</span>
+                </a>
+                <a href="/dietitian/recipes?status=not_recommended{% if search %}&search={{ search }}{% endif %}"
+                    class="filter-tab {% if status == 'not_recommended' %}active{% endif %}">
+                    ❌ Not Recommended <span style="opacity:.7">({{ counts.not_recommended or 0 }})</span>
+                </a>
+            </div>
+            <form method="GET" action="/dietitian/recipes" class="search-wrap">
+                <input type="hidden" name="status" value="{{ status }}">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" class="search-input" placeholder="Search recipes…"
+                    value="{{ search }}">
+            </form>
+        </div>
+
+        <!-- Recipe Cards -->
+        <div class="recipes-grid">
+            {% if recipes %}
+            {% for recipe in recipes %}
+            {% set vs = recipe['verification_status'] or 'pending' %}
+            <div class="recipe-card status-{{ vs }}">
+                <div class="card-body">
+                    <div class="recipe-title-row">
+                        <a href="/dietitian/recipes/{{ recipe['id'] }}" class="recipe-title" style="text-decoration:none;color:inherit;">{{ recipe['name'] }} <i class="fas fa-arrow-up-right-from-square" style="font-size:.65rem;opacity:.5;margin-left:4px"></i></a>
+                        {% if vs == 'verified' %}
+                        <span class="badge badge-verified"><i class="fas fa-circle-check"></i> Verified</span>
+                        {% elif vs == 'not_recommended' %}
+                        <span class="badge badge-not_recommended"><i class="fas fa-circle-xmark"></i> Not
+                            Recommended</span>
+                        {% else %}
+                        <span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="recipe-meta">
+                        <span class="meta-chip chip-cal"><i class="fas fa-fire"></i> {{ recipe['calories'] or 0 }}
+                            kcal</span>
+                        {% if recipe['protein'] %}<span class="meta-chip chip-p">P: {{ recipe['protein']|int
+                            }}g</span>{% endif %}
+                        {% if recipe['carbs'] %}<span class="meta-chip chip-c">C: {{ recipe['carbs']|int }}g</span>{%
+                        endif %}
+                        {% if recipe['fat'] %}<span class="meta-chip chip-f">F: {{ recipe['fat']|int }}g</span>{% endif
+                        %}
+                    </div>
+
+                    {% if recipe['ingredients'] %}
+                    <div class="recipe-ingredients">
+                        <span>Ingredients:</span>
+                        {{ recipe['ingredients'][:120] }}{% if recipe['ingredients']|length > 120 %}…{% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if recipe['dietitian_note'] %}
+                    <div class="existing-note">
+                        <div class="note-label"><i class="fas fa-comment-medical"></i> Dietitian Note</div>
+                        {{ recipe['dietitian_note'] }}
+                    </div>
+                    {% endif %}
+
+                    {% if recipe['verified_by_name'] and vs != 'pending' %}
+                    <div class="verified-by">
+                        <i class="fas fa-user-md" style="margin-right:4px"></i>
+                        Reviewed by <strong>{{ recipe['verified_by_name'] }}</strong>
+                        {% if recipe['verified_at'] %}· {{ recipe['verified_at'][:10] }}{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Action form -->
+                <div class="action-form">
+                    <div class="action-form-label"><i class="fas fa-stethoscope" style="margin-right:5px"></i>Your
+                        Assessment</div>
+                    <form method="POST" action="/dietitian/recipes/verify/{{ recipe['id'] }}">
+                        <div class="action-btns">
+                            <input type="radio" name="verification_status" value="verified" id="vr_v_{{ recipe['id'] }}"
+                                class="verify-radio v-verified" {% if vs=='verified' %}checked{% endif %}>
+                            <label for="vr_v_{{ recipe['id'] }}" class="verify-label lbl-verified">
+                                <i class="fas fa-circle-check"></i> Verified
+                            </label>
+
+                            <input type="radio" name="verification_status" value="not_recommended"
+                                id="vr_n_{{ recipe['id'] }}" class="verify-radio v-not" {% if vs=='not_recommended'
+                                %}checked{% endif %}>
+                            <label for="vr_n_{{ recipe['id'] }}" class="verify-label lbl-not">
+                                <i class="fas fa-circle-xmark"></i> Not Recommended
+                            </label>
+
+                            <input type="radio" name="verification_status" value="pending" id="vr_r_{{ recipe['id'] }}"
+                                class="verify-radio v-reset" {% if vs=='pending' %}checked{% endif %}>
+                            <label for="vr_r_{{ recipe['id'] }}" class="verify-label lbl-reset">
+                                <i class="fas fa-rotate-left"></i> Reset
+                            </label>
+                        </div>
+
+                        <textarea name="dietitian_note" class="note-textarea"
+                            placeholder="Optional note or recommendation for this recipe…">{{ recipe['dietitian_note'] or '' }}</textarea>
+
+                        <!-- Expert Recommendation -->
+                        <div class="rec-divider"><span>Expert Recommendation</span></div>
+                        <div class="rec-toggle-row">
+                            <input type="checkbox" name="is_recommended" id="rec_{{ recipe['id'] }}" class="star-check"
+                                value="1" {% if recipe['is_recommended'] %}checked{% endif %}>
+                            <label for="rec_{{ recipe['id'] }}" class="star-label">
+                                <i class="fas fa-star"></i> Mark as Recommended
+                            </label>
+                            <select name="expert_tag" class="tag-select" id="tag_{{ recipe['id'] }}" {% if not
+                                recipe['is_recommended'] %}disabled{% endif %}>
+                                <option value="">— Pick a tag —</option>
+                                {% set tags = ['Weight Loss', 'High Protein', 'Diabetic-Friendly',
+                                'Heart Healthy', 'Low Carb', 'High Fiber', 'Balanced Meal'] %}
+                                {% for t in tags %}
+                                <option value="{{ t }}" {% if recipe['expert_tag']==t %}selected{% endif %}>
+                                    {{ t }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-paper-plane"></i> Save Assessment
+                        </button>
+                    </form>
+
+                    <!-- ── Flag Unhealthy ── -->
+                    <div class="flag-divider"><span>Flag as Unhealthy</span></div>
+
+                    {% if recipe['id'] in my_flags %}
+                    <!-- Already flagged by this dietitian -->
+                    <div class="flag-active-banner">
+                        <div class="flag-active-banner-left">
+                            <i class="fas fa-flag"></i>
+                            Flagged:
+                            <span class="flag-reason-pill">{{ my_flags[recipe['id']] }}</span>
+                            &nbsp;·&nbsp; Sent to admin for review
+                        </div>
+                        <form method="POST" action="/dietitian/unflag-recipe/{{ recipe['id'] }}">
+                            <button type="submit" class="btn-unflag">
+                                <i class="fas fa-xmark"></i> Remove Flag
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <!-- Flag form -->
+                    <form method="POST" action="/dietitian/flag-recipe/{{ recipe['id'] }}">
+                        <div class="flag-form-wrap">
+                            <select name="flag_reason" class="flag-reason-select" required>
+                                <option value="" disabled selected>— Select reason —</option>
+                                <option value="Too Oily">🍳 Too Oily</option>
+                                <option value="Too Sugary">🍬 Too Sugary</option>
+                                <option value="Unbalanced Nutrition">⚖️ Unbalanced Nutrition</option>
+                                <option value="High Sodium">🧂 High Sodium</option>
+                                <option value="Low Nutritional Value">📉 Low Nutritional Value</option>
+                                <option value="Potentially Harmful">⚠️ Potentially Harmful</option>
+                            </select>
+                            <input type="text" name="extra_note" class="flag-note-input"
+                                placeholder="Optional note for admin…">
+                            <button type="submit" class="btn-flag-submit">
+                                <i class="fas fa-flag"></i> Flag Recipe
+                            </button>
+                        </div>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty">
+                <i class="fas fa-flask"></i>
+                <h3>No recipes found</h3>
+                <p>
+                    {% if search %}No results for "{{ search }}" — try a different search.
+                    {% elif status == 'pending' %}All recipes have been reviewed.
+                    {% elif status == 'verified' %}No verified recipes yet.
+                    {% elif status == 'not_recommended' %}No flagged recipes yet.
+                    {% else %}No active recipes in the system yet.{% endif %}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <script>
+        // Make the radio buttons visually toggle correctly via JS
+        // (CSS :checked sibling selector works, but ensure JS reinforces for edge cases)
+        document.querySelectorAll('.verify-radio').forEach(radio => {
+            radio.addEventListener('change', function () {
+                const form = this.closest('form');
+                form.querySelectorAll('.verify-label').forEach(l => {
+                    l.style.background = '';
+                    l.style.color = '';
+                    l.style.borderColor = '';
+                });
+                const lbl = form.querySelector(`label[for="${this.id}"]`);
+                if (this.value === 'verified') {
+                    lbl.style.background = 'var(--green-soft)';
+                    lbl.style.color = 'var(--green)';
+                    lbl.style.borderColor = 'var(--green)';
+                } else if (this.value === 'not_recommended') {
+                    lbl.style.background = 'var(--red-soft)';
+                    lbl.style.color = 'var(--red)';
+                    lbl.style.borderColor = 'var(--red)';
+                } else {
+                    lbl.style.background = 'var(--amber-soft)';
+                    lbl.style.color = 'var(--amber)';
+                    lbl.style.borderColor = 'var(--amber)';
+                }
+            });
+        });
+
+        // Apply initial state styling
+        document.querySelectorAll('.verify-radio:checked').forEach(radio => radio.dispatchEvent(new Event('change')));
+
+        // Enable/disable tag select when star checkbox toggles
+        document.querySelectorAll('.star-check').forEach(cb => {
+            cb.addEventListener('change', function () {
+                const card = this.closest('form');
+                const select = card.querySelector('.tag-select');
+                if (select) select.disabled = !this.checked;
+            });
+        });
+    </script>
+</body>
+
+</html>

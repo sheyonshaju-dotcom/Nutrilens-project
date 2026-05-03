@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NutriLens - AI-Powered Nutrition Tracking</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* --- CSS Reset & Base --- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f3f4f6;
+      color: #1f2937;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    /* --- Container Alignment --- */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    
+    /* --- Header --- */
+    header.header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 1rem 0;
+    }
+    
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fb923c;
+      background: #fff;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+    
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .brand-name {
+      font-weight: 700;
+      font-size: 18px;
+      color: #1f2937;
+    }
+    
+    .brand-tagline {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+    
+    /* --- Navigation --- */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+    }
+    
+    .nav-links a {
+      color: #4b5563;
+      font-weight: 500;
+      font-size: 15px;
+      padding: 6px 0;
+      position: relative;
+      transition: color 0.2s;
+    }
+    
+    .nav-links a:hover {
+      color: #db2777;
+    }
+    
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #db2777;
+      transition: width 0.3s;
+    }
+    
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+    
+    .nav-btn {
+      background: #db2777;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .nav-btn:hover {
+      background: #be185d;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(219, 39, 119, 0.3);
+    }
+    
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #4b5563;
+      cursor: pointer;
+    }
+    
+    /* --- Login Dropdown --- */
+    .login-dropdown {
+      position: relative;
+    }
+    
+    .login-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 180px;
+      display: none;
+      flex-direction: column;
+      padding: 0.5rem 0;
+      z-index: 999;
+    }
+    
+    .login-dropdown.active .login-menu {
+      display: flex;
+    }
+    
+    .login-menu a {
+      padding: 12px 20px;
+      color: #374151;
+      font-size: 15px;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .login-menu a i {
+      width: 20px;
+      text-align: center;
+      color: #db2777;
+    }
+    
+    .login-menu a:hover {
+      background: #fdf2f8;
+      color: #db2777;
+    }
+    
+    /* --- Hero Section --- */
+    .hero {
+      padding: 10rem 0 4rem;
+      background: linear-gradient(135deg, #fdf2f8 0%, #f3f4f6 100%);
+    }
+    
+    .hero-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+    }
+    
+    .hero h1 {
+      font-size: 3.5rem;
+      line-height: 1.1;
+      font-weight: 800;
+      color: #1f2937;
+      margin-bottom: 1.5rem;
+    }
+    
+    .hero h1 span {
+      color: #db2777;
+    }
+    
+    .hero p {
+      color: #6b7280;
+      font-size: 1.125rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+    
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+    
+    .btn-primary {
+      background: #db2777;
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-weight: 600;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 16px;
+    }
+    
+    .btn-primary:hover {
+      background: #be185d;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(219, 39, 119, 0.3);
+    }
+    
+    .btn-secondary {
+      background: #fff;
+      color: #db2777;
+      padding: 14px 28px;
+      border-radius: 10px;
+      border: 2px solid #db2777;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 16px;
+    }
+    
+    .btn-secondary:hover {
+      background: #fdf2f8;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(219, 39, 119, 0.1);
+    }
+    
+    .hero-image {
+      position: relative;
+      text-align: center;
+    }
+    
+    .hero-image img {
+      width: 100%;
+      max-width: 520px;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+      transform: perspective(1000px) rotateY(-5deg);
+      transition: transform 0.5s;
+    }
+    
+    .hero-image:hover img {
+      transform: perspective(1000px) rotateY(0deg);
+    }
+    
+    /* --- Section Headers --- */
+    section {
+      padding: 5rem 0;
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    .section-header h2 {
+      font-size: 2.5rem;
+      color: #1f2937;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+    
+    .section-header p {
+      color: #6b7280;
+      font-size: 1.125rem;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+    
+    /* --- Mission Section --- */
+    .mission-section {
+      background: #fff;
+    }
+    
+    .mission-card {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 2.5rem;
+      border-radius: 16px;
+      background: #f9fafb;
+      border: 1px solid #e8eef8;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+    
+    .mission-card p {
+      color: #4b5563;
+      font-size: 1.25rem;
+      line-height: 1.8;
+    }
+    
+    /* --- Why Choose Section --- */
+    .why-section {
+      background: #fff;
+    }
+    
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+    
+    .why-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      border: 1px solid #eef2f7;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s;
+    }
+    
+    .why-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      border-color: #db2777;
+    }
+    
+    .why-icon {
+      width: 70px;
+      height: 70px;
+      background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      color: #db2777;
+      font-size: 28px;
+    }
+    
+    .why-card h3 {
+      margin-bottom: 1rem;
+      color: #1f2937;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .why-card p {
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    
+    /* --- Meta Pills --- */
+    .why-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .meta-pill {
+      background: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      border: 1px solid #e7eef9;
+      color: #4b5563;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .meta-pill i {
+      color: #db2777;
+    }
+    
+    .meta-pill:hover {
+      background: #fdf2f8;
+      border-color: #db2777;
+      transform: translateY(-2px);
+    }
+    
+    /* --- How It Works --- */
+    .how-it-works {
+      background: linear-gradient(135deg, #fdf2f8 0%, #f3f4f6 100%);
+    }
+    
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .step {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      border: 1px solid #eef2f7;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .step:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+    
+    .step-number {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #db2777, #be185d);
+      color: #fff;
+      font-weight: 700;
+      font-size: 24px;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 5px 15px rgba(219, 39, 119, 0.3);
+    }
+    
+    .step h3 {
+      margin-bottom: 1rem;
+      color: #1f2937;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .step p {
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    
+    /* --- Dietitians Section --- */
+    .dietitians {
+      background: #fff;
+    }
+    
+    .dietitian-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+    
+    .dietitian-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid #eef2f7;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s;
+    }
+    
+    .dietitian-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      border-color: #db2777;
+    }
+    
+    .dietitian-photo {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 0 auto 1.5rem;
+      border: 4px solid #fdf2f8;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dietitian-card h4 {
+      margin-bottom: 0.5rem;
+      color: #1f2937;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .dietitian-title {
+      color: #db2777;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      font-size: 15px;
+    }
+    
+    .dietitian-desc {
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    
+    /* --- Recipes Section --- */
+    .recipes {
+      background: #fff;
+    }
+    
+    .recipes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .recipe-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #eef2f7;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s;
+    }
+    
+    .recipe-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+    
+    .recipe-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    
+    .recipe-content {
+      padding: 1.5rem;
+    }
+    
+    .recipe-card h4 {
+      margin-bottom: 0.5rem;
+      color: #1f2937;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .recipe-card p {
+      color: #6b7280;
+      line-height: 1.6;
+    }
+    
+    /* --- FAQ Section --- */
+    .faq-section {
+      background: #fff;
+    }
+    
+    .faq-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .faq-item {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #eef2f7;
+      transition: all 0.2s;
+    }
+    
+    .faq-item:hover {
+      border-color: #db2777;
+      background: #fdf2f8;
+    }
+    
+    .faq-item h3 {
+      font-size: 18px;
+      margin-bottom: 0.75rem;
+      color: #1f2937;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .faq-item h3 i {
+      color: #db2777;
+    }
+    
+    .faq-item p {
+      color: #6b7280;
+      line-height: 1.6;
+      padding-left: 2rem;
+    }
+    
+    /* --- Testimonials --- */
+    .testimonials {
+      background: #fff;
+    }
+    
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .testimonial-card {
+      background: #f9fafb;
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid #eef2f7;
+      transition: all 0.3s;
+    }
+    
+    .testimonial-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      border-color: #db2777;
+    }
+    
+    .testimonial-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .author-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #db2777, #be185d);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 20px;
+      margin-right: 1rem;
+      flex-shrink: 0;
+    }
+    
+    .author-info strong {
+      display: block;
+      color: #1f2937;
+      font-size: 18px;
+      margin-bottom: 0.25rem;
+    }
+    
+    .author-info small {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
+    .testimonial-content {
+      color: #374151;
+      font-style: italic;
+      line-height: 1.7;
+      position: relative;
+      padding-left: 1rem;
+    }
+    
+    .testimonial-content::before {
+      content: '"';
+      position: absolute;
+      left: 0;
+      top: -10px;
+      font-size: 40px;
+      color: #db2777;
+      opacity: 0.2;
+      font-family: Georgia, serif;
+    }
+    
+    /* --- CTA Section --- */
+    .cta {
+      background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
+      color: #fff;
+      text-align: center;
+      padding: 5rem 0;
+    }
+    
+    .cta h3 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+    
+    .cta p {
+      opacity: 0.95;
+      margin-bottom: 2.5rem;
+      font-size: 1.125rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+    
+    /* --- Footer --- */
+    footer.footer {
+      background: #fff;
+      padding: 3rem 0;
+      border-top: 1px solid #e8eef2;
+    }
+    
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    
+    .footer-logo .brand-name {
+      font-weight: 700;
+      font-size: 24px;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+    
+    .footer-logo .brand-tagline {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
+    .footer-copyright {
+      color: #9ca3af;
+      font-size: 14px;
+    }
+    
+    .footer-social {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .footer-social a {
+      color: #9ca3af;
+      font-size: 18px;
+      transition: color 0.2s;
+    }
+    
+    .footer-social a:hover {
+      color: #db2777;
+    }
+    
+    /* --- Responsive Design --- */
+    @media (max-width: 1024px) {
+      .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 3rem;
+      }
+      
+      .hero h1 {
+        font-size: 2.75rem;
+      }
+      
+      .hero-btns {
+        justify-content: center;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        position: fixed;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        padding: 2rem;
+        flex-direction: column;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        z-index: 999;
+        gap: 1.5rem;
+      }
+      
+      .nav-links.active {
+        display: flex;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+      
+      .hero {
+        padding: 8rem 0 3rem;
+      }
+      
+      .hero h1 {
+        font-size: 2.25rem;
+      }
+      
+      section {
+        padding: 3rem 0;
+      }
+      
+      .section-header h2 {
+        font-size: 2rem;
+      }
+      
+      .hero-btns {
+        flex-direction: column;
+      }
+      
+      .btn-primary, .btn-secondary {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .why-grid, .steps, .dietitian-grid, .recipes-grid, .testimonials-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .mission-card {
+        padding: 2rem 1.5rem;
+      }
+      
+      .mission-card p {
+        font-size: 1.125rem;
+      }
+      
+      .why-meta {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 1rem;
+      }
+      
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .section-header h2 {
+        font-size: 1.75rem;
+      }
+      
+      .cta h3 {
+        font-size: 2rem;
+      }
+      
+      .footer-content {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="nav-container">
+        <div class="logo-container">
+          <div class="logo">
+            <img src="/static/images/logo.png" alt="NutriLens Logo">
+          </div>
+          <div>
+            <div class="brand-name">NutriLens</div>
+            
+          </div>
+        </div>
+
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fas fa-bars"></i>
+        </button>
+
+        <nav>
+          <ul class="nav-links" id="navLinks">
+            <li><a href="#mission">Our Mission</a></li>
+            <li><a href="#why">Why Choose</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#dietitians">Dietitians</a></li>
+            <li><a href="#recipes">Recipes</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#testimonials">Review</a></li>
+            <li class="login-dropdown">
+              <button class="nav-btn login-btn">
+                <i class="fas fa-user"></i> Login
+              </button>
+              <div class="login-menu">
+                <a href="/admin/login">
+                  <i class="fas fa-user-shield"></i> Admin Login
+                </a>
+                <a href="/dietitian/login">
+                  <i class="fas fa-user-md"></i> Dietitian Login
+                </a>
+                <a href="/login">
+                  <i class="fas fa-user"></i> User Login
+                </a>
+              </div>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-container">
+        <div>
+          <h1>Track Your Nutrition  </h1>
+          <p>NutriLens uses advanced artificial intelligence to analyze your meals, track nutrients, and provide personalized insights to help you achieve your health goals faster and smarter.</p>
+          <div class="hero-btns">
+            <a class="btn-primary" href="/signup">
+              <i class="fas fa-rocket"></i> Get Started Free
+            </a>
+            <a class="btn-secondary" href="#why">
+              <i class="fas fa-play-circle"></i> See How It Works
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-image">
+         <img src="{{ url_for('static', filename='images/healthy_food.jpg') }}" alt="Healthy food, NutriLens">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Our Mission -->
+  <section id="mission" class="mission-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Our Mission</h2>
+        <p>To make healthy eating simple, smart and accessible for everyone using AI and evidence-based nutrition science.</p>
+      </div>
+
+      <div class="mission-card">
+        <p>
+          NutriLens helps people make better food choices by combining fast AI food recognition, a comprehensive nutrient database,
+          and expert-backed meal planning — all while keeping your data private and secure.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose NutriLens -->
+  <section id="why" class="why-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Why Choose NutriLens?</h2>
+        <p>Everything you need to track, analyze, and optimize your nutrition — designed for accuracy and ease.</p>
+      </div>
+
+      <div class="why-grid">
+        <div class="why-card">
+          <div class="why-icon">
+            <i class="fas fa-camera"></i>
+          </div>
+          <h3>AI Food Scanner</h3>
+          <p>Snap a photo and instantly get calories, macros and estimated portions with advanced AI technology.</p>
+        </div>
+
+        <div class="why-card">
+          <div class="why-icon">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+          <h3>Nutrition Breakdown</h3>
+          <p>Full macro & micro breakdown — calories, protein, carbs, fats, fiber and micronutrients in detail.</p>
+        </div>
+
+        <div class="why-card">
+          <div class="why-icon">
+            <i class="fas fa-clipboard-list"></i>
+          </div>
+          <h3>Smart Diet Planner</h3>
+          <p>Daily & weekly plans tailored to your goals, preferences and body metrics for optimal results.</p>
+        </div>
+
+        <div class="why-card">
+          <div class="why-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <h3>Daily Meal Tracking</h3>
+          <p>Log meals quickly and review daily progress with intuitive charts and progress indicators.</p>
+        </div>
+
+        <div class="why-card">
+          <div class="why-icon">
+            <i class="fas fa-bookmark"></i>
+          </div>
+          <h3>Saved Meals & History</h3>
+          <p>Save favorite meals, reuse past logs and view nutrition history at any time for consistency.</p>
+        </div>
+
+        <div class="why-card">
+          <div class="why-icon">
+            <i class="fas fa-mobile-alt"></i>
+          </div>
+          
+        </div>
+      </div>
+
+      <div class="why-meta">
+        <div class="meta-pill">
+          <i class="fas fa-brain"></i> AI-Powered Accuracy
+        </div>
+        <div class="meta-pill">
+          <i class="fas fa-lock"></i> Privacy Focused
+        </div>
+        <div class="meta-pill">
+          <i class="fas fa-flask"></i> Science-Based Insights
+        </div>
+        <div class="meta-pill">
+          <i class="fas fa-bolt"></i> Fast & Easy to Use
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2>How NutriLens Works</h2>
+        <p>Simple three-step flow to get meaningful results from day one.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Sign Up & Set Goals</h3>
+          <p>Create your profile, tell us your goals, and set dietary preferences and restrictions in just 60 seconds.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Track Your Meals</h3>
+          <p>Use the AI food scanner, barcode lookup or manual entry to log what you eat — fast and accurate.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Get Insights & Improve</h3>
+          <p>Receive personalized recommendations, weekly reports and adaptive meal plans for continuous improvement.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Meet Our Dietitians -->
+  <section id="dietitians" class="dietitians">
+    <div class="container">
+      <div class="section-header">
+        <h2>Meet Our Dietitians</h2>
+        <p>Certified nutrition experts available for tailored guidance and personalized support.</p>
+      </div>
+
+      <div class="dietitian-grid">
+        <div class="dietitian-card">
+          <img class="dietitian-photo" src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Dr. Aisha Verma">
+          <h4>Dr. Aisha Verma</h4>
+          <div class="dietitian-title">Certified Nutritionist</div>
+          <div class="dietitian-desc">Specializes in metabolic health, weight-loss coaching and personalized nutrition therapy.</div>
+        </div>
+
+        <div class="dietitian-card">
+          <img class="dietitian-photo" src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Rahul Menon">
+          <h4>Rahul Menon</h4>
+          <div class="dietitian-title">Sports Dietitian</div>
+          <div class="dietitian-desc">Expert in sports fueling, protein timing and performance nutrition for athletes.</div>
+        </div>
+
+        <div class="dietitian-card">
+          <img class="dietitian-photo" src="https://images.unsplash.com/photo-1582750433449-648ed127bb54?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Sarah Gomez">
+          <h4>Sarah Gomez</h4>
+          <div class="dietitian-title">Clinical Dietitian</div>
+          <div class="dietitian-desc">Focuses on diabetes management, thyroid conditions and clinical diet management.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recipes Section -->
+  <section id="recipes" class="recipes">
+    <div class="container">
+      <div class="section-header">
+        <h2>Ingredient-Based Recipes</h2>
+        <p>Tell NutriLens what you have — get healthy recipe suggestions instantly based on your ingredients.</p>
+      </div>
+
+      <div class="recipes-grid">
+        <div class="recipe-card">
+          <img src="https://images.unsplash.com/photo-1512058564366-c9e3f1a0b4f9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Quinoa Veg Bowl">
+          <div class="recipe-content">
+            <h4>Quinoa Veg Bowl</h4>
+            <p>High-protein bowl made with seasonal veggies, quinoa and simple pantry staples. Ready in 20 minutes.</p>
+          </div>
+        </div>
+        <div class="recipe-card">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Masala Lentil Soup">
+          <div class="recipe-content">
+            <h4>Masala Lentil Soup</h4>
+            <p>Comforting, fiber-rich soup with aromatic spices and lentils — quick to prep and highly nutritious.</p>
+          </div>
+        </div>
+        <div class="recipe-card">
+          <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Grilled Chicken & Greens">
+          <div class="recipe-content">
+            <h4>Grilled Chicken & Greens</h4>
+            <p>Balanced meal for muscle recovery with lean protein and fresh leafy greens. Perfect for post-workout.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="faq-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Frequently Asked Questions</h2>
+        <p>Quick answers to common questions about NutriLens and how it works.</p>
+      </div>
+
+      <div class="faq-container">
+        <div class="faq-item">
+          <h3><i class="fas fa-question-circle"></i> How does NutriLens analyze food?</h3>
+          <p>We combine AI image recognition with a comprehensive nutrient database to estimate calories, macros and portion sizes accurately.</p>
+        </div>
+        <div class="faq-item">
+          <h3><i class="fas fa-chart-line"></i> How accurate is the scanner?</h3>
+          <p>Accuracy improves with clear images and common foods. We continually train our AI models on regional dishes to improve precision.</p>
+        </div>
+        <div class="faq-item">
+          <h3><i class="fas fa-utensils"></i> Can I use NutriLens for Indian & regional foods?</h3>
+          <p>Yes — our database includes many regional recipes and we support manual corrections for uncommon dishes to ensure accuracy.</p>
+        </div>
+        <div class="faq-item">
+          <h3><i class="fas fa-lock"></i> Is my data private?</h3>
+          <p>Yes. Your data is encrypted and not sold to advertisers. You control what you share with dietitians and other users.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials" class="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <h2>What Our Users Say</h2>
+        <p>Real stories from people who improved their health with NutriLens.</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-header">
+            <div class="author-avatar">SJ</div>
+            <div class="author-info">
+              <strong>Sarah Johnson</strong>
+              <small>Lost 25 lbs in 4 months</small>
+            </div>
+          </div>
+          <div class="testimonial-content">
+            "NutriLens made tracking sustainable for me. The AI recommendations were super helpful and easy to follow. I've never been able to stick with an app this long before!"
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-header">
+            <div class="author-avatar">MR</div>
+            <div class="author-info">
+              <strong>Mike Rodriguez</strong>
+              <small>Fitness Trainer</small>
+            </div>
+          </div>
+          <div class="testimonial-content">
+            "The scanner and saved meals feature have been a huge time-saver for my clients. I recommend NutriLens to everyone looking to improve their nutrition tracking."
+          </div>
+        </div>
+
+        <div class="testimonial-card">
+          <div class="testimonial-header">
+            <div class="author-avatar">EC</div>
+            <div class="author-info">
+              <strong>Emma Chen</strong>
+              <small>User for 2+ years</small>
+            </div>
+          </div>
+          <div class="testimonial-content">
+            "Highly recommend NutriLens to anyone serious about their health. The insights are clear, meal logging is easy, and the progress tracking keeps me motivated."
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="container">
+      <h3>Ready to transform your nutrition?</h3>
+      <a class="btn-primary" href="/signup" style="background: white; color: #db2777; font-size: 18px; padding: 16px 32px;">
+        <i class="fas fa-user-plus"></i> Create Your Free Account
+      </a>
+      <p style="margin-top: 1.5rem; opacity: 0.8; font-size: 16px;">
+        Already have an account? <a href="/login" style="color: white; text-decoration: underline;">Log in here</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <div class="brand-name">NutriLens</div>
+          <div class="brand-tagline">AI-Powered Nutrition Tracking</div>
+        </div>
+        
+        <div class="footer-copyright">
+          © 2025 NutriLens. All rights reserved.
+        </div>
+        
+        <div class="footer-social">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const navLinks = document.getElementById('navLinks');
+    
+    mobileMenuBtn.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+      mobileMenuBtn.innerHTML = navLinks.classList.contains('active') 
+        ? '<i class="fas fa-times"></i>' 
+        : '<i class="fas fa-bars"></i>';
+    });
+    
+    // Close mobile menu when clicking a link
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        navLinks.classList.remove('active');
+        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+      });
+    });
+    
+    // Login dropdown functionality
+    const loginDropdown = document.querySelector('.login-dropdown');
+    const loginBtn = document.querySelector('.login-btn');
+    
+    loginBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      loginDropdown.classList.toggle('active');
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (!loginDropdown.contains(e.target)) {
+        loginDropdown.classList.remove('active');
+      }
+    });
+    
+    // Add scroll effect to header
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('header.header');
+      if (window.scrollY > 50) {
+        header.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.1)';
+      } else {
+        header.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.05)';
+      }
+    });
+    
+    // Add hover effects to interactive elements
+    document.querySelectorAll('.why-card, .step, .dietitian-card, .recipe-card, .testimonial-card').forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        if (this.classList.contains('why-card')) {
+          this.style.transform = 'translateY(-10px)';
+        } else {
+          this.style.transform = 'translateY(-5px)';
+        }
+      });
+      
+      card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+      });
+    });
+  </script>
+</body>
+</html>

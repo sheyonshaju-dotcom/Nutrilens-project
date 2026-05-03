@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress · NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --brand:      #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg:         #f4f5f7;
+            --surface:    #fff;
+            --text:       #1a1a2e;
+            --muted:      #6b7280;
+            --border:     #e8eaed;
+            --shadow:     0 2px 14px rgba(0,0,0,.07);
+            --radius:     16px;
+            --green:      #10b981;
+            --blue:       #3b82f6;
+            --amber:      #f59e0b;
+            --purple:     #8b5cf6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        .page { width: 100%; padding: 36px 40px 100px; }
+
+        /* ── Top bar ── */
+        .topbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; font-size: .88rem; font-weight: 700; color: var(--muted); text-decoration: none; transition: color .15s; }
+        .back-link:hover { color: var(--brand); }
+        .page-title { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; }
+        .page-title span { color: var(--brand); }
+
+        /* ── Period tabs ── */
+        .period-tabs { display: flex; gap: 6px; background: var(--surface); border-radius: 999px;
+            padding: 6px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .ptab { padding: 8px 22px; border-radius: 999px; font-size: .85rem; font-weight: 700;
+            cursor: pointer; text-decoration: none; color: var(--muted); transition: all .15s; border: none;
+            background: none; font-family: inherit; }
+        .ptab:hover { color: var(--brand); }
+        .ptab.active { background: var(--brand); color: #fff; }
+
+        /* ── Stat cards row ── */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 28px; }
+        @media(max-width:1000px) { .stats-grid { grid-template-columns: repeat(2,1fr); } }
+        @media(max-width:560px)  { .stats-grid { grid-template-columns: 1fr 1fr; } }
+
+        .stat-card { background: var(--surface); border-radius: var(--radius); padding: 24px 22px;
+            box-shadow: var(--shadow); border: 1px solid var(--border); position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: var(--radius) var(--radius) 0 0; }
+        .sc-brand::before  { background: var(--brand); }
+        .sc-green::before  { background: var(--green); }
+        .sc-blue::before   { background: var(--blue); }
+        .sc-purple::before { background: var(--purple); }
+        .stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 1.2rem; margin-bottom: 14px; }
+        .si-brand  { background: var(--brand-soft); color: var(--brand); }
+        .si-green  { background: #d1fae5; color: var(--green); }
+        .si-blue   { background: #dbeafe; color: var(--blue); }
+        .si-purple { background: #ede9fe; color: var(--purple); }
+        .stat-val  { font-size: 1.9rem; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+        .stat-lbl  { font-size: .78rem; color: var(--muted); font-weight: 600; }
+        .stat-sub  { font-size: .72rem; color: var(--muted); margin-top: 6px; }
+        .stat-sub.up   { color: var(--green); }
+        .stat-sub.down { color: #ef4444; }
+
+        /* ── Layout ── */
+        .content-grid { display: grid; grid-template-columns: 1fr 360px; gap: 24px; }
+        @media(max-width:1100px) { .content-grid { grid-template-columns: 1fr; } }
+
+        /* ── Cards ── */
+        .card { background: var(--surface); border-radius: var(--radius); padding: 28px 28px 24px;
+            box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 24px; }
+        .card:last-child { margin-bottom: 0; }
+        .card-title { font-size: .76rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+            color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+        .card-title i { color: var(--brand); }
+        .chart-wrap { position: relative; height: 220px; }
+
+        /* ── Right panel ── */
+        .right-col { display: flex; flex-direction: column; gap: 24px; }
+
+        /* ── Weight log form ── */
+        .log-row { display: flex; gap: 10px; align-items: flex-end; margin-bottom: 20px; }
+        .log-row .lf { flex: 1; }
+        .log-row .lf label { display: block; font-size: .76rem; font-weight: 700; margin-bottom: 5px; }
+        .log-row .lf input { width: 100%; padding: 10px 13px; border: 1.5px solid var(--border); border-radius: 10px;
+            font-size: .9rem; font-family: inherit; outline: none; background: var(--bg); transition: border-color .2s; }
+        .log-row .lf input:focus { border-color: var(--brand); background: #fff; }
+        .log-btn { background: var(--brand); color: #fff; border: none; border-radius: 10px;
+            padding: 10px 18px; font-size: .88rem; font-weight: 700; cursor: pointer;
+            font-family: inherit; transition: background .2s; white-space: nowrap; }
+        .log-btn:hover { background: var(--brand-dark); }
+
+        /* ── Weight history list ── */
+        .weight-list { display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto; }
+        .weight-list::-webkit-scrollbar { width: 3px; }
+        .weight-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        .weight-item { display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 14px; background: var(--bg); border-radius: 10px; }
+        .weight-item .wdate { font-size: .78rem; color: var(--muted); font-weight: 600; }
+        .weight-item .wval  { font-size: 1rem; font-weight: 800; color: var(--text); }
+        .weight-item .wdiff { font-size: .72rem; font-weight: 700; margin-left: 8px; }
+        .wdiff.up   { color: #ef4444; }
+        .wdiff.down { color: var(--green); }
+        .wdiff.same { color: var(--muted); }
+
+        /* ── BMI meter ── */
+        .bmi-meter { margin-top: 8px; }
+        .bmi-track { height: 10px; border-radius: 99px; background: linear-gradient(to right, #3b82f6 0%, #10b981 25%, #f59e0b 55%, #ef4444 80%);
+            position: relative; margin: 10px 0 6px; }
+        .bmi-pointer { position: absolute; top: -3px; width: 16px; height: 16px; background: #fff;
+            border: 3px solid var(--text); border-radius: 50%; transform: translateX(-50%); transition: left .5s; }
+        .bmi-labels { display: flex; justify-content: space-between; font-size: .65rem; color: var(--muted); font-weight: 600; }
+        .bmi-value  { font-size: 2.2rem; font-weight: 800; }
+        .bmi-cat    { font-size: .88rem; font-weight: 700; margin-top: 2px; }
+
+        /* ── Goal progress ── */
+        .goal-card-inner { display: flex; flex-direction: column; gap: 14px; }
+        .goal-row { display: flex; align-items: center; justify-content: space-between; }
+        .goal-lbl { font-size: .82rem; font-weight: 700; color: var(--muted); }
+        .goal-val { font-size: .95rem; font-weight: 800; }
+        .goal-bar-wrap { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+        .goal-bar-fill { height: 100%; border-radius: 99px; background: var(--brand); transition: width .6s; }
+
+        /* ── Streak badge ── */
+        .streak-badge { display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #fff7ed, #fef3c7);
+            border: 1.5px solid #fcd34d; border-radius: 12px; padding: 14px 18px; }
+        .streak-fire { font-size: 1.8rem; }
+        .streak-num  { font-size: 1.8rem; font-weight: 800; color: #d97706; line-height: 1; }
+        .streak-lbl  { font-size: .76rem; color: #92400e; font-weight: 600; }
+
+        /* ── Weekly summary table ── */
+        .week-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+        .week-table th { text-align: left; padding: 8px 12px; font-size: .7rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .06em; color: var(--muted); border-bottom: 1.5px solid var(--border); }
+        .week-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        .week-table tr:last-child td { border-bottom: none; }
+        .week-table tr:hover td { background: var(--bg); }
+        .cal-chip { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .72rem; font-weight: 700; }
+        .cal-ok   { background: #d1fae5; color: #065f46; }
+        .cal-over { background: #fef2f2; color: #dc2626; }
+        .cal-zero { background: var(--bg); color: var(--muted); }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 999px;
+            font-size: .88rem; font-weight: 600; opacity: 0; transition: all .25s; z-index: 999; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        @media(max-width:600px) { .page { padding: 24px 16px 80px; } .stats-grid { grid-template-columns: 1fr 1fr; } }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <a href="/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+            <h1 class="page-title">My <span>Progress</span></h1>
+        </div>
+        <!-- Period tabs -->
+        <div class="period-tabs">
+            <a href="/progress?period=weekly"  class="ptab {% if period=='weekly'  %}active{% endif %}">Weekly</a>
+            <a href="/progress?period=monthly" class="ptab {% if period=='monthly' %}active{% endif %}">Monthly</a>
+            <a href="/progress?period=all"     class="ptab {% if period=='all'     %}active{% endif %}">All Time</a>
+        </div>
+    </div>
+
+    <!-- ── Stat cards ── -->
+    <div class="stats-grid">
+
+        <!-- Avg calories -->
+        <div class="stat-card sc-brand">
+            <div class="stat-icon si-brand"><i class="fas fa-fire"></i></div>
+            <div class="stat-val">{{ week_avg.avg_cal|int if week_avg and week_avg.avg_cal else 0 }}</div>
+            <div class="stat-lbl">Avg Daily Calories</div>
+            <div class="stat-sub">Goal: {{ calorie_goal }} kcal
+                {% if week_avg and week_avg.avg_cal %}
+                    {% if week_avg.avg_cal|int <= calorie_goal %}
+                    · <span style="color:var(--green)">✓ On track</span>
+                    {% else %}
+                    · <span style="color:#ef4444">↑ Over goal</span>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Avg protein -->
+        <div class="stat-card sc-blue">
+            <div class="stat-icon si-blue"><i class="fas fa-dumbbell"></i></div>
+            <div class="stat-val">{{ week_avg.avg_prot|int if week_avg and week_avg.avg_prot else 0 }}g</div>
+            <div class="stat-lbl">Avg Daily Protein</div>
+            <div class="stat-sub">Goal: 75g
+                {% if week_avg and week_avg.avg_prot %}
+                    {% if week_avg.avg_prot|int >= 75 %}· <span style="color:var(--green)">✓ Good</span>
+                    {% else %}· <span style="color:var(--amber)">↑ Increase</span>{% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Days logged -->
+        <div class="stat-card sc-green">
+            <div class="stat-icon si-green"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-val">{{ week_avg.days_logged if week_avg and week_avg.days_logged else 0 }}</div>
+            <div class="stat-lbl">Days Logged</div>
+            <div class="stat-sub">
+                {% if period == 'weekly' %}out of 7 days
+                {% elif period == 'monthly' %}out of 30 days
+                {% else %}total days tracked{% endif %}
+            </div>
+        </div>
+
+        <!-- Streak -->
+        <div class="stat-card sc-purple">
+            <div class="stat-icon si-purple"><i class="fas fa-bolt"></i></div>
+            <div class="stat-val">{{ streak }}</div>
+            <div class="stat-lbl">Day Streak 🔥</div>
+            <div class="stat-sub">consecutive days logged</div>
+        </div>
+
+    </div>
+
+    <!-- ── Main grid ── -->
+    <div class="content-grid">
+
+        <!-- LEFT: charts + table -->
+        <div>
+
+            <!-- Calorie history chart -->
+            <div class="card">
+                <div class="card-title">
+                    <span><i class="fas fa-chart-bar"></i> Calorie Intake History</span>
+                    <span style="font-size:.72rem;color:var(--muted);text-transform:none;letter-spacing:0">
+                        Goal line: {{ calorie_goal }} kcal
+                    </span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="calChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Protein chart -->
+            <div class="card">
+                <div class="card-title">
+                    <span><i class="fas fa-dumbbell"></i> Daily Protein Intake</span>
+                    <span style="font-size:.72rem;color:var(--muted);text-transform:none;letter-spacing:0">Goal: 75g</span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="protChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Weight chart -->
+            {% if weight_values %}
+            <div class="card">
+                <div class="card-title">
+                    <span><i class="fas fa-weight-scale"></i> Weight Over Time</span>
+                    {% if weight_change != 0 %}
+                    <span style="font-size:.76rem;font-weight:700;text-transform:none;letter-spacing:0;color:{% if (goal_type=='Weight Loss' and weight_change < 0) or (goal_type=='Weight Gain' and weight_change > 0) %}var(--green){% else %}#ef4444{% endif %}">
+                        {% if weight_change > 0 %}+{% endif %}{{ weight_change }} kg
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="weightChart"></canvas>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Weekly breakdown table -->
+            {% if monthly_rows %}
+            <div class="card">
+                <div class="card-title"><span><i class="fas fa-table"></i> Weekly Breakdown (Last 3 Months)</span></div>
+                <table class="week-table">
+                    <thead>
+                        <tr>
+                            <th>Week</th>
+                            <th>Total Calories</th>
+                            <th>Daily Average</th>
+                            <th>vs Goal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in monthly_rows %}
+                        {% set avg = row.avg_cal|int %}
+                        <tr>
+                            <td style="font-weight:700">Week {{ row.week_key.split('-')[1] }}, {{ row.week_key.split('-')[0] }}</td>
+                            <td>{{ row.total_cal|int }} kcal</td>
+                            <td>{{ avg }} kcal/day</td>
+                            <td>
+                                {% if avg == 0 %}
+                                <span class="cal-chip cal-zero">No data</span>
+                                {% elif avg <= calorie_goal %}
+                                <span class="cal-chip cal-ok">✓ On target</span>
+                                {% else %}
+                                <span class="cal-chip cal-over">↑ Over by {{ avg - calorie_goal }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- RIGHT: weight + BMI + goals -->
+        <div class="right-col">
+
+            <!-- Streak -->
+            <div class="streak-badge">
+                <div class="streak-fire">🔥</div>
+                <div>
+                    <div class="streak-num">{{ streak }} day{{ 's' if streak != 1 }}</div>
+                    <div class="streak-lbl">Current logging streak</div>
+                </div>
+            </div>
+
+            <!-- Log weight -->
+            <div class="card" style="margin-bottom:0">
+                <div class="card-title"><span><i class="fas fa-weight-scale"></i> Log Today's Weight</span></div>
+                <form method="POST" action="/log_weight">
+                    <div class="log-row">
+                        <div class="lf">
+                            <label>Weight (kg)</label>
+                            <input type="number" name="weight" step="0.1" min="20" max="300"
+                                placeholder="{{ current_weight or 'e.g. 72.5' }}" required>
+                        </div>
+                        <div class="lf">
+                            <label>Note (optional)</label>
+                            <input type="text" name="notes" placeholder="e.g. morning">
+                        </div>
+                        <button type="submit" class="log-btn"><i class="fas fa-plus"></i> Log</button>
+                    </div>
+                </form>
+
+                <!-- Weight history list -->
+                {% if weight_values %}
+                <div class="weight-list">
+                    {% for i in range(weight_labels|length - 1, -1, -1) %}
+                    {% set diff = (weight_values[i] - weight_values[i-1])|round(1) if i > 0 else 0 %}
+                    <div class="weight-item">
+                        <span class="wdate">{{ weight_labels[i] }}</span>
+                        <div style="display:flex;align-items:center">
+                            <span class="wval">{{ weight_values[i] }} kg</span>
+                            {% if i > 0 and diff != 0 %}
+                            <span class="wdiff {% if diff > 0 %}up{% else %}down{% endif %}">
+                                {% if diff > 0 %}+{% endif %}{{ diff }}
+                            </span>
+                            {% elif i > 0 %}
+                            <span class="wdiff same">—</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="font-size:.85rem;color:var(--muted);text-align:center;padding:16px 0;">No weight entries yet. Log your first weight above.</p>
+                {% endif %}
+            </div>
+
+            <!-- BMI card -->
+            {% if bmi %}
+            <div class="card" style="margin-bottom:0">
+                <div class="card-title"><span><i class="fas fa-person"></i> Body Mass Index</span></div>
+                <div class="bmi-value" style="color:{{ bmi_category[1] }}">{{ bmi }}</div>
+                <div class="bmi-cat"  style="color:{{ bmi_category[1] }}">{{ bmi_category[0] }}</div>
+                <div class="bmi-meter">
+                    {% set bmi_pct = [[(bmi - 15) / (40 - 15) * 100, 0]|max, 100]|min %}
+                    <div class="bmi-track">
+                        <div class="bmi-pointer" style="left:{{ bmi_pct|int }}%"></div>
+                    </div>
+                    <div class="bmi-labels">
+                        <span>Underweight</span>
+                        <span>Normal</span>
+                        <span>Overweight</span>
+                        <span>Obese</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Goal progress -->
+            {% if user and user.goal_type and current_weight and target_weight %}
+            <div class="card" style="margin-bottom:0">
+                <div class="card-title"><span><i class="fas fa-bullseye"></i> Goal Progress</span></div>
+                <div class="goal-card-inner">
+                    <div>
+                        <div class="goal-row">
+                            <span class="goal-lbl">Goal Type</span>
+                            <span class="goal-val">{{ user.goal_type }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="goal-row">
+                            <span class="goal-lbl">Current Weight</span>
+                            <span class="goal-val">{{ current_weight }} kg</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="goal-row">
+                            <span class="goal-lbl">Target Weight</span>
+                            <span class="goal-val">{{ target_weight }} kg</span>
+                        </div>
+                    </div>
+                    {% if starting_weight and starting_weight != current_weight %}
+                    <div>
+                        {% if goal_type == 'Weight Loss' %}
+                            {% set total_to_lose = starting_weight - target_weight|float %}
+                            {% set lost_so_far   = starting_weight - current_weight %}
+                            {% set pct_done = [[((lost_so_far / total_to_lose) * 100)|int, 0]|max, 100]|min if total_to_lose > 0 else 0 %}
+                        {% elif goal_type == 'Weight Gain' %}
+                            {% set total_to_gain = target_weight|float - starting_weight %}
+                            {% set gained_so_far = current_weight - starting_weight %}
+                            {% set pct_done = [[((gained_so_far / total_to_gain) * 100)|int, 0]|max, 100]|min if total_to_gain > 0 else 0 %}
+                        {% else %}
+                            {% set pct_done = 100 %}
+                        {% endif %}
+                        <div class="goal-row" style="margin-bottom:6px">
+                            <span class="goal-lbl">Progress</span>
+                            <span class="goal-val" style="color:var(--brand)">{{ pct_done }}%</span>
+                        </div>
+                        <div class="goal-bar-wrap">
+                            <div class="goal-bar-fill" style="width:{{ pct_done }}%"></div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% elif user and user.goal_type %}
+            <div class="card" style="margin-bottom:0">
+                <div class="card-title"><span><i class="fas fa-bullseye"></i> Goal</span></div>
+                <div style="font-size:1.1rem;font-weight:800;margin-bottom:6px">{{ user.goal_type }}</div>
+                <p style="font-size:.84rem;color:var(--muted)">
+                    Set a target weight in your <a href="/profile" style="color:var(--brand);font-weight:700">profile</a> to track goal progress.
+                </p>
+            </div>
+            {% endif %}
+
+        </div><!-- /right-col -->
+    </div><!-- /content-grid -->
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const calLabels  = {{ cal_labels  | tojson }};
+    const calValues  = {{ cal_values  | tojson }};
+    const protValues = {{ prot_values | tojson }};
+    const goalLine   = {{ calorie_goal }};
+    const wtLabels   = {{ weight_labels | tojson }};
+    const wtValues   = {{ weight_values | tojson }};
+
+    const BRAND  = '#e91e63';
+    const BLUE   = '#3b82f6';
+    const GREEN  = '#10b981';
+    const AMBER  = '#f59e0b';
+    const BORDER = '#e8eaed';
+
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+    Chart.defaults.color       = '#6b7280';
+
+    // ── Calorie chart ──
+    new Chart(document.getElementById('calChart'), {
+        type: 'bar',
+        data: {
+            labels: calLabels.map(d => {
+                const dt = new Date(d + 'T00:00:00');
+                return dt.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+            }),
+            datasets: [
+                {
+                    label: 'Calories',
+                    data: calValues,
+                    backgroundColor: calValues.map(v => v > goalLine ? 'rgba(239,68,68,.7)' : 'rgba(233,30,99,.65)'),
+                    borderRadius: 6,
+                    borderSkipped: false,
+                },
+                {
+                    label: 'Goal',
+                    data: calLabels.map(() => goalLine),
+                    type: 'line',
+                    borderColor: AMBER,
+                    borderDash: [5, 4],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false,
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { callbacks: {
+                label: ctx => ctx.dataset.label === 'Goal'
+                    ? ` Goal: ${ctx.parsed.y} kcal`
+                    : ` ${ctx.parsed.y} kcal`
+            }}},
+            scales: {
+                x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
+                y: { grid: { color: BORDER }, ticks: { callback: v => v + ' kcal' } }
+            }
+        }
+    });
+
+    // ── Protein chart ──
+    new Chart(document.getElementById('protChart'), {
+        type: 'line',
+        data: {
+            labels: calLabels.map(d => {
+                const dt = new Date(d + 'T00:00:00');
+                return dt.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+            }),
+            datasets: [
+                {
+                    label: 'Protein',
+                    data: protValues,
+                    borderColor: BLUE,
+                    backgroundColor: 'rgba(59,130,246,.08)',
+                    borderWidth: 2.5,
+                    pointRadius: 3,
+                    pointBackgroundColor: BLUE,
+                    fill: true,
+                    tension: 0.3,
+                },
+                {
+                    label: 'Goal',
+                    data: calLabels.map(() => 75),
+                    borderColor: GREEN,
+                    borderDash: [5, 4],
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    fill: false,
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
+                y: { grid: { color: BORDER }, ticks: { callback: v => v + 'g' } }
+            }
+        }
+    });
+
+    // ── Weight chart ──
+    if (wtValues.length > 0) {
+        new Chart(document.getElementById('weightChart'), {
+            type: 'line',
+            data: {
+                labels: wtLabels.map(d => {
+                    const dt = new Date(d + 'T00:00:00');
+                    return dt.toLocaleDateString('en', { month: 'short', day: 'numeric' });
+                }),
+                datasets: [{
+                    label: 'Weight (kg)',
+                    data: wtValues,
+                    borderColor: BRAND,
+                    backgroundColor: 'rgba(233,30,99,.07)',
+                    borderWidth: 2.5,
+                    pointRadius: 4,
+                    pointBackgroundColor: BRAND,
+                    fill: true,
+                    tension: 0.3,
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { color: BORDER }, ticks: { callback: v => v + ' kg' } }
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>

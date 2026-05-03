@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat | NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #fff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .04);
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden
+        }
+
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0
+        }
+
+        .sidebar-logo {
+            padding: 24px 20px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0
+        }
+
+        .logo-text b {
+            display: block;
+            font-size: .95rem;
+            font-weight: 800;
+            color: var(--text)
+        }
+
+        .logo-text span {
+            font-size: .68rem;
+            color: var(--muted);
+            font-weight: 600
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 12px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow-y: auto
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: .875rem;
+            font-weight: 600;
+            transition: all .15s
+        }
+
+        .nav-item i {
+            width: 18px;
+            text-align: center;
+            font-size: .88rem
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        .nav-item.active {
+            background: var(--brand-soft);
+            color: var(--brand)
+        }
+
+        .nav-item.active i {
+            color: var(--brand)
+        }
+
+        .sidebar-footer {
+            padding: 14px 10px;
+            border-top: 1px solid var(--border)
+        }
+
+        .nav-item.logout {
+            color: #ef4444
+        }
+
+        .nav-item.logout:hover {
+            background: #fef2f2
+        }
+
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 32px 60px
+        }
+
+        .page-header {
+            margin-bottom: 24px
+        }
+
+        .page-header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -.02em
+        }
+
+        .page-header p {
+            font-size: .85rem;
+            color: var(--muted);
+            margin-top: 3px
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border)
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: var(--brand);
+            font-weight: 700;
+            font-size: .82rem;
+            background: var(--brand-soft);
+            padding: 6px 13px;
+            border-radius: 999px;
+            margin-bottom: 18px
+        }
+
+        .back-link:hover {
+            opacity: .8
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: .8rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all .15s
+        }
+
+        .btn-brand {
+            background: var(--brand);
+            color: #fff
+        }
+
+        .btn-brand:hover {
+            background: var(--brand-dark)
+        }
+
+        .btn-ghost {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border)
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--brand);
+            color: var(--brand)
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: .75rem
+        }
+
+        .empty {
+            text-align: center;
+            padding: 56px 24px;
+            color: var(--muted)
+        }
+
+        .empty i {
+            font-size: 2.2rem;
+            opacity: .25;
+            display: block;
+            margin-bottom: 12px
+        }
+
+        .empty h3 {
+            font-size: .95rem;
+            color: var(--text);
+            margin-bottom: 6px
+        }
+
+        body {
+            overflow: hidden
+        }
+
+        .main {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            background: var(--brand);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0
+        }
+
+        .chat-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: .95rem;
+            flex-shrink: 0
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f8f9fa
+        }
+
+        .msg-wrap {
+            display: flex;
+            flex-direction: column;
+            max-width: 68%
+        }
+
+        .msg-wrap.right {
+            align-self: flex-end
+        }
+
+        .msg-wrap.left {
+            align-self: flex-start
+        }
+
+        .msg-sender {
+            font-size: .68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--muted);
+            margin-bottom: 4px;
+            padding-left: 4px
+        }
+
+        .bubble {
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: .9rem;
+            line-height: 1.5;
+            word-break: break-word
+        }
+
+        .bubble.client {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px
+        }
+
+        .bubble.dietitian {
+            background: var(--brand);
+            color: #fff;
+            border-bottom-right-radius: 4px
+        }
+
+        .msg-time {
+            font-size: .68rem;
+            color: var(--muted);
+            margin-top: 3px;
+            padding: 0 4px
+        }
+
+        .msg-wrap.right .msg-time {
+            text-align: right
+        }
+
+        .input-row {
+            padding: 14px 24px;
+            background: #fff;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0
+        }
+
+        .input-row input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 24px;
+            font-size: .9rem;
+            font-family: inherit;
+            outline: none;
+            background: var(--bg)
+        }
+
+        .input-row input:focus {
+            border-color: var(--brand)
+        }
+
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--brand);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .92rem;
+            flex-shrink: 0;
+            transition: background .2s
+        }
+
+        .send-btn:hover {
+            background: var(--brand-dark)
+        }
+
+        .no-msg {
+            text-align: center;
+            color: var(--muted);
+            margin: auto 0;
+            padding: 40px
+        }
+
+        .no-msg i {
+            font-size: 2rem;
+            opacity: .25;
+            display: block;
+            margin-bottom: 10px
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🩺</div>
+            <div class="logo-text"><b>NutriLens</b><span>Dietitian Panel</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dietitian/dashboard" class="nav-item"><i class="fas fa-gauge"></i> Dashboard</a>
+            <a href="/dietitian/clients" class="nav-item"><i class="fas fa-users"></i> Clients</a>
+            <a href="/dietitian/meal-reviews" class="nav-item"><i class="fas fa-clipboard-list"></i> Meal Reviews</a>
+            <a href="/dietitian/progress" class="nav-item"><i class="fas fa-chart-line"></i> Progress</a>
+            <a href="/dietitian/messages" class="nav-item active"><i class="fas fa-comments"></i> Messages</a>
+            <a href="/dietitian/recipes" class="nav-item"><i class="fas fa-flask"></i> Recipe Verification</a>
+            <a href="/dietitian/recommended" class="nav-item"><i class="fas fa-star"></i> Recommended</a>
+            <a href="/dietitian/my-recipes" class="nav-item"><i class="fas fa-book-open"></i> My Recipes</a>
+            <a href="/dietitian/feedback" class="nav-item"><i class="fas fa-star-half-stroke"></i> Client Feedback</a>
+            <a href="/dietitian/profile" class="nav-item"><i class="fas fa-user-circle"></i> My Profile</a>
+        </nav>
+        <div class="sidebar-footer"><a href="{{ url_for('dietitian_logout') }}" class="nav-item logout"><i
+                    class="fas fa-right-from-bracket"></i> Logout</a></div>
+    </aside>
+    <main class="main">
+        <div class="chat-header">
+            <a href="/dietitian/messages"
+                style="color:rgba(255,255,255,.8);text-decoration:none;font-size:.82rem;margin-right:4px"><i
+                    class="fas fa-arrow-left"></i></a>
+            <!-- FIX: user_id is an integer passed from the route, not a string.
+                 Indexing an int with [0] raises TypeError. Use a static label. -->
+            <div class="chat-avatar">C</div>
+            <div>
+                <div style="font-weight:700;font-size:.95rem">Client Conversation</div>
+                <div style="font-size:.75rem;opacity:.85"><i class="fas fa-lock" style="font-size:.7rem"></i> Secure
+                    messaging</div>
+            </div>
+        </div>
+
+        <div class="chat-box" id="chatBox">
+            {% if messages %}
+            {% for msg in messages %}
+            {% if msg['sender'] == 'user' %}
+            <div class="msg-wrap left">
+                <div class="msg-sender">Client</div>
+                <div class="bubble client">{{ msg['message'] }}</div>
+                {% if msg['timestamp'] %}<div class="msg-time">{{ msg['timestamp'][:16] }}</div>{% endif %}
+            </div>
+            {% else %}
+            <div class="msg-wrap right">
+                <div class="bubble dietitian">{{ msg['message'] }}</div>
+                {% if msg['timestamp'] %}<div class="msg-time">{{ msg['timestamp'][:16] }}</div>{% endif %}
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% else %}
+            <div class="no-msg"><i class="fas fa-comments"></i>
+                <p>No messages yet — start the conversation.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <form method="POST" action="/dietitian/send_reply" class="input-row">
+            <input type="hidden" name="user_id" value="{{ user_id }}">
+            <input type="text" name="message" placeholder="Type a reply..." required>
+            <button type="submit" class="send-btn"><i class="fas fa-paper-plane"></i></button>
+        </form>
+    </main>
+    <script>document.getElementById('chatBox').scrollTop = 9999;</script>
+</body>
+
+</html>

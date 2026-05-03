@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security – NutriLens</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-0: #fffaf5;
+            --bg-1: #ffe3d0;
+            --bg-2: #ffd4e6;
+            --text: #16202b;
+            --muted: #5f6b7a;
+            --card: rgba(255, 255, 255, 0.92);
+            --line: #e8ebef;
+            --accent: #e0437a;
+            --accent-2: #f08a24;
+            --accent-soft: #ffe8f2;
+            --ok-soft: #e7faf0;
+            --ok-text: #178a53;
+            --warn-bg: #fff1e5;
+            --warn-border: #f9c6a4;
+            --shadow: 0 18px 45px rgba(27, 36, 48, 0.12);
+            --sidebar-bg: #ffffffd9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background:
+                radial-gradient(circle at 6% 8%, var(--bg-1) 0%, transparent 35%),
+                radial-gradient(circle at 94% 12%, var(--bg-2) 0%, transparent 33%),
+                linear-gradient(180deg, #fffefc 0%, var(--bg-0) 100%);
+            background-size: 100% 100%, 100% 100%, 100% 100%;
+            color: var(--text);
+            font-size: 17px;
+            min-height: 100vh;
+            padding: 24px 20px 40px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .ambient-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(4px);
+            z-index: -1;
+            opacity: 0.55;
+            pointer-events: none;
+            animation: drift 16s ease-in-out infinite;
+        }
+
+        .ambient-orb.a {
+            width: 210px;
+            height: 210px;
+            background: radial-gradient(circle, #ffc3df 0%, #ffd9e9 65%, transparent 100%);
+            top: 7%;
+            right: 4%;
+        }
+
+        .ambient-orb.b {
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, #ffd4ab 0%, #ffe2ca 65%, transparent 100%);
+            left: -40px;
+            bottom: 14%;
+            animation-delay: 2s;
+        }
+
+        .ambient-orb.c {
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, #d0f0ff 0%, #e2f6ff 70%, transparent 100%);
+            right: 24%;
+            bottom: 7%;
+            animation-delay: 5s;
+        }
+
+        /* layout with sidebar */
+        .account-layout {
+            display: flex;
+            gap: 28px;
+            max-width: 1400px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+        }
+
+        /* left sidebar */
+        .sidebar {
+            flex: 0 0 240px;
+            background: var(--sidebar-bg);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 28px 12px;
+            border: 1px solid #fad5e6;
+            box-shadow: 0 16px 30px rgba(100, 70, 90, 0.12);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-item {
+            padding: 14px 18px;
+            font-weight: 700;
+            font-size: 18px;
+            color: #2b3648;
+            border-radius: 18px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            text-align: left;
+            font-family: inherit;
+            text-decoration: none;
+            display: block;
+        }
+
+        .sidebar-item.active {
+            background: linear-gradient(135deg, #ffe5f1, #fff0dd);
+            color: #c5306a;
+            box-shadow: inset 3px 0 0 #d53369;
+        }
+
+        .sidebar-item:not(.active):hover {
+            background: #ffeef5;
+        }
+
+        .sidebar-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f4b8d2, transparent);
+            margin: 18px 10px 10px;
+        }
+
+        /* main content */
+        .main-content {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .page-header h1 {
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #1f2a37;
+        }
+
+        .page-header p {
+            color: var(--muted);
+            font-size: 18px;
+            margin-top: 6px;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #e0437a, #f08a24);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            box-shadow: 0 6px 14px rgba(224, 67, 122, 0.3);
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 18px rgba(224, 67, 122, 0.4);
+        }
+
+        /* security cards */
+        .security-card {
+            background: var(--card);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            padding: 28px 30px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .security-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 50px rgba(27, 36, 48, 0.15);
+            border-color: #ffe0ee;
+        }
+
+        .card-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1f2a37;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-title .icon {
+            font-size: 28px;
+        }
+
+        .field-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px 24px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            color: #3f4b5a;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* password field with eye icon */
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-wrapper input {
+            width: 100%;
+            padding: 14px 45px 14px 15px;
+            /* extra right padding for icon */
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: #fff;
+            font-size: 17px;
+            font-family: inherit;
+            transition: 0.18s;
+        }
+
+        .password-wrapper input:focus {
+            outline: none;
+            border-color: #f18cb1;
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #8a5c6e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: var(--accent);
+        }
+
+        .toggle-password:focus {
+            outline: none;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 14px 15px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: #fff;
+            font-size: 17px;
+            font-family: inherit;
+            transition: 0.18s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #f18cb1;
+            box-shadow: 0 0 0 4px var(--accent-soft);
+        }
+
+        .btn {
+            background: linear-gradient(120deg, var(--accent), var(--accent-2));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 18px;
+            padding: 14px 24px;
+            cursor: pointer;
+            box-shadow: 0 12px 24px rgba(224, 67, 122, 0.28);
+            transition: 0.18s;
+            width: fit-content;
+            min-width: 160px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 28px rgba(224, 67, 122, 0.35);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-soft);
+            transform: translateY(-1px);
+            box-shadow: none;
+        }
+
+        .two-factor-row,
+        .session-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .two-factor-row:last-child,
+        .session-row:last-child {
+            border-bottom: none;
+        }
+
+        .session-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .session-device {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .session-meta {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        .badge-current {
+            background: var(--ok-soft);
+            color: var(--ok-text);
+            border-radius: 40px;
+            padding: 3px 10px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+
+        .danger-zone {
+            border: 2px solid #fcc6b5;
+            background: #fff6f0;
+        }
+
+        .danger-zone .card-title {
+            color: #b13e2d;
+        }
+
+        /* toast and dirty banner */
+        .dirty-banner {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 1000;
+            background: #1e293b;
+            color: #f8fafc;
+            border-radius: 12px;
+            padding: 10px 12px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.35);
+            transform: translateY(14px);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.2s;
+        }
+
+        .dirty-banner.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .tiny-btn {
+            border: 0;
+            background: #334155;
+            color: #f8fafc;
+            border-radius: 8px;
+            padding: 6px 9px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .tiny-btn:hover {
+            background: #475569;
+        }
+
+        .toast-wrap {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: #111827;
+            color: #f9fafb;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 15px;
+            box-shadow: 0 10px 20px rgba(17, 24, 39, 0.3);
+            animation: toastIn 0.25s;
+        }
+
+        .toast.ok {
+            background: #065f46;
+        }
+
+        .toast.warn {
+            background: #7c2d12;
+        }
+
+        @keyframes drift {
+
+            0%,
+            100% {
+                transform: translateY(0) translateX(0);
+            }
+
+            50% {
+                transform: translateY(-14px) translateX(10px);
+            }
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .account-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: static;
+                width: 100%;
+            }
+
+            .field-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 500px) {
+            body {
+                padding: 16px 12px;
+            }
+
+            .security-card {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ambient-orb a"></div>
+    <div class="ambient-orb b"></div>
+    <div class="ambient-orb c"></div>
+
+    <div class="account-layout">
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-nav">
+                <a href="{{ url_for('profile') }}" class="sidebar-item active">Account Settings</a>
+                <a href="{{ url_for('security') }}" class="sidebar-item">Security</a>
+                <a href="{{ url_for('notifications') }}" class="sidebar-item">Notifications</a>
+                <div class="sidebar-divider"></div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <div class="page-header">
+                <div style="display:flex; align-items:center;">
+                    <h1 style="margin:0;">Security Settings</h1>
+
+                    <div style="margin-left:auto;">
+                        <a href="{{ url_for('dashboard') }}" class="back-btn">
+                            🏠 Dashboard
+                        </a>
+                    </div>
+                </div>
+                <p>Manage your password, email, and account security.</p>
+            </div>
+
+            <!-- CHANGE EMAIL CARD (with eye toggle on current password) -->
+            <div class="security-card">
+                <div class="card-title">
+                    <span class="icon">📧</span> Change email address
+                </div>
+                <div class="field-grid">
+                    <div class="field full">
+                        <label for="current_email">Current email</label>
+                        <input type="email" id="current_email" value="{{ user.email }}" disabled
+                            style="background:#f4f6fa; color:#4a5a6e;">
+                    </div>
+                    <div class="field">
+                        <label for="new_email">New email</label>
+                        <input type="email" id="new_email" name="new_email" placeholder="new@example.com">
+                    </div>
+                    <div class="field">
+                        <label for="confirm_email">Confirm new email</label>
+                        <input type="email" id="confirm_email" name="confirm_email" placeholder="confirm new email">
+                    </div>
+                    <div class="field full">
+                        <label for="email_password">Current password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="email_password" name="email_password"
+                                placeholder="Enter password to confirm">
+                            <button type="button" class="toggle-password"
+                                onclick="togglePassword('email_password', this)">👁️</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" type="button" onclick="updateEmail()" style="margin-top: 20px;">Update
+                    email</button>
+            </div>
+
+            <!-- CHANGE PASSWORD CARD (wired to /change_password) -->
+            <div class="security-card">
+                <div class="card-title">
+                    <span class="icon">🔐</span> Change password
+                </div>
+
+                {% if success %}
+                <div
+                    style="background:var(--ok-soft);color:var(--ok-text);border:1.5px solid #a7f3d0;border-radius:10px;padding:12px 14px;font-size:15px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+                    ✅ {{ success }}
+                </div>
+                {% endif %}
+                {% if error %}
+                <div
+                    style="background:#fef2f2;color:#dc2626;border:1.5px solid #fecaca;border-radius:10px;padding:12px 14px;font-size:15px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:8px;">
+                    ⚠️ {{ error }}
+                </div>
+                {% endif %}
+
+                <form method="POST" action="/change_password" id="pwForm">
+                    <div class="field-grid">
+                        <div class="field full">
+                            <label for="current_password">Current password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="current_password" name="current_password"
+                                    placeholder="••••••••" required>
+                                <button type="button" class="toggle-password"
+                                    onclick="togglePassword('current_password', this)">👁️</button>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="new_password">New password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="new_password" name="new_password"
+                                    placeholder="at least 8 characters" required minlength="8">
+                                <button type="button" class="toggle-password"
+                                    onclick="togglePassword('new_password', this)">👁️</button>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="confirm_password">Confirm new password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="confirm_password" name="confirm_password"
+                                    placeholder="retype new password" required>
+                                <button type="button" class="toggle-password"
+                                    onclick="togglePassword('confirm_password', this)">👁️</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn" type="submit" style="margin-top: 20px;">Update password</button>
+                    <p style="margin-top: 16px; color: var(--muted); font-size: 14px;">Use at least 8 characters, with a
+                        mix
+                        of letters, numbers &amp; symbols.</p>
+                </form>
+            </div>
+
+            <!-- DANGER ZONE: Delete account -->
+            <div class="security-card danger-zone">
+                <div class="card-title">
+                    <span class="icon">⚠️</span> Delete account
+                </div>
+                <p style="margin-bottom: 18px; color: #5f3a2e;">Permanently delete your account and all associated data.
+                    This action cannot be undone.</p>
+                <form method="POST" action="/delete_account"
+                    onsubmit="return confirm('Are you absolutely sure? This will permanently delete your account.');">
+
+                    <button type="submit" class="btn-outline btn" style="border-color:#b13e2d; color:#b13e2d;">
+                        Delete account
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <!-- toast + dirty banner -->
+    <div class="toast-wrap" id="toastWrap"></div>
+    <div class="dirty-banner" id="dirtyBanner">
+        <span>You have unsaved changes</span>
+        <button class="tiny-btn" id="resetFormBtn">Reset</button>
+    </div>
+
+    <script>
+        // Toast helper
+        function toast(message, type = '') {
+            const toastWrap = document.getElementById('toastWrap');
+            const el = document.createElement('div');
+            el.className = `toast ${type}`.trim();
+            el.textContent = message;
+            toastWrap.appendChild(el);
+            setTimeout(() => el.remove(), 2500);
+        }
+
+        // Toggle password visibility
+        window.togglePassword = function (inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            btn.textContent = type === 'password' ? '👁️' : '👁️‍🗨️'; // change icon optionally
+        };
+
+        // Dirty state simulation
+        const dirtyBanner = document.getElementById('dirtyBanner');
+        const resetBtn = document.getElementById('resetFormBtn');
+        let isDirty = false;
+
+        function setDirty(value) {
+            isDirty = value;
+            dirtyBanner.classList.toggle('show', isDirty);
+        }
+
+        // Monitor changes on all non-disabled inputs
+        const securityInputs = document.querySelectorAll('input:not([disabled])');
+        securityInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                if (!isDirty) toast('Unsaved changes', 'warn');
+                setDirty(true);
+            });
+        });
+
+        resetBtn.addEventListener('click', () => {
+            document.querySelectorAll('input:not([disabled])').forEach(i => i.value = '');
+            setDirty(false);
+            toast('Form reset', 'warn');
+        });
+
+        // Email update (demo only — wire to backend when email-change route exists)
+        window.updateEmail = function () {
+            const newEmail = document.getElementById('new_email').value;
+            const confirm = document.getElementById('confirm_email').value;
+            const pass = document.getElementById('email_password').value;
+            if (!newEmail || !confirm || !pass) { toast('Please fill all fields', 'warn'); return; }
+            if (newEmail !== confirm) { toast('Emails do not match', 'warn'); return; }
+            toast('Email update requested (demo)', 'ok');
+            setDirty(false);
+        };
+
+        // Client-side validation before the real form submits
+        const pwForm = document.getElementById('pwForm');
+        if (pwForm) {
+            pwForm.addEventListener('submit', function (e) {
+                const newPw = document.getElementById('new_password').value;
+                const confirmPw = document.getElementById('confirm_password').value;
+                if (newPw !== confirmPw) {
+                    e.preventDefault();
+                    toast('New passwords do not match', 'warn');
+                    return;
+                }
+                if (newPw.length < 8) {
+                    e.preventDefault();
+                    toast('Password must be at least 8 characters', 'warn');
+                    return;
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

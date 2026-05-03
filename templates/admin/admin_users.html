@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users | NutriLens Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #fff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .04);
+            --radius: 14px
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden
+        }
+
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto
+        }
+
+        .sidebar-logo {
+            padding: 20px 18px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0
+        }
+
+        .logo-text b {
+            display: block;
+            font-size: .9rem;
+            font-weight: 800;
+            color: var(--text)
+        }
+
+        .logo-text span {
+            font-size: .65rem;
+            color: var(--muted);
+            font-weight: 600
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 1px
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 11px;
+            border-radius: 9px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: .84rem;
+            font-weight: 600;
+            transition: all .15s
+        }
+
+        .nav-item i {
+            width: 16px;
+            text-align: center;
+            font-size: .82rem
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        .nav-item.active {
+            background: var(--brand-soft);
+            color: var(--brand)
+        }
+
+        .nav-item.active i {
+            color: var(--brand)
+        }
+
+        .sidebar-footer {
+            padding: 10px 8px;
+            border-top: 1px solid var(--border)
+        }
+
+        .nav-item.logout {
+            color: #ef4444
+        }
+
+        .nav-item.logout:hover {
+            background: #fef2f2
+        }
+
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px 60px
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px
+        }
+
+        .topbar h1 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -.02em
+        }
+
+        .topbar p {
+            font-size: .82rem;
+            color: var(--muted);
+            margin-top: 2px
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border)
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        thead th {
+            text-align: left;
+            font-size: .66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--muted);
+            padding: 0 10px 11px 0;
+            border-bottom: 1.5px solid var(--border)
+        }
+
+        tbody td {
+            padding: 12px 10px 12px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: .84rem
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none
+        }
+
+        tbody tr:hover td {
+            background: #fafafa
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: .67rem;
+            font-weight: 700
+        }
+
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46
+        }
+
+        .badge-amber {
+            background: #fef3c7;
+            color: #92400e
+        }
+
+        .badge-red {
+            background: #fef2f2;
+            color: #dc2626
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af
+        }
+
+        .badge-gray {
+            background: #f3f4f6;
+            color: #374151
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 7px;
+            font-size: .74rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            transition: all .15s
+        }
+
+        .btn-brand {
+            background: var(--brand);
+            color: #fff
+        }
+
+        .btn-brand:hover {
+            background: var(--brand-dark)
+        }
+
+        .btn-green {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0
+        }
+
+        .btn-green:hover {
+            background: #a7f3d0
+        }
+
+        .btn-amber {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a
+        }
+
+        .btn-amber:hover {
+            background: #fde68a
+        }
+
+        .btn-red {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca
+        }
+
+        .btn-red:hover {
+            background: #fee2e2
+        }
+
+        .btn-ghost {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border)
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--brand);
+            color: var(--brand)
+        }
+
+        .stat-row {
+            display: grid;
+            gap: 13px;
+            margin-bottom: 20px
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 3px
+        }
+
+        .stat-card.accent {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: #fff
+        }
+
+        .stat-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .78rem;
+            color: var(--brand);
+            margin-bottom: 3px
+        }
+
+        .stat-card.accent .stat-icon {
+            background: rgba(255, 255, 255, .2);
+            color: #fff
+        }
+
+        .stat-val {
+            font-size: 1.6rem;
+            font-weight: 800;
+            line-height: 1
+        }
+
+        .stat-lbl {
+            font-size: .64rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--muted)
+        }
+
+        .stat-card.accent .stat-lbl {
+            color: rgba(255, 255, 255, .75)
+        }
+
+        .search-input {
+            padding: 8px 13px;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: .84rem;
+            font-family: inherit;
+            outline: none;
+            background: var(--bg);
+            min-width: 180px
+        }
+
+        .search-input:focus {
+            border-color: var(--brand)
+        }
+
+        .form-group {
+            margin-bottom: 14px
+        }
+
+        .form-group label {
+            display: block;
+            font-size: .76rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text)
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 9px 13px;
+            border: 1.5px solid var(--border);
+            border-radius: 9px;
+            font-size: .88rem;
+            font-family: inherit;
+            outline: none;
+            background: var(--bg);
+            transition: border-color .2s;
+            color: var(--text)
+        }
+
+        .form-control:focus {
+            border-color: var(--brand);
+            background: #fff
+        }
+
+        .empty {
+            text-align: center;
+            padding: 44px 20px;
+            color: var(--muted)
+        }
+
+        .empty i {
+            font-size: 1.8rem;
+            opacity: .2;
+            display: block;
+            margin-bottom: 10px
+        }
+
+        .empty p {
+            font-size: .82rem
+        }
+
+        .stat-row {
+            grid-template-columns: repeat(4, 1fr)
+        }
+
+        .avatar-cell {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .78rem;
+            font-weight: 800;
+            color: var(--brand)
+        }
+
+        .name-cell {
+            display: flex;
+            align-items: center;
+            gap: 9px
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">&#9881;</div>
+            <div class="logo-text"><b>NutriLens</b><span>Admin Portal</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item "><i class="fas fa-gauge"></i> Dashboard</a>
+            <a href="/admin/users" class="nav-item active"><i class="fas fa-users"></i> Users</a>
+            <a href="/admin/dietitians" class="nav-item"><i class="fas fa-user-md"></i> All Dietitians</a>
+            <a href="/admin/feedback" class="nav-item"><i class="fas fa-star"></i> Feedback &amp; Reviews</a>
+            <a href="/admin/reported_recipes" class="nav-item"><i class="fas fa-flag"></i> Reported Recipes</a>
+            <a href="/admin/reports" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer"><a href="/admin/logout" class="nav-item logout"><i
+                    class="fas fa-right-from-bracket"></i> Logout</a></div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div>
+                <h1>Registered Users</h1>
+                <p>Manage all user accounts</p>
+            </div>
+            <input type="text" id="userSearch" class="search-input" placeholder="Search users...">
+        </div>
+        <div class="stat-row">
+            <div class="stat-card accent">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-val">{{ users|length }}</div>
+                <div class="stat-lbl">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#d1fae5;color:#065f46"><i class="fas fa-user-check"></i></div>
+                <div class="stat-val">{{ users|selectattr('age')|list|length }}</div>
+                <div class="stat-lbl">Complete Profiles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7;color:#d97706"><i class="fas fa-user-xmark"></i></div>
+                <div class="stat-val">{{ users|rejectattr('age')|list|length }}</div>
+                <div class="stat-lbl">Incomplete Profiles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef2f2;color:#dc2626"><i class="fas fa-ban"></i></div>
+                <div class="stat-val">{{ users|selectattr('is_blocked')|list|length }}</div>
+                <div class="stat-lbl">Blocked</div>
+            </div>
+        </div>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Goal</th>
+                        <th>Profile</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="userTable">
+                    {% if users %}{% for u in users %}
+                    <tr class="user-row">
+                        <td>
+                            <div class="name-cell">
+                                <div class="avatar-cell">{{ u.full_name[0]|upper if u.full_name else '?' }}</div><strong
+                                    class="user-name">{{ u.full_name or 'Unknown' }}</strong>
+                            </div>
+                        </td>
+                        <td style="color:var(--muted)">{{ u.email }}</td>
+                        <td>{{ u.age or '—' }}</td>
+                        <td>{{ u.gender or '—' }}</td>
+                        <td>{{ u.goal_type or '—' }}</td>
+                        <td>{% if u.age and u.weight and u.height %}<span class="badge badge-green">Complete</span>{%
+                            else %}<span class="badge badge-amber">Incomplete</span>{% endif %}</td>
+                        <td>{% if u.is_blocked %}<span class="badge badge-red"><i class="fas fa-ban"
+                                    style="font-size:.5rem"></i> Blocked</span>{% else %}<span
+                                class="badge badge-green"><i class="fas fa-circle" style="font-size:.45rem"></i>
+                                Active</span>{% endif %}</td>
+                        <td style="display:flex;gap:5px">
+                            <a href="/admin/toggle_block/{{ u.id }}"
+                                class="btn {% if u.is_blocked %}btn-green{% else %}btn-amber{% endif %}">
+                                <i class="fas {% if u.is_blocked %}fa-unlock{% else %}fa-ban{% endif %}"></i>
+                                {% if u.is_blocked %}Unblock{% else %}Block{% endif %}
+                            </a>
+                            <a href="/admin/delete_user/{{ u.id }}" class="btn btn-red"
+                                onclick="return confirm('Delete {{ u.full_name }}? Cannot be undone.')"><i
+                                    class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}{% else %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty"><i class="fas fa-users"></i>
+                                <p>No users yet</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <script>
+        document.getElementById('userSearch').addEventListener('input', function () {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('.user-row').forEach(row => {
+                const n = row.querySelector('.user-name')?.textContent.toLowerCase() || '';
+                row.style.display = n.includes(q) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+
+</html>

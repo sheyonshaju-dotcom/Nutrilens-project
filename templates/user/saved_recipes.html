@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Recipes · NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand:      #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg:         #f4f5f7;
+            --surface:    #fff;
+            --text:       #1a1a2e;
+            --muted:      #6b7280;
+            --border:     #e8eaed;
+            --shadow:     0 2px 12px rgba(0,0,0,.07);
+            --radius:     14px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        .page { width: 100%; padding: 36px 40px 80px; }
+
+        /* Header */
+        .page-header { display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 14px; margin-bottom: 24px; }
+        .back-link { display: inline-flex; align-items: center; gap: 7px; font-size: .82rem;
+            font-weight: 700; color: var(--muted); text-decoration: none; transition: color .15s; }
+        .back-link:hover { color: var(--brand); }
+        .page-title { font-size: clamp(1.4rem, 2.2vw, 1.9rem); font-weight: 800; letter-spacing: -.02em; }
+        .page-title span { color: var(--brand); }
+        .count-badge { background: var(--brand-soft); color: var(--brand-dark); border-radius: 999px;
+            padding: 4px 14px; font-size: .82rem; font-weight: 700; }
+
+        /* Toolbar */
+        .toolbar { display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .search-wrap { position: relative; }
+        .search-wrap input { padding: 9px 14px 9px 36px; border: 1.5px solid var(--border);
+            border-radius: 999px; font-size: .88rem; font-family: inherit; outline: none;
+            background: var(--surface); width: 260px; transition: border-color .2s; }
+        .search-wrap input:focus { border-color: var(--brand); }
+        .search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            color: var(--muted); font-size: .82rem; pointer-events: none; }
+        .controls { display: flex; align-items: center; gap: 8px; }
+        .sort-select { border: 1.5px solid var(--border); border-radius: 9px; padding: 7px 11px;
+            font-size: .83rem; font-family: inherit; background: var(--bg); cursor: pointer; outline: none; }
+        .view-toggle { display: flex; border: 1.5px solid var(--border); border-radius: 9px; overflow: hidden; }
+        .vt-btn { background: none; border: none; padding: 7px 11px; cursor: pointer;
+            color: var(--muted); font-size: .85rem; transition: all .15s; }
+        .vt-btn.active { background: var(--brand); color: #fff; }
+
+        /* Grid */
+        .recipe-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .recipe-grid.list-view { grid-template-columns: 1fr; }
+
+        /* Card */
+        .recipe-card { background: var(--surface); border-radius: var(--radius); overflow: hidden;
+            box-shadow: var(--shadow); border: 1px solid var(--border); display: flex;
+            flex-direction: column; transition: transform .2s, box-shadow .2s, border-color .2s; }
+        .recipe-card:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(233,30,99,.1); border-color: var(--brand); }
+        .recipe-grid.list-view .recipe-card { flex-direction: row; }
+
+        .card-img { height: 180px; background: var(--brand-soft); overflow: hidden;
+            position: relative; flex-shrink: 0; }
+        .recipe-grid.list-view .card-img { width: 150px; height: auto; min-height: 110px; }
+        .card-img img { position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; transition: transform .4s; }
+        .recipe-card:hover .card-img img { transform: scale(1.06); }
+        .img-ph { width: 100%; height: 100%; display: flex; align-items: center;
+            justify-content: center; font-size: 2rem; color: var(--brand); opacity: .25; }
+        .badge-tl { position: absolute; top: 8px; left: 8px; font-size: .65rem; font-weight: 800;
+            padding: 3px 9px; border-radius: 999px; }
+        .badge-vegan  { background: rgba(16,185,129,.88); color: #fff; }
+        .badge-veg    { background: rgba(34,197,94,.85);  color: #fff; }
+        .badge-nonveg { background: rgba(239,68,68,.85);  color: #fff; }
+        .badge-tr { position: absolute; top: 8px; right: 8px; background: rgba(233,30,99,.88);
+            color: #fff; font-size: .65rem; font-weight: 800; padding: 3px 9px; border-radius: 999px; }
+        .saved-date { position: absolute; bottom: 8px; left: 8px; background: rgba(255,255,255,.88);
+            color: var(--muted); font-size: .6rem; font-weight: 700; padding: 2px 7px; border-radius: 999px; }
+
+        .card-body { padding: 18px 16px 12px; flex: 1; }
+        .card-title { font-weight: 700; font-size: .94rem; margin-bottom: 7px; line-height: 1.3;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-desc { font-size: .78rem; color: var(--muted); line-height: 1.4; margin-bottom: 8px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .card-meta { display: flex; gap: 10px; font-size: .76rem; color: var(--muted); flex-wrap: wrap; }
+        .card-meta span { display: flex; align-items: center; gap: 4px; }
+        .card-meta i { color: var(--brand); width: 12px; }
+        .macro-bars { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+        .macro-row { display: flex; align-items: center; gap: 5px; font-size: .7rem; }
+        .macro-row span:first-child { width: 12px; color: var(--muted); font-weight: 700;
+            font-size: .62rem; text-transform: uppercase; }
+        .bar { flex: 1; height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 99px; }
+        .bar-p { background: #3b82f6; } .bar-c { background: #f59e0b; } .bar-f { background: #10b981; }
+        .macro-row span:last-child { width: 26px; text-align: right; font-weight: 700; }
+
+        .card-footer { padding: 12px 16px 14px; border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .view-btn { background: var(--brand); color: #fff; border: none; border-radius: 999px;
+            padding: 7px 15px; font-weight: 700; font-size: .76rem; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 6px; transition: background .2s; }
+        .view-btn:hover { background: var(--brand-dark); }
+        .unsave-btn { background: none; border: 1.5px solid #fecaca; color: #ef4444; width: 34px;
+            height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; font-size: .82rem; transition: all .15s; flex-shrink: 0; }
+        .unsave-btn:hover { background: #fef2f2; border-color: #ef4444; }
+
+        /* Empty state */
+        .empty-state { text-align: center; padding: 80px 24px; background: var(--surface);
+            border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .empty-state i { font-size: 3rem; color: var(--brand); opacity: .25; display: block; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 1.1rem; margin-bottom: 8px; }
+        .empty-state p { font-size: .88rem; color: var(--muted); margin-bottom: 20px; }
+        .browse-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--brand);
+            color: #fff; text-decoration: none; padding: 11px 22px; border-radius: 999px;
+            font-weight: 700; font-size: .88rem; transition: background .2s; }
+        .browse-btn:hover { background: var(--brand-dark); }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #1e293b; color: #fff; padding: 10px 20px; border-radius: 999px;
+            font-size: .85rem; font-weight: 600; opacity: 0; transition: all .25s; z-index: 999;
+            pointer-events: none; white-space: nowrap; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        @media(max-width:1200px) { .recipe-grid { grid-template-columns: repeat(3,1fr); } }
+        @media(max-width:860px)  { .recipe-grid { grid-template-columns: repeat(2,1fr); } }
+        @media(max-width:520px)  { .recipe-grid { grid-template-columns: 1fr; } .search-wrap input { width: 100%; } .toolbar { flex-direction: column; align-items: stretch; } }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- Header -->
+    <div class="page-header">
+        <a href="/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <h1 class="page-title">🔖 Saved <span>Recipes</span></h1>
+            <span class="count-badge">{{ recipes|length }} saved</span>
+        </div>
+        <a href="/recipes" style="display:inline-flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;color:var(--brand);text-decoration:none;">
+            <i class="fas fa-compass"></i> Browse All Recipes
+        </a>
+    </div>
+
+    {% if recipes %}
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="search-wrap">
+            <i class="fas fa-search"></i>
+            <input type="text" id="liveSearch" placeholder="Search saved recipes…" oninput="applyFilter()">
+        </div>
+        <div class="controls">
+            <select class="sort-select" id="sortSelect" onchange="sortCards()">
+                <option value="default">Saved recently</option>
+                <option value="cal-asc">Calories ↑</option>
+                <option value="cal-desc">Calories ↓</option>
+                <option value="protein-desc">Protein ↓</option>
+                <option value="name-asc">Name A–Z</option>
+            </select>
+            <div class="view-toggle">
+                <button class="vt-btn active" id="gridBtn" onclick="setView('grid')" title="Grid"><i class="fas fa-grip"></i></button>
+                <button class="vt-btn" id="listBtn" onclick="setView('list')" title="List"><i class="fas fa-list"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="recipe-grid" id="recipeGrid">
+        {% for recipe in recipes %}
+        {% set p  = (recipe.protein or 0)|float %}
+        {% set c  = (recipe.carbs   or 0)|float %}
+        {% set f  = (recipe.fat     or 0)|float %}
+        {% set tm = p + c + f %}
+
+        {% set NON_VEG = ['chicken','beef','salmon','tuna','shrimp','prawn','turkey','pork','lamb','cod','bacon','ham','crab','duck','sausage','fish'] %}
+        {% set ANIMAL  = ['egg','milk','butter','yogurt','cream','ghee','cheese','honey','paneer'] %}
+        {% set ing = (recipe.ingredients or '')|lower %}
+        {% if NON_VEG | select('in', ing) | list | length > 0 %}
+            {% set dt = 'nonveg' %}
+        {% elif ANIMAL | select('in', ing) | list | length > 0 %}
+            {% set dt = 'vegetarian' %}
+        {% else %}
+            {% set dt = 'vegan' %}
+        {% endif %}
+
+        <div class="recipe-card"
+            data-id="{{ recipe.id }}"
+            data-name="{{ recipe.name|lower }}"
+            data-calories="{{ recipe.calories or 0 }}"
+            data-protein="{{ p|int }}"
+            data-saved="{{ recipe.saved_at }}">
+
+            <div class="card-img">
+                <div class="img-ph"><i class="fas fa-utensils"></i></div>
+                <img src="" alt="{{ recipe.name }}" onerror="imgFallback(this,'{{ recipe.name }}')" loading="lazy">
+
+                {% if dt == 'vegan' %}<span class="badge-tl badge-vegan">🌱 Vegan</span>
+                {% elif dt == 'vegetarian' %}<span class="badge-tl badge-veg">🥗 Veg</span>
+                {% elif dt == 'nonveg' %}<span class="badge-tl badge-nonveg">🍗 Non-Veg</span>{% endif %}
+
+                <span class="badge-tr">{{ recipe.calories or 0 }} kcal</span>
+                <span class="saved-date"><i class="fas fa-bookmark"></i> {{ recipe.saved_at[:10] if recipe.saved_at else '' }}</span>
+            </div>
+
+            <div class="card-body">
+                <h3 class="card-title">
+                    {% if recipe.is_recommended %}⭐ {% endif %}
+                    {% if recipe.is_verified %}✅ {% endif %}
+                    {{ recipe.name }}
+                </h3>
+                {% if recipe.description %}
+                <div class="card-desc">{{ recipe.description }}</div>
+                {% endif %}
+                <div class="card-meta">
+                    <span><i class="fas fa-fire"></i> {{ recipe.calories or 0 }} kcal</span>
+                    <span><i class="fas fa-dumbbell"></i> {{ p|int }}g protein</span>
+                </div>
+                {% if tm > 0 %}
+                <div class="macro-bars">
+                    <div class="macro-row"><span>P</span><div class="bar"><div class="bar-fill bar-p" style="width:{{ ((p/tm)*100)|int }}%"></div></div><span>{{ p|int }}g</span></div>
+                    <div class="macro-row"><span>C</span><div class="bar"><div class="bar-fill bar-c" style="width:{{ ((c/tm)*100)|int }}%"></div></div><span>{{ c|int }}g</span></div>
+                    <div class="macro-row"><span>F</span><div class="bar"><div class="bar-fill bar-f" style="width:{{ ((f/tm)*100)|int }}%"></div></div><span>{{ f|int }}g</span></div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card-footer">
+                <a href="{{ url_for('recipe_detail', recipe_id=recipe.id) }}" class="view-btn">
+                    View Recipe <i class="fas fa-arrow-right"></i>
+                </a>
+                <button class="unsave-btn" onclick="unsave(this, {{ recipe.id }})" title="Remove from saved">
+                    <i class="fas fa-bookmark-slash"></i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="empty-state">
+        <i class="fas fa-bookmark"></i>
+        <h3>No saved recipes yet</h3>
+        <p>Browse recipes and tap the bookmark icon to save them here for quick access.</p>
+        <a href="/recipes" class="browse-btn"><i class="fas fa-compass"></i> Browse Recipes</a>
+    </div>
+    {% endif %}
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const ALL_CARDS = [...document.querySelectorAll('.recipe-card')];
+
+    function applyFilter() {
+        const q = (document.getElementById('liveSearch')?.value || '').toLowerCase().trim();
+        let visible = 0;
+        ALL_CARDS.forEach(card => {
+            const show = !q || (card.dataset.name || '').includes(q);
+            card.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+    }
+
+    function sortCards() {
+        const val  = document.getElementById('sortSelect').value;
+        const grid = document.getElementById('recipeGrid'); if (!grid) return;
+        [...ALL_CARDS].sort((a, b) => {
+            if (val === 'cal-asc')      return +a.dataset.calories - +b.dataset.calories;
+            if (val === 'cal-desc')     return +b.dataset.calories - +a.dataset.calories;
+            if (val === 'protein-desc') return +b.dataset.protein  - +a.dataset.protein;
+            if (val === 'name-asc')     return a.dataset.name.localeCompare(b.dataset.name);
+            return 0; // default = saved_at order (already sorted by server)
+        }).forEach(c => grid.appendChild(c));
+    }
+
+    function setView(v) {
+        const grid = document.getElementById('recipeGrid'); if (!grid) return;
+        grid.classList.toggle('list-view', v === 'list');
+        document.getElementById('gridBtn').classList.toggle('active', v === 'grid');
+        document.getElementById('listBtn').classList.toggle('active', v === 'list');
+        localStorage.setItem('savedView', v);
+    }
+
+    function unsave(btn, recipeId) {
+        fetch('/save_recipe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipe_id: recipeId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'unsaved') {
+                // Remove the card with a fade
+                const card = btn.closest('.recipe-card');
+                card.style.transition = 'opacity .3s, transform .3s';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(.95)';
+                setTimeout(() => {
+                    card.remove();
+                    // Update count badge
+                    const remaining = document.querySelectorAll('.recipe-card').length;
+                    const badge = document.querySelector('.count-badge');
+                    if (badge) badge.textContent = remaining + ' saved';
+                    // Show empty state if none left
+                    if (remaining === 0) location.reload();
+                }, 300);
+                toast('Removed from saved');
+            }
+        })
+        .catch(() => toast('Something went wrong'));
+    }
+
+    function imgFallback(img, name) {
+        if (img.dataset.tried) return;
+        img.dataset.tried = '1';
+        const kw = (name || '').split(' ').find(w => w.length > 3) || name;
+        fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(kw)}`)
+            .then(r => r.json())
+            .then(d => { if (d.meals?.[0]) img.src = d.meals[0].strMealThumb; })
+            .catch(() => {});
+    }
+
+    function toast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        setView(localStorage.getItem('savedView') || 'grid');
+        ALL_CARDS.forEach(card => {
+            const img = card.querySelector('img');
+            if (img && !img.src) imgFallback(img, card.dataset.name || '');
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports | NutriLens Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --brand: #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg: #f4f5f7;
+            --surface: #fff;
+            --text: #1a1a2e;
+            --muted: #6b7280;
+            --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0, 0, 0, .07), 0 4px 16px rgba(0, 0, 0, .04);
+            --radius: 14px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            padding: 20px 18px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .logo-text b {
+            display: block;
+            font-size: .9rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .logo-text span {
+            font-size: .65rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 9px 11px;
+            border-radius: 9px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: .84rem;
+            font-weight: 600;
+            transition: all .15s;
+        }
+
+        .nav-item i {
+            width: 16px;
+            text-align: center;
+            font-size: .82rem;
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--brand-soft);
+            color: var(--brand);
+        }
+
+        .nav-item.active i {
+            color: var(--brand);
+        }
+
+        .sidebar-footer {
+            padding: 10px 8px;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-item.logout {
+            color: #ef4444;
+        }
+
+        .nav-item.logout:hover {
+            background: #fef2f2;
+        }
+
+        /* ── Main ── */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px 60px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .topbar h1 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -.02em;
+        }
+
+        .topbar p {
+            font-size: .82rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        /* ── Stat cards ── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 16px 14px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            transition: border-color .2s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--brand);
+        }
+
+        .stat-card.accent {
+            background: var(--brand);
+            border-color: var(--brand);
+            color: #fff;
+        }
+
+        .stat-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 7px;
+            background: var(--brand-soft);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .74rem;
+            color: var(--brand);
+            margin-bottom: 3px;
+        }
+
+        .stat-card.accent .stat-icon {
+            background: rgba(255, 255, 255, .2);
+            color: #fff;
+        }
+
+        .stat-val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: .62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--muted);
+        }
+
+        .stat-card.accent .stat-lbl {
+            color: rgba(255, 255, 255, .75);
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: .88rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 14px;
+        }
+
+        .card-title i {
+            color: var(--brand);
+            font-size: .84rem;
+        }
+
+        /* ── Chart layouts ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .three-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 210px;
+        }
+
+        .chart-wrap-sm {
+            position: relative;
+            height: 170px;
+        }
+
+        /* ── Macro summary ── */
+        .macro-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .macro-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .macro-val {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--brand);
+            line-height: 1;
+        }
+
+        .macro-lbl {
+            font-size: .62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* ── Top foods bar ── */
+        .food-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: .82rem;
+        }
+
+        .food-bar-row:last-child {
+            border-bottom: none;
+        }
+
+        .food-name {
+            width: 130px;
+            flex-shrink: 0;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .food-bar-outer {
+            flex: 1;
+            height: 7px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .food-bar-inner {
+            height: 100%;
+            border-radius: 99px;
+            background: var(--brand);
+        }
+
+        .food-count {
+            font-size: .75rem;
+            font-weight: 700;
+            color: var(--brand);
+            white-space: nowrap;
+        }
+
+        /* ── User activity table ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            text-align: left;
+            font-size: .66rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: var(--muted);
+            padding: 0 10px 10px 0;
+            border-bottom: 1.5px solid var(--border);
+        }
+
+        tbody td {
+            padding: 11px 10px 11px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: .84rem;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover td {
+            background: #fafafa;
+        }
+
+        .act-bar-outer {
+            width: 80px;
+            height: 5px;
+            background: var(--border);
+            border-radius: 99px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+
+        .act-bar-inner {
+            height: 100%;
+            border-radius: 99px;
+            background: var(--brand);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            font-size: .67rem;
+            font-weight: 700;
+        }
+
+        .badge-green {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-amber {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+        }
+
+        .empty i {
+            font-size: 1.8rem;
+            opacity: .2;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .empty p {
+            font-size: .82rem;
+        }
+
+        @media(max-width:1200px) {
+            .stats-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .two-col,
+            .three-col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">&#9881;</div>
+            <div class="logo-text"><b>NutriLens</b><span>Admin Portal</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item "><i class="fas fa-gauge"></i> Dashboard</a>
+            <a href="/admin/users" class="nav-item"><i class="fas fa-users"></i> Users</a>
+            <a href="/admin/dietitians" class="nav-item"><i class="fas fa-user-md"></i> All Dietitians</a>
+            <a href="/admin/feedback" class="nav-item"><i class="fas fa-star"></i> Feedback &amp; Reviews</a>
+            <a href="/admin/reported_recipes" class="nav-item"><i class="fas fa-flag"></i> Reported Recipes</a>
+            <a href="/admin/reports" class="nav-item active"><i class="fas fa-chart-bar"></i> Reports</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="/admin/logout" class="nav-item logout"><i class="fas fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <div class="topbar">
+            <div>
+                <h1>Platform Reports</h1>
+                <p>Analytics and insights across NutriLens</p>
+            </div>
+            <div
+                style="font-size:.78rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);padding:6px 13px;border-radius:999px;display:flex;align-items:center;gap:6px">
+                <i class="fas fa-calendar"></i>
+                <span id="reportDate"></span>
+            </div>
+        </div>
+
+        <!-- 6 stat cards -->
+        <div class="stats-row">
+            <div class="stat-card accent">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-val">{{ total_users }}</div>
+                <div class="stat-lbl">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-bowl-food"></i></div>
+                <div class="stat-val">{{ total_meals }}</div>
+                <div class="stat-lbl">Meals Logged</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#d1fae5;color:#065f46"><i class="fas fa-user-md"></i></div>
+                <div class="stat-val">{{ total_dietitians }}</div>
+                <div class="stat-lbl">Dietitians</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#dbeafe;color:#2563eb"><i class="fas fa-comments"></i></div>
+                <div class="stat-val">{{ total_messages }}</div>
+                <div class="stat-lbl">Messages</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#f3e8ff;color:#7c3aed"><i class="fas fa-book-open"></i></div>
+                <div class="stat-val">{{ total_recipes or 0 }}</div>
+                <div class="stat-lbl">Recipes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background:#fef3c7;color:#d97706"><i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="stat-val">{{ total_reviews or 0 }}</div>
+                <div class="stat-lbl">Meal Reviews</div>
+            </div>
+        </div>
+
+        <!-- Row 1: Daily trend + Top foods -->
+        <div class="two-col">
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-line"></i> Daily Meal Logs (30 days)</div>
+                {% if daily_meals %}
+                <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
+                {% else %}
+                <div class="empty"><i class="fas fa-chart-line"></i>
+                    <p>No meal data yet</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <div class="card-title"><i class="fas fa-ranking-star"></i> Most Logged Foods</div>
+                {% if top_foods %}
+                {% set max_count = top_foods[0].count %}
+                {% for food in top_foods %}
+                <div class="food-bar-row">
+                    <div class="food-name">{{ food.name }}</div>
+                    <div class="food-bar-outer">
+                        <div class="food-bar-inner" style="width:{{ ((food.count/max_count)*100)|int }}%"></div>
+                    </div>
+                    <div class="food-count">{{ food.count }}×</div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="empty"><i class="fas fa-bowl-food"></i>
+                    <p>No meal data yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Row 2: Macro avg + Day of week + Calories trend -->
+        <div class="three-col">
+
+            <!-- Macro averages -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-pie"></i> Avg Macros Per Meal</div>
+                {% if macro_avg and macro_avg.avg_cal %}
+                <div class="macro-grid">
+                    <div class="macro-box">
+                        <div class="macro-val">{{ macro_avg.avg_cal|int }}</div>
+                        <div class="macro-lbl">Calories</div>
+                    </div>
+                    <div class="macro-box">
+                        <div class="macro-val" style="color:#3b82f6">{{ macro_avg.avg_prot }}g</div>
+                        <div class="macro-lbl">Protein</div>
+                    </div>
+                    <div class="macro-box">
+                        <div class="macro-val" style="color:#f59e0b">{{ macro_avg.avg_carbs }}g</div>
+                        <div class="macro-lbl">Carbs</div>
+                    </div>
+                    <div class="macro-box">
+                        <div class="macro-val" style="color:#10b981">{{ macro_avg.avg_fat }}g</div>
+                        <div class="macro-lbl">Fat</div>
+                    </div>
+                </div>
+                <div class="chart-wrap-sm"><canvas id="macroChart"></canvas></div>
+                {% else %}
+                <div class="empty"><i class="fas fa-chart-pie"></i>
+                    <p>No macro data yet</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Day of week eating pattern -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-calendar-week"></i> Avg Calories by Day</div>
+                {% if dow_values and dow_values|sum > 0 %}
+                <div class="chart-wrap"><canvas id="dowChart"></canvas></div>
+                {% else %}
+                <div class="empty"><i class="fas fa-calendar-week"></i>
+                    <p>No data yet</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Calorie trend line -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-fire"></i> Avg Calories Trend</div>
+                {% if daily_meals %}
+                <div class="chart-wrap"><canvas id="calChart"></canvas></div>
+                {% else %}
+                <div class="empty"><i class="fas fa-fire"></i>
+                    <p>No data yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Row 3: User activity table + Daily summary -->
+        <div class="two-col">
+
+            <!-- User activity -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-users"></i> User Activity Overview</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Meals Logged</th>
+                            <th>Avg Calories</th>
+                            <th>Engagement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if user_activity %}
+                        {% set max_meals = user_activity[0].meal_count if user_activity[0].meal_count else 1 %}
+                        {% for u in user_activity %}
+                        <tr>
+                            <td><strong>{{ u.full_name }}</strong></td>
+                            <td>
+                                <span class="act-bar-outer">
+                                    <span class="act-bar-inner"
+                                        style="width:{{ ((u.meal_count / max_meals)*100)|int if max_meals else 0 }}%"></span>
+                                </span>
+                                {{ u.meal_count }}
+                            </td>
+                            <td>
+                                {% if u.avg_cal %}
+                                <strong style="color:var(--brand)">{{ u.avg_cal|int }} kcal</strong>
+                                {% else %}—{% endif %}
+                            </td>
+                            <td>
+                                {% if u.meal_count >= 5 %}<span class="badge badge-green">Active</span>
+                                {% elif u.meal_count > 0 %}<span class="badge badge-amber">Low</span>
+                                {% else %}<span style="color:var(--muted);font-size:.78rem">Inactive</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty"><i class="fas fa-users"></i>
+                                    <p>No user data</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Daily summary table -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-table"></i> Daily Log Summary</div>
+                <div style="max-height:320px;overflow-y:auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Meals</th>
+                                <th>Total Cal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in daily_meals|reverse %}
+                            <tr>
+                                <td><strong>{{ d.date }}</strong></td>
+                                <td>{{ d.count }}</td>
+                                <td><strong style="color:var(--brand)">{{ d.total_calories|int }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                            {% if not daily_meals %}
+                            <tr>
+                                <td colspan="3">
+                                    <div class="empty"><i class="fas fa-table"></i>
+                                        <p>No data</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        document.getElementById('reportDate').textContent =
+            new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+
+        const BRAND = '#e91e63';
+        const chartDefaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+        };
+
+        // ── 1. Daily meals bar chart ──────────────────────────
+        const dailyLabels = [{% for d in daily_meals %}"{{ d.date }}", {% endfor %}];
+        const dailyCounts = [{% for d in daily_meals %}{{ d.count }}, {% endfor %}];
+        if (dailyLabels.length && document.getElementById('dailyChart')) {
+            new Chart(document.getElementById('dailyChart'), {
+                type: 'bar',
+                data: {
+                    labels: dailyLabels, datasets: [{
+                        label: 'Meals logged', data: dailyCounts,
+                        backgroundColor: 'rgba(233,30,99,.15)',
+                        borderColor: BRAND, borderWidth: 1.5, borderRadius: 4
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 10 } },
+                        y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 10 }, stepSize: 1 } }
+                    }
+                }
+            });
+        }
+
+        // ── 2. Macro donut chart ──────────────────────────────
+        {% if macro_avg and macro_avg.avg_cal %}
+        const macroData = [{{ macro_avg.avg_prot or 0 }}, {{ macro_avg.avg_carbs or 0 }}, {{ macro_avg.avg_fat or 0 }}];
+        if (document.getElementById('macroChart')) {
+            new Chart(document.getElementById('macroChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Protein', 'Carbs', 'Fat'],
+                    datasets: [{
+                        data: macroData,
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#10b981'],
+                        borderWidth: 0, hoverOffset: 4
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    plugins: {
+                        legend: {
+                            display: true, position: 'bottom',
+                            labels: { font: { size: 11, family: 'Plus Jakarta Sans' }, padding: 12, boxWidth: 10 }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+        {% endif %}
+
+        // ── 3. Day of week bar chart ──────────────────────────
+        const dowLabels = {{ date_labels | tojson }};
+        const dowValues = {{ date_values | tojson }};
+        if (dowValues.some(v => v > 0) && document.getElementById('dowChart')) {
+            new Chart(document.getElementById('dowChart'), {
+                type: 'bar',
+                data: {
+                    labels: dowLabels, datasets: [{
+                        label: 'Avg calories',
+                        data: dowValues,
+                        backgroundColor: dowValues.map((v, i) => {
+                            const max = Math.max(...dowValues);
+                            return i === dowValues.indexOf(max)
+                                ? 'rgba(233,30,99,.8)' : 'rgba(233,30,99,.2)';
+                        }),
+                        borderColor: BRAND, borderWidth: 1.5, borderRadius: 5
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+                        y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 10 }, callback: v => v + 'kcal' } }
+                    }
+                }
+            });
+        }
+
+        // ── 4. Avg calories trend line ────────────────────────
+        const calLabels = [{% for d in daily_meals %}"{{ d.date }}", {% endfor %}];
+        const calValues = [{% for d in daily_meals %}{{ (d.avg_calories or 0)|int }}, {% endfor %}];
+        if (calLabels.length && document.getElementById('calChart')) {
+            new Chart(document.getElementById('calChart'), {
+                type: 'line',
+                data: {
+                    labels: calLabels, datasets: [{
+                        label: 'Avg cal/meal', data: calValues,
+                        borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,.08)',
+                        tension: 0.4, fill: true,
+                        pointBackgroundColor: '#f59e0b', pointRadius: 3
+                    }]
+                },
+                options: {
+                    ...chartDefaults,
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 }, maxTicksLimit: 10 } },
+                        y: { grid: { color: '#f0f0f0' }, ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NutriLens</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .dashboard-top {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .complete-profile-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #fce7f3, #fff7ed);
+            border: 1px solid #fbcfe8;
+            border-left: 6px solid #db2777;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .complete-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .complete-left i {
+            font-size: 20px;
+            color: #db2777;
+        }
+
+        .complete-left p {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .complete-btn {
+            background: #db2777;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .complete-btn:hover {
+            background: #be185d;
+            transform: translateY(-2px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 2px solid #dd3e8b;
+        }
+
+        .logo-circle {
+            width: 32px;
+            height: 32px;
+            background-color: #f97316;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text .brand-name {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #1f2937;
+        }
+
+        .logo-text .brand-tagline {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        /* Navigation */
+        .sidebar-nav {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.875rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            color: #4b5563;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: #f9fafb;
+            color: #db2777;
+        }
+
+        .nav-item.active {
+            background-color: #fce7f3;
+            color: #db2777;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Sidebar Sections */
+        .sidebar-section {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        /* Goals Section */
+        .goal-item {
+            margin-bottom: 1.25rem;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .goal-name {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .goal-value {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .goal-progress {
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .goal-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        /* Reminders Section */
+        .reminder-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        .reminder-icon {
+            color: #f97316;
+        }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #db2777;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 15px;
+        }
+
+        .user-status {
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 0 2rem 2rem 2rem;
+            max-width: calc(100% - 280px);
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* Dashboard Header */
+        .dashboard-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+        }
+
+        .dashboard-header p {
+            color: #6b7280;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .dashboard-header .highlight {
+            color: #db2777;
+            font-weight: 600;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 1.75rem;
+            transition: all 0.2s;
+            border: 1px solid #e5e7eb;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .card-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-goal {
+            color: #6b7280;
+            font-size: 15px;
+            margin-bottom: 1rem;
+        }
+
+        /* Progress Bars */
+        .progress-bar {
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Macronutrients */
+        .macro-item {
+            margin-bottom: 1.25rem;
+        }
+
+        .macro-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .macro-name {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .macro-value {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .macro-progress {
+            height: 6px;
+            background-color: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .macro-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        /* Water Intake */
+        .water-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .water-goal {
+            color: #6b7280;
+            font-size: 15px;
+            margin-bottom: 1.5rem;
+        }
+
+        .water-glasses {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .water-glass {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+        }
+
+        .water-glass.filled {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background-color: #db2777;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #be185d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(219, 39, 119, 0.3);
+        }
+
+        
+
+        /* Recent Meals */
+        .meals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .meal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .meal-item:hover {
+            background-color: #f3f4f6;
+            transform: translateX(4px);
+        }
+
+        .meal-info h4 {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .meal-time {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .meal-calories {
+            font-weight: 700;
+            color: #db2777;
+            font-size: 16px;
+        }
+
+        /* Diet Score */
+        .score-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .score-inner {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .score-total {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 0.25rem;
+        }
+
+        .score-label {
+            color: #10b981;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-feedback {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* Middle Grid */
+        .middle-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Recommended Meals */
+        .recommended-grid {
+            width: 100%;
+        }
+
+        .recommended-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .recommended-subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 0.5rem;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+
+        .recipe-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border-color: #db2777;
+        }
+
+        .recipe-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 1rem;
+            background-color: #f9fafb;
+        }
+
+        .recipe-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            font-size: 16px;
+        }
+
+        .recipe-calories {
+            color: #db2777;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 0.75rem;
+        }
+
+        .recipe-desc {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .recipe-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: white;
+            color: #db2777;
+            border: 1px solid #db2777;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .recipe-btn:hover {
+            background-color: #db2777;
+            color: white;
+        }
+
+        /* Reminders */
+        .reminders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .reminder-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .reminder-item:hover {
+            background-color: #f3f4f6;
+            transform: translateX(4px);
+        }
+
+        .reminder-icon {
+            color: #f97316;
+            font-size: 16px;
+        }
+
+        .reminder-text {
+            flex: 1;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        /* Mobile menu toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            width: 44px;
+            height: 44px;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+
+            .dashboard-grid,
+            .middle-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            
+
+            .recipe-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .recommended-grid { width: 100%; }
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .mobile-menu-toggle {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .dashboard-grid,
+            .middle-grid {
+                grid-template-columns: 1fr;
+            }
+
+            
+
+            
+
+            .recipe-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recommended-grid { width: 100%; }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 1.25rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: 28px;
+            }
+
+            .card-value {
+                font-size: 36px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Mobile Menu Toggle -->
+    <div class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <div class="logo">
+                <img src="static/images/logo.png" alt="NutriLens Logo"
+                    style="width: 40px; height: 40px; border-radius: 50%;">
+            </div>
+
+            <div class="logo-text">
+                <div class="brand-name">NutriLens</div>
+                <div class="brand-tagline">AI-Powered Nutrition</div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <a href="/dashboard" class="nav-item active">
+                <div class="nav-icon"><i class="fas fa-home"></i></div>
+                <span>Dashboard</span>
+            </a>
+            <a href="/history" class="nav-item">
+                <div class="nav-icon"><i class="fas fa-utensils"></i></div>
+                <span>Food Diary</span>
+            </a>
+            <a href="/progress" class="nav-item">
+                <div class="nav-icon"><i class="fas fa-chart-line"></i></div>
+                <span>Progress</span>
+            </a>
+            <a href="/recipes" class="nav-item">
+                <div class="nav-icon"><i class="fas fa-book-open"></i></div>
+                <span>Recipes</span>
+            </a>
+            <a href="/saved_recipes" class="nav-item">
+                <div class="nav-icon"><i class="fas fa-bookmark"></i></div>
+                <span>Saved Recipes</span>
+            </a>
+            <a href="/add_recipe" class="nav-item">
+                <div class="nav-icon"><i class="fas fa-plus-circle"></i></div>
+                <span>Add Recipe</span>
+            </a>
+            <a href="/submitted_recipes" class="nav-item">
+                <div class="nav-icon"><i class="fas fa-clipboard-list"></i></div>
+                <span>My Recipes</span>
+            </a>
+            <a href="/chat" class="nav-item">
+                <div class="nav-icon"><i class="fas fa-comments"></i></div>
+                <span>Dietitian Chat</span>
+            </a>
+            <a href="/notifications" class="nav-item" id="notifNavItem">
+                <div class="nav-icon" style="position:relative">
+                    <i class="fas fa-bell"></i>
+                    <span id="notifDot" style="display:none;position:absolute;top:-4px;right:-4px;
+                        width:9px;height:9px;background:#e91e63;border-radius:50%;border:2px solid #fff"></span>
+                </div>
+                <span>Notifications</span>
+            </a>
+            <a href="/feedback" class="nav-item">
+                <div class="nav-icon"><i class="fas fa-star"></i></div>
+                <span>Feedback</span>
+            </a>
+        </nav>
+
+        <!-- Goals Section -->
+        <div class="sidebar-section">
+            <div class="section-title">My Goals</div>
+
+            <div class="goal-item">
+                <div class="goal-header">
+                    <span class="goal-name">Calories</span>
+                    <span class="goal-value">1450 / 2200</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-fill" style="background-color: #db2777; width: 66%;"></div>
+                </div>
+            </div>
+
+            <div class="goal-item">
+                <div class="goal-header">
+                    <span class="goal-name">Water</span>
+                    <span class="goal-value">2.4L / 4L</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-fill" style="background-color: #3b82f6; width: 60%;"></div>
+                </div>
+            </div>
+
+            <div class="goal-item">
+                <div class="goal-header">
+                    <span class="goal-name">Weight</span>
+                    <span class="goal-value">82kg / 75kg</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="goal-fill" style="background-color: #8b5cf6; width: 75%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reminders Section -->
+        <div class="sidebar-section">
+            <div class="section-title">Reminders</div>
+
+            <div class="reminder-item">
+                <span>Breakfast in 30 min</span>
+                <div class="reminder-icon"><i class="fas fa-clock"></i></div>
+            </div>
+            <div class="reminder-item">
+                <span>Drink water</span>
+                <div class="reminder-icon"><i class="fas fa-tint"></i></div>
+            </div>
+            <div class="reminder-item">
+                <span>Track afternoon snack</span>
+                <div class="reminder-icon"><i class="fas fa-apple-alt"></i></div>
+            </div>
+        </div>
+
+        <!-- Sidebar Footer -->
+        <a href="/profile" style="text-decoration:none; color:inherit;">
+            <div class="user-profile">
+                <div class="user-avatar">{{ name[0] }}</div>
+                <div class="user-info">
+                    <div class="user-name">{{ name }}</div>
+                    <div class="user-status">Premium Member</div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Logout Button (top right corner) -->
+        <div class="dashboard-top">
+            <a href="/logout"
+                style="background-color: #db2777; color: white; padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600;"><i
+                    class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1>Good Afternoon, {{ name }}!</h1>
+
+            <p>
+                You've consumed <span class="highlight">{{ calories|round }} calories</span> today.
+                <span class="highlight">{{ daily_goal - calories|round }} calories remaining</span>
+                to reach your goal.
+            </p>
+
+            {% if calorie_adjusted %}
+            <p style="color:#f59e0b; font-size:14px; margin-top:8px;">
+                🔄 Calories adjusted based on your weight trend
+            </p>
+            {% endif %}
+
+            {% if profile_incomplete %}
+            <div class="complete-profile-banner">
+                <div class="complete-left">
+                    <i class="fas fa-user-check"></i>
+                    <div>
+                        <strong>Complete your profile</strong>
+                        <p>Profile {{ profile_percent }}% complete</p>
+                        <p>Add your details to get accurate meal recommendations</p>
+                    </div>
+                </div>
+
+                <a href="/profile" class="complete-btn">
+                    Complete Now →
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Row 1: Today's Calories | Macronutrients | Water Intake -->
+        <div class="dashboard-grid">
+
+            <!-- Today's Calories -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon" style="background-color: #fee2e2; color: #dc2626;">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        Today's Calories
+                    </div>
+                </div>
+                <div class="card-value">{{ calories|round }}</div>
+                <div class="card-goal">/ {{ daily_goal }} goal</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="background-color:#db2777;"
+                        data-width="{{ (calories / daily_goal * 100)|round }}">
+                    </div>
+                </div>
+                <p style="color: #6b7280; font-size: 14px;">{{ [daily_goal - calories|round, 0]|max }} calories remaining for today</p>
+            </div>
+
+            <!-- Macronutrients -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon" style="background-color: #dbeafe; color: #1d4ed8;">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        Macronutrients
+                    </div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-header">
+                        <span class="macro-name">Protein</span>
+                        <span class="macro-value">{{ protein|round }} g</span>
+                    </div>
+                    <div class="macro-progress">
+                        <div class="macro-fill" style="background-color: #3b82f6; width: {{ protein_pct }}%;"></div>
+                    </div>
+                    <div style="color: #6b7280; font-size: 13px;">{{ protein_pct }}% of goal</div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-header">
+                        <span class="macro-name">Carbs</span>
+                        <span class="macro-value">{{ carbs|round }} g</span>
+                    </div>
+                    <div class="macro-progress">
+                        <div class="macro-fill" style="background-color: #f59e0b; width: {{ carbs_pct }}%;"></div>
+                    </div>
+                    <div style="color: #6b7280; font-size: 13px;">{{ carbs_pct }}% of goal</div>
+                </div>
+                <div class="macro-item">
+                    <div class="macro-header">
+                        <span class="macro-name">Fat</span>
+                        <span class="macro-value">{{ fat|round }} g</span>
+                    </div>
+                    <div class="macro-progress">
+                        <div class="macro-fill" style="background-color: #8b5cf6; width: {{ fat_pct }}%;"></div>
+                    </div>
+                    <div style="color: #6b7280; font-size: 13px;">{{ fat_pct }}% of goal</div>
+                </div>
+            </div>
+
+            <!-- Water Intake -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon" style="background-color: #dbeafe; color: #1d4ed8;">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        Water Intake
+                    </div>
+                </div>
+                <div class="water-value" id="waterValue" data-water-goal="{{ water_goal }}">{{ water }}L</div>
+                <div class="water-goal">/ {{ water_goal }}L goal</div>
+                <div class="progress-bar" style="margin-bottom: 1.5rem;">
+                    <div class="progress-fill" id="waterProgressFill"
+                        style="background-color: #3b82f6; width: {{ (water / water_goal * 100) if water_goal > 0 else 0 }}%;">
+                    </div>
+                </div>
+                <div class="water-glasses" id="waterGlassesContainer">
+                    {% for i in range(1, 11) %}
+                    {% set glass_value = (i * (water_goal / 10)) | round(1) %}
+                    {% set filled = "filled" if water >= glass_value else "" %}
+                    <div class="water-glass {{ filled }}" data-glass-index="{{ i }}">{{ i }}</div>
+                    {% endfor %}
+                </div>
+                <button class="btn-primary" style="margin-top: 1rem;" onclick="addWater()">
+                    <i class="fas fa-plus-circle"></i> Add Water
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Row 2: Recommended Meals (full width) -->
+        <div style="margin-top: 24px;">
+            <div class="card recommended-grid">
+                <div class="recommended-header">
+                    <div class="card-title">
+                        <div class="card-icon" style="background-color:#fce7f3; color:#db2777;">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        Recommended Meals
+                    </div>
+                    <div class="recommended-subtitle">Enter ingredients separated by commas</div>
+                </div>
+                <form action="/dashboard" method="GET" style="margin-bottom:20px;">
+                    <input type="text" name="ingredients" placeholder="e.g. chicken, spinach, eggs"
+                        value="{{ ingredients_input or '' }}"
+                        style="padding:10px; width:70%; border-radius:8px; border:1px solid #ddd;" required>
+                    <button type="submit"
+                        style="padding:10px 16px; background:#db2777; color:white; border:none; border-radius:8px;">
+                        Generate
+                    </button>
+                </form>
+                <div class="recipe-grid">
+                    {% if recommended_meals %}
+                    {% for meal in recommended_meals %}
+                    <div class="recipe-card">
+                        <div class="recipe-icon">🍽️</div>
+                        <div class="recipe-title">{{ meal.name }}</div>
+                        <div class="recipe-calories">{{ meal.calories }} calories</div>
+                        <div class="recipe-desc">{{ meal.description }}</div>
+                        <button class="recipe-btn" onclick="viewRecipe({{ meal.id }})">View Recipe</button>
+                    </div>
+                    {% endfor %}
+                    {% elif ingredients_input %}
+                    <p style="color:#6b7280;">No recipes found for "<strong>{{ ingredients_input }}</strong>". Try ingredients like "chicken", "rice", or "eggs".</p>
+                    {% else %}
+                    <p style="color:#6b7280;">Enter ingredients above and click Generate to get meal suggestions.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 3: Recent Meals | Daily Diet Score | 7-Day Calorie Trend -->
+        <div class="middle-grid" style="margin-top: 24px;">
+
+            <!-- Recent Meals -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon" style="background-color: #dcfce7; color: #16a34a;">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        Recent Meals
+                    </div>
+                </div>
+                <div class="meals-list">
+                    {% if recent_meals %}
+                    {% for meal in recent_meals %}
+                    <div class="meal-item">
+                        <div class="meal-info">
+                            <h4>{{ meal.name }}</h4>
+                            <div class="meal-time">{{ meal.date }} {{ meal.time }}</div>
+                        </div>
+                        <div class="meal-calories">{{ meal.calories|round }} cal</div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p style="color:#6b7280;">No meals logged yet</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Daily Diet Score -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <div class="card-icon" style="background-color: #dcfce7; color: #16a34a;">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        Daily Diet Score
+                    </div>
+                </div>
+                <div class="score-container">
+                    {% set score = diet_score %}
+                    {% set degrees = score * 3.6 %}
+                    {% if score >= 80 %}
+                    {% set color = "#10b981" %}
+                    {% elif score >= 50 %}
+                    {% set color = "#f59e0b" %}
+                    {% else %}
+                    {% set color = "#ef4444" %}
+                    {% endif %}
+                    <div class="score-circle" style="background: conic-gradient({{ color }} 0deg {{ degrees }}deg, #e5e7eb {{ degrees }}deg 360deg);">
+                        <div class="score-inner">
+                            <div class="score-value">{{ diet_score }}</div>
+                            <div class="score-total">/100</div>
+                        </div>
+                    </div>
+                    <div class="score-label" style="color: {{ color }};">
+                        {% if diet_score >= 80 %}Healthy
+                        {% elif diet_score >= 50 %}Average
+                        {% else %}Needs Improvement
+                        {% endif %}
+                    </div>
+                    <div class="score-feedback">
+                        {% if calories == 0 %}
+                        <p>No meals logged today.</p>
+                        {% else %}
+                        <p>{{ diet_score }}/100</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7-Day Calorie Trend -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-chart-line"></i>
+                        7-Day Calorie Trend
+                    </div>
+                </div>
+                <canvas id="trendChart" height="200"></canvas>
+            </div>
+
+        </div>
+
+
+    </div>
+
+    <script>
+        // ------------------------------------------------------
+        // WATER INTAKE LOGIC (updated)
+        // ------------------------------------------------------
+        function updateWaterIntake() {
+            const filledGlasses = document.querySelectorAll('.water-glass.filled').length;
+            const waterValueElem = document.getElementById('waterValue');
+            const progressFill = document.getElementById('waterProgressFill');
+
+            if (!waterValueElem) return;
+
+            const waterGoal = parseFloat(waterValueElem.dataset.waterGoal) || 4.0;
+            const maxGlasses = 10;
+
+            const liters = (waterGoal / maxGlasses) * filledGlasses;
+            waterValueElem.textContent = liters.toFixed(1) + 'L';
+
+            if (progressFill) {
+                const percent = (liters / waterGoal) * 100;
+                progressFill.style.width = Math.min(percent, 100) + '%';
+            }
+        }
+
+        function addWater() {
+
+            const firstEmpty = document.querySelector('.water-glass:not(.filled)');
+
+            if (firstEmpty) {
+                firstEmpty.classList.add('filled');
+                updateWaterIntake();
+            }
+
+        }
+
+        function handleGlassClick(e) {
+            e.currentTarget.classList.toggle('filled');
+            updateWaterIntake();
+        }
+
+        function initWaterGlasses() {
+            const waterGlasses = document.querySelectorAll('.water-glass');
+            waterGlasses.forEach(glass => {
+                glass.removeEventListener('click', handleGlassClick);
+                glass.addEventListener('click', handleGlassClick);
+            });
+            updateWaterIntake(); // sync display on load
+        }
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        mobileMenuToggle.addEventListener('click', function () {
+            sidebar.classList.toggle('open');
+        });
+
+        // Animate progress bars on load
+        document.addEventListener('DOMContentLoaded', function () {
+            initWaterGlasses();   // <-- initialise water
+
+            const progressBars = document.querySelectorAll('.progress-fill, .macro-fill, .goal-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 300);
+            });
+
+            // Animate chart bars
+                bar.style.height = '0px';
+                setTimeout(() => {
+                    bar.style.height = height;
+                }, 500);
+            });
+        });
+
+        // Button interactions
+        const buttons = document.querySelectorAll('.btn-primary, .recipe-btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', function () {
+                this.style.transform = 'translateY(-2px)';
+            });
+
+            button.addEventListener('mouseleave', function () {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Card hover effects
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function () {
+                this.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.12)';
+            });
+
+            card.addEventListener('mouseleave', function () {
+                this.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.1)';
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+            </script>
+    <script>
+        document.querySelectorAll('.progress-fill').forEach(bar => {
+            const w = bar.dataset.width;
+            if (w) bar.style.width = Math.min(w, 100) + '%';
+        });
+    </script>
+    <script>
+    </script>
+    <script>
+
+
+        function viewRecipe(id) {
+            window.location.href = "/recipe/" + id;
+        }
+    </script>
+
+    <script>
+        const trendLabels = {{ trend_labels | tojson | safe if trend_labels else '[]' }};
+        const trendData = {{ trend_data | tojson | safe if trend_data else '[]' }};
+
+        console.log("Labels:", trendLabels);
+        console.log("Data:", trendData);
+
+        if (document.getElementById('trendChart') && trendLabels.length > 0) {
+            new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: {
+                    labels: trendLabels,
+                    datasets: [{
+                        label: 'Calories',
+                        data: trendData,
+                        borderColor: '#db2777',
+                        backgroundColor: 'rgba(219,39,119,0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                }
+            });
+        }
+    </script>
+
+    <script>
+        // Poll unread notification count and show dot badge
+        (function () {
+            function checkNotifs() {
+                fetch('/notifications/unread_count')
+                    .then(r => r.json())
+                    .then(data => {
+                        const dot = document.getElementById('notifDot');
+                        if (dot) dot.style.display = data.count > 0 ? 'block' : 'none';
+                    })
+                    .catch(() => {});
+            }
+            checkNotifs();
+            setInterval(checkNotifs, 60000); // re-check every minute
+        })();
+    </script>
+</body>
+
+</html>

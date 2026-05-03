@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - NutriLens Dietitian</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary-pink: #e91e63;
+            --input-yellow: #fff9c4;
+            --bg-gray: #f0f2f5;
+            --text-dark: #2d3436;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-gray);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Header / Logo Area --- */
+        header {
+            background: white;
+            padding: 15px 60px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo-circle {
+            width: 45px;
+            height: 45px;
+            background: #ffebee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .logo-text h1 {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            font-weight: 800;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: #999;
+            font-weight: 600;
+        }
+
+        /* --- Main Content Layout --- */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* --- Circular Images --- */
+        .side-image {
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            object-fit: cover;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- Login Card --- */
+        .login-card {
+            background: white;
+            width: 420px;
+            padding: 50px 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            z-index: 10;
+        }
+
+        .login-card h2 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .login-card p.subtitle {
+            color: var(--primary-pink);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        /* --- Form Styling --- */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group span {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 16px 16px 45px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--input-yellow);
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background-color: var(--primary-pink);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background-color: #d81b60;
+            transform: translateY(-2px);
+        }
+
+        .signup-text {
+            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #777;
+        }
+
+        .signup-text a {
+            color: var(--primary-pink);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        /* --- Show/Hide Password Toggle --- */
+        .input-group {
+            position: relative;
+        }
+        .toggle-pw {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #aaa;
+            font-size: 0.85rem;
+            padding: 0;
+            line-height: 1;
+        }
+        .toggle-pw:hover { color: var(--primary-pink); }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 900px) {
+            .side-image { display: none; }
+            main { justify-content: center; padding: 20px; }
+            .login-card { width: 100%; max-width: 420px; padding: 36px 28px; }
+        }
+        @media (max-width: 480px) {
+            header { padding: 14px 20px; }
+            .login-card h2 { font-size: 1.8rem; }
+            .login-card { border-radius: 18px; padding: 28px 20px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo-circle">🥗</div>
+        <div class="logo-text">
+            <h1>NutriLens</h1>
+            <p>AI-Powered Nutrition</p>
+        </div>
+    </header>
+
+    <main>
+        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=1000&auto=format&fit=crop"
+            alt="Healthy Bowl" class="side-image">
+
+        <div class="login-card">
+            <h2>Login</h2>
+            <p class="subtitle">Personalized nutrition made simple</p>
+
+            <!-- FIX: display error/status messages from the backend -->
+            {% if error %}
+            <div style="background:#fef2f2;border:1px solid #fecaca;color:#dc2626;border-radius:10px;
+                        padding:10px 14px;font-size:.85rem;font-weight:600;margin-bottom:20px;text-align:left">
+                ⚠️ {{ error }}
+            </div>
+            {% endif %}
+
+            <!-- FIX: inform pending users why they can't log in -->
+            {% if pending %}
+            <div style="background:#fef3c7;border:1px solid #fde68a;color:#92400e;border-radius:10px;
+                        padding:10px 14px;font-size:.85rem;font-weight:600;margin-bottom:20px;text-align:left">
+                ⏳ Your account is awaiting admin approval. You'll be able to log in once approved.
+            </div>
+            {% endif %}
+
+            <form method="POST" action="/dietitian/login">
+                <div class="input-group">
+                    <span>📧</span>
+                    <input type="email" name="email" placeholder="Email Address" required
+                        autocomplete="email"
+                        value="{{ request.form.get('email', '') }}">
+                </div>
+
+                <div class="input-group">
+                    <span>🔒</span>
+                    <input type="password" name="password" id="passwordInput"
+                        placeholder="Password" required autocomplete="current-password">
+                    <button type="button" class="toggle-pw" onclick="togglePassword()"
+                        aria-label="Show or hide password">👁</button>
+                </div>
+
+                <button type="submit" class="login-btn">LOGIN</button>
+            </form>
+
+            <p class="signup-text" style="margin-top:14px">
+                <a href="/dietitian/forgot-password" style="color:#aaa;font-weight:600;font-size:0.8rem">Forgot password?</a>
+            </p>
+            <p class="signup-text">
+                Don't have an account? <a href="/dietitian/signup">Sign up</a>
+            </p>
+        </div>
+
+        <img src="https://images.unsplash.com/photo-1563599175592-c58dc214deff?q=80&w=1000&auto=format&fit=crop"
+            alt="Red Pepper" class="side-image">
+    </main>
+
+    <script>
+        function togglePassword() {
+            const inp = document.getElementById('passwordInput');
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Feedback | NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand: #e91e63; --brand-dark: #be185d; --brand-soft: #fce7f3;
+            --bg: #f4f5f7; --surface: #ffffff; --text: #1a1a2e;
+            --muted: #6b7280; --border: #e8eaed;
+            --shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.04);
+            --radius: 14px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 240px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; }
+        .sidebar-logo { padding: 24px 20px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+        .logo-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--brand-soft); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .logo-text b { display: block; font-size: .95rem; font-weight: 800; color: var(--text); }
+        .logo-text span { font-size: .68rem; color: var(--muted); font-weight: 600; }
+        .sidebar-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; overflow-y: auto; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; text-decoration: none; color: var(--muted); font-size: .875rem; font-weight: 600; transition: all .15s; }
+        .nav-item i { width: 18px; text-align: center; font-size: .88rem; }
+        .nav-item:hover { background: var(--bg); color: var(--text); }
+        .nav-item.active { background: var(--brand-soft); color: var(--brand); }
+        .nav-item.active i { color: var(--brand); }
+        .sidebar-footer { padding: 14px 10px; border-top: 1px solid var(--border); }
+        .nav-item.logout { color: #ef4444; }
+        .nav-item.logout:hover { background: #fef2f2; }
+
+        /* Main */
+        .main { flex: 1; overflow-y: auto; padding: 28px 32px 60px; }
+        .page-header { margin-bottom: 24px; }
+        .page-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; }
+        .page-header p { font-size: .85rem; color: var(--muted); margin-top: 3px; }
+
+        /* Stats row */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+        .stat-card { background: var(--surface); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+        .stat-card.accent { background: var(--brand); border-color: var(--brand); color: #fff; }
+        .stat-top { display: flex; align-items: center; justify-content: space-between; }
+        .stat-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--brand-soft); display: flex; align-items: center; justify-content: center; font-size: .82rem; color: var(--brand); }
+        .stat-card.accent .stat-icon { background: rgba(255,255,255,.2); color: #fff; }
+        .stat-val { font-size: 1.75rem; font-weight: 800; line-height: 1; margin-top: 6px; }
+        .stat-lbl { font-size: .67rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+        .stat-card.accent .stat-lbl { color: rgba(255,255,255,.75); }
+
+        /* Layout */
+        .layout { display: grid; grid-template-columns: 230px 1fr; gap: 18px; align-items: start; }
+
+        /* Card */
+        .card { background: var(--surface); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+        .card-title { font-size: .88rem; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+        .card-title i { color: var(--brand); }
+
+        /* Rating breakdown */
+        .big-rating { text-align: center; padding: 14px 0 12px; }
+        .big-rating-val { font-size: 2.8rem; font-weight: 800; color: var(--brand); line-height: 1; }
+        .big-stars { display: flex; gap: 4px; justify-content: center; margin-top: 7px; }
+        .big-stars .star { font-size: 1.1rem; }
+        .big-rating-label { font-size: .7rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; margin-top: 5px; }
+        .rating-breakdown { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+        .rb-row { display: flex; align-items: center; gap: 8px; }
+        .rb-label { font-size: .76rem; font-weight: 700; color: var(--muted); width: 28px; text-align: right; flex-shrink: 0; }
+        .rb-bar-outer { flex: 1; height: 7px; background: var(--bg); border-radius: 999px; overflow: hidden; }
+        .rb-bar-inner { height: 100%; background: var(--brand); border-radius: 999px; }
+        .rb-count { font-size: .73rem; font-weight: 700; color: var(--muted); width: 22px; flex-shrink: 0; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 4px; margin-bottom: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; }
+        .tab-btn { flex: 1; padding: 9px 10px; border-radius: 8px; border: none; background: transparent; font-family: inherit; font-size: .78rem; font-weight: 700; color: var(--muted); cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+        .tab-btn:hover { background: var(--bg); color: var(--text); }
+        .tab-btn.active { background: var(--brand); color: #fff; }
+        .tab-count { font-size: .63rem; font-weight: 800; padding: 1px 6px; border-radius: 999px; min-width: 17px; text-align: center; background: rgba(255,255,255,.25); }
+        .tab-btn:not(.active) .tab-count { background: var(--bg); color: var(--muted); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        /* Sort bar */
+        .sort-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .sort-label { font-size: .75rem; font-weight: 700; color: var(--muted); }
+        .sort-bar select { padding: 7px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: .8rem; font-family: inherit; background: var(--surface); color: var(--text); outline: none; cursor: pointer; transition: border-color .2s; }
+        .sort-bar select:focus { border-color: var(--brand); }
+
+        /* Feedback grid */
+        .feedback-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 13px; }
+
+        /* Feedback card */
+        .fb-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 15px 17px; box-shadow: var(--shadow); transition: border-color .15s; display: flex; flex-direction: column; gap: 10px; }
+        .fb-card:hover { border-color: var(--brand); }
+        .fb-top { display: flex; align-items: center; gap: 10px; }
+        .fb-avatar { width: 35px; height: 35px; border-radius: 9px; background: var(--brand-soft); display: flex; align-items: center; justify-content: center; font-size: .88rem; font-weight: 800; color: var(--brand); flex-shrink: 0; }
+        .fb-meta { flex: 1; }
+        .fb-name { font-weight: 700; font-size: .86rem; }
+        .fb-date { font-size: .69rem; color: var(--muted); margin-top: 2px; }
+        .stars { display: flex; gap: 2px; }
+        .star { font-size: .82rem; color: #d1d5db; }
+        .star.filled { color: #f59e0b; }
+        .badges-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .type-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: .66rem; font-weight: 700; }
+        .badge-service   { background: #ede9fe; color: #5b21b6; }
+        .badge-nutrition { background: #d1fae5; color: #065f46; }
+        .badge-recipe    { background: #fef3c7; color: #92400e; }
+        .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: .66rem; font-weight: 700; }
+        .status-pending  { background: #fef3c7; color: #92400e; }
+        .status-reviewed { background: #d1fae5; color: #065f46; }
+        .status-resolved { background: #dbeafe; color: #1e40af; }
+        .fb-message { font-size: .845rem; color: var(--text); line-height: 1.6; background: var(--bg); border-radius: 8px; padding: 10px 12px; border-left: 3px solid var(--brand); }
+        .admin-reply { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 9px 12px; font-size: .77rem; color: #166534; }
+
+        /* Empty state */
+        .empty { text-align: center; padding: 44px 20px; color: var(--muted); }
+        .empty i { font-size: 1.9rem; opacity: .2; display: block; margin-bottom: 10px; }
+        .empty h3 { font-size: .88rem; color: var(--text); margin-bottom: 4px; }
+        .empty p { font-size: .8rem; }
+
+        @media (max-width: 1000px) {
+            .layout { grid-template-columns: 1fr; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🩺</div>
+            <div class="logo-text"><b>NutriLens</b><span>Dietitian Panel</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/dietitian/dashboard" class="nav-item"><i class="fas fa-gauge"></i> Dashboard</a>
+            <a href="/dietitian/clients" class="nav-item"><i class="fas fa-users"></i> Clients</a>
+            <a href="/dietitian/meal-reviews" class="nav-item"><i class="fas fa-clipboard-list"></i> Meal Reviews</a>
+            <a href="/dietitian/progress" class="nav-item"><i class="fas fa-chart-line"></i> Progress</a>
+            <a href="/dietitian/messages" class="nav-item"><i class="fas fa-comments"></i> Messages</a>
+            <a href="/dietitian/recipes" class="nav-item"><i class="fas fa-flask"></i> Recipe Verification</a>
+            <a href="/dietitian/recommended" class="nav-item"><i class="fas fa-star"></i> Recommended</a>
+            <a href="/dietitian/my-recipes" class="nav-item"><i class="fas fa-book-open"></i> My Recipes</a>
+            <a href="/dietitian/feedback" class="nav-item active"><i class="fas fa-star-half-stroke"></i> Client Feedback</a>
+            <a href="/dietitian/profile" class="nav-item"><i class="fas fa-user-circle"></i> My Profile</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{{ url_for('dietitian_logout') }}" class="nav-item logout">
+                <i class="fas fa-right-from-bracket"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="page-header">
+            <h1>Client Feedback</h1>
+            <p>Service, meal recommendation, and recipe feedback from your clients</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card accent">
+                <div class="stat-top"><div class="stat-icon"><i class="fas fa-star"></i></div></div>
+                <div class="stat-val">{{ avg_rating or '—' }}</div>
+                <div class="stat-lbl">Avg Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top"><div class="stat-icon"><i class="fas fa-comments"></i></div></div>
+                <div class="stat-val">{{ total_feedback }}</div>
+                <div class="stat-lbl">Total Reviews</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top"><div class="stat-icon"><i class="fas fa-thumbs-up"></i></div></div>
+                <div class="stat-val">{{ positive_count }}</div>
+                <div class="stat-lbl">Positive (4–5 ★)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-top"><div class="stat-icon"><i class="fas fa-triangle-exclamation"></i></div></div>
+                <div class="stat-val">{{ critical_count }}</div>
+                <div class="stat-lbl">Critical (1–2 ★)</div>
+            </div>
+        </div>
+
+        <div class="layout">
+
+            <!-- Rating breakdown -->
+            <div class="card">
+                <div class="card-title"><i class="fas fa-chart-bar"></i> Rating Breakdown</div>
+                <div class="big-rating">
+                    <div class="big-rating-val">{{ avg_rating or '—' }}</div>
+                    <div class="big-stars">
+                        {% set avg_num = avg_rating | float %}
+                        {% for i in range(1, 6) %}
+                        <span class="star {% if i <= avg_num %}filled{% endif %}">★</span>
+                        {% endfor %}
+                    </div>
+                    <div class="big-rating-label">out of 5 &bull; {{ total_feedback }} reviews</div>
+                </div>
+                <div class="rating-breakdown">
+                    {% set total = total_feedback if total_feedback > 0 else 1 %}
+                    {% for star in [5, 4, 3, 2, 1] %}
+                    {% set count = rating_counts.get(star, 0) %}
+                    <div class="rb-row">
+                        <span class="rb-label">{{ star }}★</span>
+                        <div class="rb-bar-outer">
+                            <div class="rb-bar-inner" style="width:{{ ((count / total) * 100)|int }}%"></div>
+                        </div>
+                        <span class="rb-count">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Right: tabs + cards -->
+            <div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('service', this)">
+                        <i class="fas fa-headset"></i> Service
+                        <span class="tab-count">{{ service_feedbacks | length }}</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('nutrition', this)">
+                        <i class="fas fa-bowl-food"></i> Meal Recommendations
+                        <span class="tab-count">{{ nutrition_feedbacks | length }}</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('recipe', this)">
+                        <i class="fas fa-book-open"></i> Recipes
+                        <span class="tab-count">{{ recipe_feedbacks | length }}</span>
+                    </button>
+                </div>
+
+                <!-- Sort / filter bar -->
+                <div class="sort-bar">
+                    <span class="sort-label">Filter:</span>
+                    <select id="ratingFilter" onchange="applySort()">
+                        <option value="all">All Ratings</option>
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="2">2 Stars</option>
+                        <option value="1">1 Star</option>
+                    </select>
+                    <select id="sortFilter" onchange="applySort()">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="highest">Highest Rating</option>
+                        <option value="lowest">Lowest Rating</option>
+                    </select>
+                </div>
+
+                <!-- SERVICE pane -->
+                <div class="tab-pane active" id="tab-service">
+                    {% if service_feedbacks %}
+                    <div class="feedback-grid">
+                        {% for fb in service_feedbacks %}
+                        <div class="fb-card" data-rating="{{ fb['rating'] }}" data-date="{{ fb['raw_date'] }}">
+                            <div class="fb-top">
+                                <div class="fb-avatar">{{ fb['full_name'][0] | upper }}</div>
+                                <div class="fb-meta">
+                                    <div class="fb-name">{{ fb['full_name'] }}</div>
+                                    <div class="fb-date"><i class="fas fa-calendar" style="font-size:.61rem"></i> {{ fb['submitted_at'] }}</div>
+                                </div>
+                                <div class="stars">
+                                    {% for i in range(1,6) %}<span class="star {% if i <= fb['rating'] %}filled{% endif %}">★</span>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="badges-row">
+                                <span class="type-badge badge-service"><i class="fas fa-headset" style="font-size:.58rem"></i> Service</span>
+                                {% if fb['status'] %}<span class="status-badge status-{{ fb['status']|lower }}">{{ fb['status']|capitalize }}</span>{% endif %}
+                            </div>
+                            <div class="fb-message">"{{ fb['message'] }}"</div>
+                            {% if fb['admin_reply'] %}
+                            <div class="admin-reply"><i class="fas fa-reply" style="margin-right:4px;font-size:.66rem"></i><strong>Admin replied:</strong> {{ fb['admin_reply'] }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="card"><div class="empty"><i class="fas fa-headset"></i><h3>No service feedback yet</h3><p>Client service reviews will appear here.</p></div></div>
+                    {% endif %}
+                </div>
+
+                <!-- NUTRITION pane -->
+                <div class="tab-pane" id="tab-nutrition">
+                    {% if nutrition_feedbacks %}
+                    <div class="feedback-grid">
+                        {% for fb in nutrition_feedbacks %}
+                        <div class="fb-card" data-rating="{{ fb['rating'] }}" data-date="{{ fb['raw_date'] }}">
+                            <div class="fb-top">
+                                <div class="fb-avatar">{{ fb['full_name'][0] | upper }}</div>
+                                <div class="fb-meta">
+                                    <div class="fb-name">{{ fb['full_name'] }}</div>
+                                    <div class="fb-date"><i class="fas fa-calendar" style="font-size:.61rem"></i> {{ fb['submitted_at'] }}</div>
+                                </div>
+                                <div class="stars">
+                                    {% for i in range(1,6) %}<span class="star {% if i <= fb['rating'] %}filled{% endif %}">★</span>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="badges-row">
+                                <span class="type-badge badge-nutrition"><i class="fas fa-bowl-food" style="font-size:.58rem"></i> Meal Recommendation</span>
+                                {% if fb['status'] %}<span class="status-badge status-{{ fb['status']|lower }}">{{ fb['status']|capitalize }}</span>{% endif %}
+                            </div>
+                            <div class="fb-message">"{{ fb['message'] }}"</div>
+                            {% if fb['admin_reply'] %}
+                            <div class="admin-reply"><i class="fas fa-reply" style="margin-right:4px;font-size:.66rem"></i><strong>Admin replied:</strong> {{ fb['admin_reply'] }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="card"><div class="empty"><i class="fas fa-bowl-food"></i><h3>No meal recommendation feedback yet</h3><p>Client nutrition feedback will appear here.</p></div></div>
+                    {% endif %}
+                </div>
+
+                <!-- RECIPE pane -->
+                <div class="tab-pane" id="tab-recipe">
+                    {% if recipe_feedbacks %}
+                    <div class="feedback-grid">
+                        {% for fb in recipe_feedbacks %}
+                        <div class="fb-card" data-rating="{{ fb['rating'] }}" data-date="{{ fb['raw_date'] }}">
+                            <div class="fb-top">
+                                <div class="fb-avatar">{{ fb['full_name'][0] | upper }}</div>
+                                <div class="fb-meta">
+                                    <div class="fb-name">{{ fb['full_name'] }}</div>
+                                    <div class="fb-date"><i class="fas fa-calendar" style="font-size:.61rem"></i> {{ fb['submitted_at'] }}</div>
+                                </div>
+                                <div class="stars">
+                                    {% for i in range(1,6) %}<span class="star {% if i <= fb['rating'] %}filled{% endif %}">★</span>{% endfor %}
+                                </div>
+                            </div>
+                            <div class="badges-row">
+                                <span class="type-badge badge-recipe"><i class="fas fa-book-open" style="font-size:.58rem"></i> Recipe</span>
+                                {% if fb['status'] %}<span class="status-badge status-{{ fb['status']|lower }}">{{ fb['status']|capitalize }}</span>{% endif %}
+                            </div>
+                            <div class="fb-message">"{{ fb['message'] }}"</div>
+                            {% if fb['admin_reply'] %}
+                            <div class="admin-reply"><i class="fas fa-reply" style="margin-right:4px;font-size:.66rem"></i><strong>Admin replied:</strong> {{ fb['admin_reply'] }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="card"><div class="empty"><i class="fas fa-book-open"></i><h3>No recipe feedback yet</h3><p>Client recipe reviews will appear here.</p></div></div>
+                    {% endif %}
+                </div>
+
+            </div><!-- end right col -->
+        </div><!-- end layout -->
+    </main>
+
+    <script>
+        let activeTab = 'service';
+
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            activeTab = tab;
+            // Reset filters on tab change
+            document.getElementById('ratingFilter').value = 'all';
+            document.getElementById('sortFilter').value = 'newest';
+            applySort();
+        }
+
+        function applySort() {
+            const ratingVal = document.getElementById('ratingFilter').value;
+            const sortVal   = document.getElementById('sortFilter').value;
+            const pane      = document.getElementById('tab-' + activeTab);
+            const grid      = pane.querySelector('.feedback-grid');
+
+            // No grid means empty-state pane — nothing to do
+            if (!grid) return;
+
+            const cards = Array.from(grid.querySelectorAll('.fb-card'));
+            let visible = 0;
+
+            cards.forEach(c => {
+                const ok = ratingVal === 'all' || c.dataset.rating === ratingVal;
+                c.style.display = ok ? '' : 'none';
+                if (ok) visible++;
+            });
+
+            // Sort visible cards
+            const vis = cards.filter(c => c.style.display !== 'none');
+            vis.sort((a, b) => {
+                if (sortVal === 'highest') return parseInt(b.dataset.rating) - parseInt(a.dataset.rating);
+                if (sortVal === 'lowest')  return parseInt(a.dataset.rating) - parseInt(b.dataset.rating);
+                if (sortVal === 'oldest')  return a.dataset.date.localeCompare(b.dataset.date);
+                return b.dataset.date.localeCompare(a.dataset.date); // newest default
+            });
+            vis.forEach(c => grid.appendChild(c));
+
+            // Toggle "no match" notice
+            let noRes = pane.querySelector('.no-filter-results');
+            if (visible === 0 && cards.length > 0) {
+                if (!noRes) {
+                    noRes = document.createElement('div');
+                    noRes.className = 'card no-filter-results';
+                    noRes.innerHTML = '<div class="empty"><i class="fas fa-filter"></i><h3>No matches</h3><p>Try a different rating filter.</p></div>';
+                    pane.appendChild(noRes);
+                }
+                noRes.style.display = '';
+                grid.style.display = 'none';
+            } else {
+                if (noRes) noRes.style.display = 'none';
+                grid.style.display = '';
+            }
+        }
+    </script>
+</body>
+</html>

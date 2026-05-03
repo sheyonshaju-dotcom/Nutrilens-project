@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Reports | NutriLens Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Same CSS as other admin pages – copy from your existing template */
+    </style>
+</head>
+
+<body>
+    <!-- Same sidebar as other admin pages -->
+    <aside class="sidebar">
+        <!-- ... copy sidebar ... -->
+    </aside>
+
+    <main class="main">
+        <a href="/admin/reported_recipes" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Reported Recipes
+        </a>
+
+        <div class="page-header">
+            <h1>Reports for: {{ recipe.name }}</h1>
+        </div>
+
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reported By</th>
+                        <th>Reason</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>{{ report.reported_by }}</td>
+                        <td>{{ report.reason }}</td>
+                        <td>{{ report.created_at }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3">
+                            <div class="empty">
+                                <i class="fas fa-check-circle"></i>
+                                <p>No reports for this recipe.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <a href="/admin/clear_reports/{{ recipe.id }}" class="btn btn-amber"
+                    onclick="return confirm('Clear all reports for this recipe?')">
+                    <i class="fas fa-trash-alt"></i> Clear All Reports
+                </a>
+                <a href="/admin/recipe/delete/{{ recipe.id }}" class="btn btn-red"
+                    onclick="return confirm('Delete this recipe permanently?')">
+                    <i class="fas fa-trash"></i> Delete Recipe
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

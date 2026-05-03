@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications · NutriLens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand:      #e91e63;
+            --brand-dark: #be185d;
+            --brand-soft: #fce7f3;
+            --bg:         #f4f5f7;
+            --surface:    #fff;
+            --text:       #1a1a2e;
+            --muted:      #6b7280;
+            --border:     #e8eaed;
+            --shadow:     0 2px 14px rgba(0,0,0,.07);
+            --radius:     14px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        .page { width: 100%; padding: 36px 40px 80px; }
+
+        /* ── Top bar ── */
+        .topbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-bottom: 28px; }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; font-size: .88rem; font-weight: 700; color: var(--muted); text-decoration: none; transition: color .15s; }
+        .back-link:hover { color: var(--brand); }
+        .page-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: 12px; }
+        .page-title span { color: var(--brand); }
+        .unread-badge { background: var(--brand); color: #fff; border-radius: 999px; font-size: .72rem; font-weight: 800; padding: 3px 10px; }
+
+        /* ── Actions bar ── */
+        .actions-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .mark-all-btn { background: none; border: 1.5px solid var(--border); color: var(--muted); border-radius: 9px;
+            padding: 8px 16px; font-size: .82rem; font-weight: 700; cursor: pointer; font-family: inherit;
+            display: inline-flex; align-items: center; gap: 7px; transition: all .15s; }
+        .mark-all-btn:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); }
+
+        /* ── Filter tabs ── */
+        .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+        .ftab { padding: 7px 16px; border-radius: 999px; font-size: .8rem; font-weight: 700;
+            text-decoration: none; color: var(--muted); border: 1.5px solid var(--border);
+            background: var(--surface); transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+        .ftab:hover { border-color: var(--brand); color: var(--brand); }
+        .ftab.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+        /* ── Notification card ── */
+        .notif-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        @media(max-width: 900px) { .notif-list { grid-template-columns: 1fr; } }
+
+        .notif-card { background: var(--surface); border-radius: var(--radius); border: 1.5px solid var(--border);
+            padding: 18px 20px; display: flex; align-items: flex-start; gap: 16px;
+            box-shadow: var(--shadow); transition: border-color .15s, box-shadow .15s; position: relative; }
+        .notif-card.unread { border-color: var(--brand-soft); background: #fffbfd; }
+        .notif-card.unread::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+            width: 4px; background: var(--brand); border-radius: var(--radius) 0 0 var(--radius); }
+        .notif-card:hover { border-color: var(--brand); box-shadow: 0 4px 20px rgba(233,30,99,.1); }
+
+        /* Icon */
+        .notif-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center;
+            justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+        .icon-recipe   { background: #dbeafe; }
+        .icon-dietitian{ background: #d1fae5; }
+        .icon-approval { background: #fef3c7; }
+        .icon-calorie  { background: #fef2f2; }
+        .icon-water    { background: #dbeafe; }
+        .icon-weekly   { background: #ede9fe; }
+        .icon-info     { background: var(--bg); }
+
+        /* Content */
+        .notif-body { flex: 1; min-width: 0; }
+        .notif-message { font-size: .92rem; font-weight: 600; line-height: 1.5; margin-bottom: 5px; }
+        .notif-card.unread .notif-message { font-weight: 700; }
+        .notif-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .notif-time { font-size: .74rem; color: var(--muted); font-weight: 600; }
+        .notif-type-chip { font-size: .65rem; font-weight: 800; text-transform: uppercase;
+            letter-spacing: .05em; padding: 2px 8px; border-radius: 999px; }
+        .chip-recipe    { background: #dbeafe; color: #1e40af; }
+        .chip-dietitian { background: #d1fae5; color: #065f46; }
+        .chip-approval  { background: #fef3c7; color: #92400e; }
+        .chip-calorie   { background: #fef2f2; color: #dc2626; }
+        .chip-water     { background: #dbeafe; color: #1e40af; }
+        .chip-weekly    { background: #ede9fe; color: #5b21b6; }
+        .chip-info      { background: var(--bg); color: var(--muted); }
+
+        /* Actions */
+        .notif-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+        .notif-btn { background: none; border: 1px solid var(--border); color: var(--muted);
+            border-radius: 8px; padding: 5px 12px; font-size: .74rem; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all .15s; white-space: nowrap; }
+        .notif-btn:hover { border-color: var(--brand); color: var(--brand); background: var(--brand-soft); }
+        .notif-btn.del:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+
+        .notif-link { font-size: .78rem; color: var(--brand); font-weight: 700; text-decoration: none; }
+        .notif-link:hover { text-decoration: underline; }
+
+        /* ── Empty state ── */
+        .empty-state { text-align: center; padding: 80px 24px; background: var(--surface);
+            border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border);
+            grid-column: 1 / -1; }
+        .empty-state i { font-size: 3rem; color: var(--brand); opacity: .2; display: block; margin-bottom: 16px; }
+        .empty-state h3 { font-size: 1.1rem; margin-bottom: 8px; }
+        .empty-state p { font-size: .88rem; color: var(--muted); }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #1e293b; color: #fff; padding: 12px 24px; border-radius: 999px;
+            font-size: .88rem; font-weight: 600; opacity: 0; transition: all .25s; z-index: 999;
+            pointer-events: none; white-space: nowrap; }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        @media(max-width:540px) {
+            .notif-card { flex-wrap: wrap; }
+            .notif-actions { flex-direction: row; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <a href="/dashboard" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <h1 class="page-title">
+            <i class="fas fa-bell" style="color:var(--brand);font-size:1.5rem"></i>
+            <span>Notifications</span>
+            {% if unread_count > 0 %}
+            <span class="unread-badge">{{ unread_count }} new</span>
+            {% endif %}
+        </h1>
+    </div>
+
+    <!-- Actions + filters -->
+    <div class="actions-bar">
+        <!-- Type filters -->
+        <div class="filter-tabs">
+            <a href="/notifications?type=all"       class="ftab {% if filter_type=='all' %}active{% endif %}">All</a>
+            <a href="/notifications?type=recipe"    class="ftab {% if filter_type=='recipe' %}active{% endif %}">🍽️ Recipes</a>
+            <a href="/notifications?type=dietitian" class="ftab {% if filter_type=='dietitian' %}active{% endif %}">👨‍⚕️ Dietitian</a>
+            <a href="/notifications?type=approval"  class="ftab {% if filter_type=='approval' %}active{% endif %}">✅ Approvals</a>
+            <a href="/notifications?type=calorie"   class="ftab {% if filter_type=='calorie' %}active{% endif %}">🔥 Calories</a>
+        </div>
+
+        {% if unread_count > 0 %}
+        <button class="mark-all-btn" onclick="markAllRead()">
+            <i class="fas fa-check-double"></i> Mark all read
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Notification list -->
+    <div class="notif-list" id="notifList">
+        {% if notifications %}
+        {% for n in notifications %}
+
+        {% set type_icons = {
+            'recipe':    '🍽️',
+            'dietitian': '👨‍⚕️',
+            'approval':  '✅',
+            'calorie':   '🔥',
+            'water':     '💧',
+            'weekly':    '📊',
+            'security':  '🔐',
+            'meal':      '🥗',
+            'info':      'ℹ️',
+        } %}
+        {% set icon = type_icons.get(n.type, '🔔') %}
+
+        <div class="notif-card {% if not n.is_read %}unread{% endif %}" id="notif-{{ n.id }}">
+
+            <div class="notif-icon icon-{{ n.type if n.type in ['recipe','dietitian','approval','calorie','water','weekly','info'] else 'info' }}">
+                {{ icon }}
+            </div>
+
+            <div class="notif-body">
+                <div class="notif-message">{{ n.message }}</div>
+                <div class="notif-meta">
+                    <span class="notif-time"><i class="fas fa-clock" style="font-size:.65rem"></i> {{ n.created_at[:16] if n.created_at else '' }}</span>
+                    <span class="notif-type-chip chip-{{ n.type if n.type else 'info' }}">{{ n.type|title if n.type else 'General' }}</span>
+                    {% if n.link %}
+                    <a href="{{ n.link }}" class="notif-link">View →</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="notif-actions">
+                {% if not n.is_read %}
+                <button class="notif-btn" onclick="markRead({{ n.id }}, this)">
+                    <i class="fas fa-check"></i> Read
+                </button>
+                {% endif %}
+                <button class="notif-btn del" onclick="deleteNotif({{ n.id }}, this)">
+                    <i class="fas fa-trash-can"></i>
+                </button>
+            </div>
+
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-bell-slash"></i>
+            <h3>No notifications yet</h3>
+            <p>
+                {% if filter_type != 'all' %}
+                No {{ filter_type }} notifications found. <a href="/notifications" style="color:var(--brand);font-weight:700">View all</a>
+                {% else %}
+                You're all caught up! Notifications will appear here for recipe approvals, dietitian messages and more.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2400);
+    }
+
+    function markRead(id, btn) {
+        fetch(`/mark_notification_read/${id}`, { method: 'POST' })
+        .then(() => {
+            const card = document.getElementById(`notif-${id}`);
+            card.classList.remove('unread');
+            btn.remove();
+            // Update badge
+            const badge = document.querySelector('.unread-badge');
+            if (badge) {
+                const count = document.querySelectorAll('.notif-card.unread').length;
+                if (count > 0) badge.textContent = count + ' new';
+                else badge.remove();
+            }
+            showToast('Marked as read');
+        });
+    }
+
+    function deleteNotif(id, btn) {
+        fetch(`/delete_notification/${id}`, { method: 'POST' })
+        .then(() => {
+            const card = document.getElementById(`notif-${id}`);
+            card.style.transition = 'opacity .25s, transform .25s';
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(20px)';
+            setTimeout(() => {
+                card.remove();
+                const remaining = document.querySelectorAll('.notif-card').length;
+                if (remaining === 0) {
+                    document.getElementById('notifList').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-bell-slash"></i>
+                            <h3>No notifications</h3>
+                            <p>You're all caught up!</p>
+                        </div>`;
+                }
+            }, 260);
+            showToast('Notification deleted');
+        });
+    }
+
+    function markAllRead() {
+        fetch('/mark_all_notifications_read', { method: 'POST' })
+        .then(() => {
+            document.querySelectorAll('.notif-card.unread').forEach(c => c.classList.remove('unread'));
+            const badge = document.querySelector('.unread-badge');
+            if (badge) badge.remove();
+            document.querySelector('.mark-all-btn')?.remove();
+            showToast('All notifications marked as read');
+        });
+    }
+</script>
+</body>
+</html>
